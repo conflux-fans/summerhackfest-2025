@@ -1,0 +1,175 @@
+name: 🚀 Hackathon Submission
+description: Submit your project for the Code Without Borders - SummerHackfest 2025
+title: "[SUBMISSION] Project Name"
+labels: ["submission", "hackathon"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🎉 Welcome to Code Without Borders - SummerHackfest 2025!
+        
+        Thank you for participating in our hackathon! Please fill out this submission form completely.
+        
+        **⚠️ Submission Deadline**: Make sure to submit before September 15, 2025 @ 11:59 PM UTC.
+        
+        **📁 Project Folder**: Ensure you've added your project to the `/projects/` folder in this repository.
+
+  - type: input
+    id: project-name
+    attributes:
+      label: 📛 Project Name
+      description: What's the name of your project?
+      placeholder: "e.g., ConfluxAI Assistant"
+    validations:
+      required: true
+
+  - type: textarea
+    id: project-description
+    attributes:
+      label: 📝 Project Description
+      description: Provide a clear, concise description of your project (250 characters max)
+      placeholder: "Describe what your project does, the problem it solves, and how it uses Conflux..."
+    validations:
+      required: true
+
+  - type: input
+    id: project-folder
+    attributes:
+      label: 📁 Project Folder Path
+      description: Path to your project folder in this repository
+      placeholder: "projects/my-awesome-project"
+    validations:
+      required: true
+
+  - type: input
+    id: repository-url
+    attributes:
+      label: 🔗 Repository URL (if external)
+      description: Link to your project's external GitHub repository (if not using the projects folder)
+      placeholder: "https://github.com/username/project-name"
+    validations:
+      required: false
+
+  - type: input
+    id: demo-url
+    attributes:
+      label: 🎬 Demo Video URL
+      description: Link to your 3-5 minute demo video (YouTube, Loom, etc.)
+      placeholder: "https://youtube.com/watch?v=..."
+    validations:
+      required: true
+
+  - type: input
+    id: live-demo-url
+    attributes:
+      label: 🌐 Live Demo URL (Optional)
+      description: Link to your deployed application (if applicable)
+      placeholder: "https://your-project.vercel.app"
+    validations:
+      required: false
+
+  - type: textarea
+    id: team-members
+    attributes:
+      label: 👥 Team Members
+      description: List all team members with their GitHub usernames and roles (up to 5 members)
+      placeholder: |
+        - @username1 - Full-stack Developer
+        - @username2 - Smart Contract Developer
+        - @username3 - UI/UX Designer
+    validations:
+      required: true
+
+  - type: dropdown
+    id: innovation-area
+    attributes:
+      label: 🎯 Innovation Area (Optional)
+      description: Which area best describes your project? (For organization only, not judging - you have complete creative freedom)
+      options:
+        - AI + Blockchain Integration
+        - Developer Experience & Tooling
+        - DeFi Innovation
+        - Real-World Applications
+        - Cross-Chain Solutions
+        - Gaming & Entertainment
+        - Other/Mixed Innovation
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: conflux-features
+    attributes:
+      label: ⚡ Conflux Features Used
+      description: Which Conflux features does your project utilize?
+      options:
+        - label: eSpace (Ethereum-compatible space)
+        - label: Core Space (Conflux native space)
+        - label: Cross-Space interactions
+        - label: Gas sponsorship
+        - label: Tree-Graph consensus benefits
+        - label: Conflux SDK/APIs
+        - label: Other Conflux-specific features
+
+  - type: textarea
+    id: technical-details
+    attributes:
+      label: 🛠️ Technical Implementation
+      description: Briefly describe your technical approach and architecture
+      placeholder: "Explain your tech stack, smart contracts, key algorithms, etc."
+    validations:
+      required: true
+
+  - type: textarea
+    id: challenges-solutions
+    attributes:
+      label: 🧩 Challenges & Solutions
+      description: What challenges did you face and how did you solve them?
+      placeholder: "Describe technical or design challenges and your solutions..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: future-plans
+    attributes:
+      label: 🚀 Future Plans
+      description: What are your plans for this project after the hackathon?
+      placeholder: "Will you continue development? Seek funding? Open source?"
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: submission-checklist
+    attributes:
+      label: ✅ Submission Checklist
+      description: Please confirm you've completed all requirements
+      options:
+        - label: "✅ Project folder added to `/projects/` directory with complete documentation"
+          required: true
+        - label: "✅ Repository is public and includes a comprehensive README"
+          required: true
+        - label: "✅ Code is well-documented with setup instructions"
+          required: true
+        - label: "✅ Demo video is 3-5 minutes and shows key functionality"
+          required: true
+        - label: "✅ Project was built during the hackathon period"
+          required: true
+        - label: "✅ All team members are listed and contributed to the project"
+          required: true
+        - label: "✅ Project integrates with Conflux blockchain"
+          required: true
+        - label: "✅ I agree to the hackathon rules and code of conduct"
+          required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ## 🎯 Next Steps
+        
+        After submitting:
+        1. **Join our Discord** for updates and community discussion
+        2. **Share your project** on social media with #SummerHackfest #CodeWithoutBorders
+        3. **Prepare for judging** - top 5 projects receive equal recognition ($2,000 each)
+        4. **Stay tuned** for winner announcements and next opportunities
+        
+        **Remember**: No categories or tracks - just pure innovation! **Good luck!** 🍀 
