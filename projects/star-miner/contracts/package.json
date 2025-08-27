@@ -1,0 +1,23 @@
+{
+  "name": "star-miner-contracts",
+  "version": "1.0.0",
+  "description": "Smart contracts for StarMiner play-to-earn game",
+  "main": "index.js",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:testnet": "hardhat run scripts/deploy.js --network confluxTestnet",
+    "deploy:mainnet": "hardhat run scripts/deploy.js --network confluxMainnet",
+    "verify:testnet": "hardhat run scripts/verify.js --network confluxTestnet",
+    "verify:mainnet": "hardhat run scripts/verify.js --network confluxMainnet",
+    "node": "hardhat node",
+    "clean": "hardhat clean"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^3.0.0",
+    "@nomicfoundation/hardhat-verify": "^1.1.1",
+    "@openzeppelin/contracts": "^4.9.3",
+    "hardhat": "^2.17.2",
+    "dotenv": "^16.3.1"
+  }
+}
