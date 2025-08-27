@@ -29,6 +29,7 @@ interface GameStore extends GameState {
   processIdleRewards: () => void;
   activatePrestigeMode: () => void;
   updateCredits: (amount: bigint) => void;
+  resetCredits: () => void;
   updateWalletConnection: (connected: boolean, address: string) => void;
   addClickEffect: (effect: ClickEffect) => void;
   removeClickEffect: (effectId: string) => void;
@@ -114,6 +115,10 @@ export const useGameState = create<GameStore>()(
 
       updateCredits: (amount: bigint) => {
         set({ credits: amount });
+      },
+
+      resetCredits: () => {
+        set({ credits: BigInt(0) });
       },
 
       updateWalletConnection: (connected: boolean, address: string) => {

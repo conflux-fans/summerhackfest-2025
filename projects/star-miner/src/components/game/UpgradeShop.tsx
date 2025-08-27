@@ -1,7 +1,9 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGameState } from '@/hooks/useGameState';
+import { useWallet } from '@/hooks/useWallet';
+import { useContracts } from '@/hooks/useContracts';
 import { Button } from '@/components/ui/Button';
 import { formatNumber } from '@/lib/utils/formatting';
 import { UPGRADE_CONFIGS } from '@/lib/utils/constants';
@@ -78,8 +80,12 @@ const UpgradeItem: React.FC<UpgradeItemProps> = ({
 
 export const UpgradeShop: React.FC = () => {
   const gameState = useGameState();
-  const { buyUpgrade } = gameState;
+  const { buyUpgrade, updateCredits, updateWalletConnection, resetCredits } = gameState;
+  const { isConnected, isCorrectNetwork, address } = useWallet();
+  const { purchaseCredits, isLoading: contractLoading, creditsBalance, refreshBalances } = useContracts();
   const [activeTab, setActiveTab] = useState<'stardust' | 'credits'>('stardust');
+  const [purchaseAmount, setPurchaseAmount] = useState('1');
+  const [isPurchasing, setIsPurchasing] = useState(false);
 
   const stardustUpgrades = Object.entries(UPGRADE_CONFIGS).filter(
     ([_, config]) => config.costType === 'stardust'
@@ -92,6 +98,40 @@ export const UpgradeShop: React.FC = () => {
   const handlePurchase = (upgradeId: string) => {
     buyUpgrade(upgradeId);
   };
+
+  const handleCreditsPurchase = async () => {
+    if (!isConnected || !isCorrectNetwork) {
+      alert('Please connect your wallet and switch to Conflux eSpace Testnet');
+      return;
+    }
+
+    setIsPurchasing(true);
+    try {
+      const txHash = await purchaseCredits(purchaseAmount);
+      
+      // Refresh balances from blockchain
+      await refreshBalances();
+      
+      alert(`Credits purchased successfully! Transaction: ${txHash}`);
+    } catch (error: any) {
+      console.error('Purchase failed:', error);
+      alert(`Purchase failed: ${error.message || 'Unknown error'}`);
+    } finally {
+      setIsPurchasing(false);
+    }
+  };
+
+  // Sync blockchain credits balance with local game state
+  useEffect(() => {
+    if (isConnected && creditsBalance !== undefined) {
+      updateCredits(creditsBalance);
+    }
+  }, [isConnected, creditsBalance, updateCredits]);
+
+  // Sync wallet connection status with local game state
+  useEffect(() => {
+    updateWalletConnection(isConnected, address || '');
+  }, [isConnected, address, updateWalletConnection]);
 
   return (
     <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg p-6 border border-gray-700">
@@ -153,26 +193,72 @@ export const UpgradeShop: React.FC = () => {
             <span className="text-sm text-gray-400">Need more Credits?</span>
             <span className="text-sm text-cyan-400">1 CFX = 1000 💎</span>
           </div>
+          
+          {/* CFX Amount Input */}
+          <div className="mb-3">
+            <label className="block text-sm text-gray-400 mb-1">CFX Amount</label>
+            <input
+              type="number"
+              min="0.01"
+              max="100"
+              step="0.01"
+              value={purchaseAmount}
+              onChange={(e) => setPurchaseAmount(e.target.value)}
+              className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white focus:border-cyan-500 focus:outline-none"
+              placeholder="Enter CFX amount"
+            />
+            <div className="text-xs text-gray-500 mt-1">
+              You will receive {formatNumber(BigInt(Math.floor(parseFloat(purchaseAmount || '0') * 1000)))} 💎
+            </div>
+          </div>
+          
           <Button
-            onClick={() => {/* TODO: Open credits purchase modal */}}
+            onClick={handleCreditsPurchase}
+            disabled={!isConnected || !isCorrectNetwork || isPurchasing || contractLoading}
             variant="primary"
-            className="w-full bg-cyan-600 hover:bg-cyan-500"
+            className="w-full bg-cyan-600 hover:bg-cyan-500 disabled:bg-gray-600 disabled:cursor-not-allowed"
+            isLoading={isPurchasing || contractLoading}
           >
-            Purchase Credits with CFX
+            {!isConnected
+              ? 'Connect Wallet to Purchase'
+              : !isCorrectNetwork
+                ? 'Switch to Conflux eSpace'
+                : isPurchasing || contractLoading
+                  ? 'Processing...'
+                  : 'Purchase Credits with CFX'
+            }
+          </Button>
+          
+          {/* Reset Credits Button for Testing */}
+          <Button
+            onClick={() => {
+              resetCredits();
+              alert('Credits reset to 0 for testing');
+            }}
+            variant="secondary"
+            className="w-full mt-2 bg-red-600 hover:bg-red-500 text-xs"
+            size="sm"
+          >
+            🔄 Reset Credits (Testing)
           </Button>
         </div>
       )}
       
-      {/* Wallet Connection */}
-      {!gameState.walletConnected && (
+      {/* Wallet Connection Legend - Only show when wallet is not connected */}
+      {!isConnected && (
         <div className="mt-4 pt-4 border-t border-gray-600">
-          <Button
-            onClick={() => {/* TODO: Connect wallet */}}
-            variant="primary"
-            className="w-full"
-          >
-            Connect Wallet for Blockchain Features
-          </Button>
+          <div className="bg-blue-900/30 border border-blue-500/50 rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-blue-400">ℹ️</span>
+              <span className="text-sm font-semibold text-blue-400">Blockchain Features</span>
+            </div>
+            <div className="text-xs text-gray-300 space-y-1">
+              <div>• Purchase credits with CFX</div>
+              <div>• Sync game progress on blockchain</div>
+              <div>• Earn P2E rewards</div>
+              <div className="text-blue-400 mt-2">Connect your wallet to unlock these features!</div>
+            </div>
+          </div>
         </div>
       )}
     </div>

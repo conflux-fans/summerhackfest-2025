@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useCallback, useEffect } from 'react';
-import { BrowserProvider, Contract, parseEther, formatEther } from 'ethers';
+import { BrowserProvider, Contract, parseEther, formatEther, formatUnits } from 'ethers';
 import { useWallet } from './useWallet';
 import { CONTRACT_ADDRESSES } from '@/lib/utils/constants';
 
@@ -247,9 +247,12 @@ export const useContracts = () => {
         creditsContract.stardustBalance(address),
       ]);
 
+      // Convert credits from wei (18 decimals) to whole credits
+      const creditsInWholeUnits = BigInt(formatUnits(creditsBalance.toString(), 18).split('.')[0]);
+
       setContractState(prev => ({
         ...prev,
-        creditsBalance: BigInt(creditsBalance.toString()),
+        creditsBalance: creditsInWholeUnits,
         stardustBalance: BigInt(stardustBalance.toString()),
       }));
     } catch (error) {

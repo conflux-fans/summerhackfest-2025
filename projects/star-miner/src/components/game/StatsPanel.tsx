@@ -1,56 +1,56 @@
-'use client'
+"use client";
 
-import React from 'react';
-import { useGameState } from '@/hooks/useGameState';
-import { formatNumber } from '@/lib/utils/formatting';
+import React from "react";
+import { useGameState } from "@/hooks/useGameState";
+import { formatNumber } from "@/lib/utils/formatting";
 
 export const StatsPanel: React.FC = () => {
-  const { 
-    stardust, 
-    stardustPerClick, 
-    stardustPerSecond, 
-    totalClicks, 
-    credits, 
-    prestigeLevel 
+  const {
+    stardust,
+    stardustPerClick,
+    stardustPerSecond,
+    totalClicks,
+    credits,
+    prestigeLevel,
   } = useGameState();
 
   const stats = [
     {
-      label: 'Stardust',
+      label: "Stardust",
       value: formatNumber(stardust),
-      icon: '✨',
-      color: 'text-yellow-400'
+      icon: "✨",
+      color: "text-yellow-400",
     },
     {
-      label: 'Per Click',
+      label: "Per Click",
       value: formatNumber(stardustPerClick),
-      icon: '👆',
-      color: 'text-blue-400'
+      icon: "👆",
+      color: "text-blue-400",
     },
     {
-      label: 'Per Second',
+      label: "Per Second",
       value: formatNumber(stardustPerSecond),
-      icon: '⏱️',
-      color: 'text-green-400'
+      icon: "⏱️",
+      color: "text-green-400",
     },
     {
-      label: 'Total Clicks',
+      label: "Total Clicks",
       value: formatNumber(totalClicks),
-      icon: '🎯',
-      color: 'text-purple-400'
+      icon: "🎯",
+      color: "text-purple-400",
     },
     {
-      label: 'Credits',
+      label: "Credits",
       value: formatNumber(credits),
-      icon: '💎',
-      color: 'text-cyan-400'
+      icon: "💎",
+      color: "text-cyan-400",
     },
     {
-      label: 'Prestige Level',
+      label: "Prestige Level",
       value: prestigeLevel.toString(),
-      icon: '👑',
-      color: 'text-orange-400'
-    }
+      icon: "👑",
+      color: "text-orange-400",
+    },
   ];
 
   return (
@@ -58,7 +58,7 @@ export const StatsPanel: React.FC = () => {
       <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
         📊 Statistics
       </h2>
-      
+
       <div className="grid grid-cols-2 gap-4">
         {stats.map((stat, index) => (
           <div
@@ -78,7 +78,7 @@ export const StatsPanel: React.FC = () => {
           </div>
         ))}
       </div>
-      
+
       {/* Progress to Next Prestige */}
       {stardust < BigInt(1000000) && (
         <div className="mt-4">
@@ -90,13 +90,13 @@ export const StatsPanel: React.FC = () => {
             <div
               className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-500"
               style={{
-                width: `${Math.min((Number(stardust) / 1000000) * 100, 100)}%`
+                width: `${Math.min((Number(stardust) / 1000000) * 100, 100)}%`,
               }}
             />
           </div>
         </div>
       )}
-      
+
       {/* Prestige Button */}
       {stardust >= BigInt(1000000) && (
         <div className="mt-4">
