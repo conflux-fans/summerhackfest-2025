@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useHydratedGameState } from "@/hooks/useGameState";
+import { useHydratedGameState } from "@/contexts/GameStateContext";
 import { formatNumber } from "@/lib/utils/formatting";
 
 export const StatsPanel: React.FC = () => {

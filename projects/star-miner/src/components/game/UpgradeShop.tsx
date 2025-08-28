@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react';
-import { useGameState } from '@/hooks/useGameState';
+import { useGameStateContext } from '@/contexts/GameStateContext';
 import { useWalletContext } from '@/contexts/WalletContext';
 import { useContracts } from '@/hooks/useContracts';
 import { Button } from '@/components/ui/Button';
@@ -79,7 +79,7 @@ const UpgradeItem: React.FC<UpgradeItemProps> = ({
 };
 
 export const UpgradeShop: React.FC = () => {
-  const gameState = useGameState();
+  const gameState = useGameStateContext();
   const { buyUpgrade, updateCredits, updateWalletConnection } = gameState;
   const { isConnected, isCorrectNetwork, address } = useWalletContext();
   const { purchaseCredits, isLoading: contractLoading, creditsBalance, refreshBalances } = useContracts();

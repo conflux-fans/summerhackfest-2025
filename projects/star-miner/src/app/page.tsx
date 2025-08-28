@@ -7,23 +7,21 @@ import { UpgradeShop } from '@/components/game/UpgradeShop'
 import { WalletConnect } from '@/components/wallet/WalletConnect'
 import P2ERewards from '@/components/p2e/P2ERewards'
 import BlockchainSync from '@/components/blockchain/BlockchainSync'
-import { useGameState, useIdleGameLoop } from '@/hooks/useGameState'
+import { useGameStateContext } from '@/contexts/GameStateContext'
 import { useWalletContext } from '@/contexts/WalletContext'
 import { useContracts } from '@/hooks/useContracts'
 
 export default function Home() {
   const [mounted, setMounted] = useState(false)
   const { isConnected } = useWalletContext()
+  const { isHydrated } = useGameStateContext()
   const { isReady, playerRegistered } = useContracts()
-  
-  // Initialize game hooks
-  useIdleGameLoop()
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  if (!mounted) {
+  if (!mounted || !isHydrated) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-2xl text-white">Loading StarMiner...</div>

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useWalletContext } from '@/contexts/WalletContext';
 import { useContracts } from '@/hooks/useContracts';
-import { useGameState } from '@/hooks/useGameState';
+import { useGameStateContext } from '@/contexts/GameStateContext';
 
 interface BlockchainSyncProps {
   className?: string;
@@ -12,7 +12,7 @@ interface BlockchainSyncProps {
 export default function BlockchainSync({ className = '' }: BlockchainSyncProps) {
   const { isConnected, address } = useWalletContext();
   const { loadGameState, syncGameState, saveGameState, registerPlayer, playerRegistered, isLoading } = useContracts();
-  const gameState = useGameState();
+  const gameState = useGameStateContext();
   
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
@@ -68,13 +68,8 @@ export default function BlockchainSync({ className = '' }: BlockchainSyncProps) 
       const blockchainState = await loadGameState();
       
       if (blockchainState && blockchainState.isActive) {
-        // Update local game state with blockchain data using Zustand's setState
-        useGameState.setState({
-          stardust: blockchainState.stardust,
-          totalClicks: blockchainState.totalClicks,
-          prestigeLevel: blockchainState.prestigeLevel,
-          lastSaveTime: blockchainState.lastUpdateTime * 1000, // Convert to milliseconds
-        });
+        // Update local game state with blockchain data
+        gameState.updateFromBlockchain(blockchainState);
         
         // Process idle rewards if any
         if (blockchainState.idleRewards > 0n) {
@@ -100,8 +95,7 @@ export default function BlockchainSync({ className = '' }: BlockchainSyncProps) 
     setSyncStatus('syncing');
     
     try {
-      const currentState = useGameState.getState();
-      await saveGameState(currentState.stardust, currentState.totalClicks);
+      await saveGameState(gameState.stardust, gameState.totalClicks);
       
       setSyncStatus('success');
       setLastSyncTime(new Date());
@@ -121,16 +115,11 @@ export default function BlockchainSync({ className = '' }: BlockchainSyncProps) 
     setSyncStatus('syncing');
     
     try {
-      const currentState = useGameState.getState();
-      const syncedState = await syncGameState(currentState);
+      const syncedState = await syncGameState(gameState);
       
       if (syncedState && syncedState.isActive) {
-        useGameState.setState({
-          stardust: syncedState.stardust,
-          totalClicks: syncedState.totalClicks,
-          prestigeLevel: syncedState.prestigeLevel,
-          lastSaveTime: syncedState.lastUpdateTime * 1000,
-        });
+        // Update game state from sync
+        gameState.updateFromBlockchain(syncedState);
       }
       
       setSyncStatus('success');

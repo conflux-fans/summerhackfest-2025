@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useWalletContext } from '@/contexts/WalletContext';
 import { useContracts } from '@/hooks/useContracts';
-import { useGameState } from '@/hooks/useGameState';
+import { useGameStateContext } from '@/contexts/GameStateContext';
 
 interface P2ERewardsProps {
   className?: string;
@@ -12,7 +12,7 @@ interface P2ERewardsProps {
 export default function P2ERewards({ className = '' }: P2ERewardsProps) {
   const { isConnected, address } = useWalletContext();
   const { exchangeStardustForCFX, getExchangeInfo, isLoading: contractLoading } = useContracts();
-  const gameState = useGameState();
+  const gameState = useGameStateContext();
   const { stardust, incrementStardust } = gameState;
   
   const [exchangeInfo, setExchangeInfo] = useState<any>(null);

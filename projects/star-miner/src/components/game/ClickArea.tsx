@@ -1,15 +1,15 @@
 'use client'
 
 import React, { useRef, useCallback } from 'react';
-import { useGameState } from '@/hooks/useGameState';
+import { useGameStateContext } from '@/contexts/GameStateContext';
 
 export const ClickArea: React.FC = () => {
-  const { 
-    stardust, 
-    stardustPerClick, 
-    handleClick, 
-    clickEffects 
-  } = useGameState();
+  const {
+    stardust,
+    stardustPerClick,
+    handleClick,
+    clickEffects
+  } = useGameStateContext();
   
   const clickAreaRef = useRef<HTMLDivElement>(null);
 
