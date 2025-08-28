@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useGameState } from '@/hooks/useGameState';
-import { useWallet } from '@/hooks/useWallet';
+import { useWalletContext } from '@/contexts/WalletContext';
 import { useContracts } from '@/hooks/useContracts';
 import { Button } from '@/components/ui/Button';
 import { formatNumber } from '@/lib/utils/formatting';
@@ -81,7 +81,7 @@ const UpgradeItem: React.FC<UpgradeItemProps> = ({
 export const UpgradeShop: React.FC = () => {
   const gameState = useGameState();
   const { buyUpgrade, updateCredits, updateWalletConnection } = gameState;
-  const { isConnected, isCorrectNetwork, address } = useWallet();
+  const { isConnected, isCorrectNetwork, address } = useWalletContext();
   const { purchaseCredits, isLoading: contractLoading, creditsBalance, refreshBalances } = useContracts();
   const [activeTab, setActiveTab] = useState<'stardust' | 'credits'>('stardust');
   const [purchaseAmount, setPurchaseAmount] = useState('1');
@@ -151,7 +151,7 @@ export const UpgradeShop: React.FC = () => {
     updateWalletConnection(isConnected, address || '');
   }, [isConnected, address, updateWalletConnection]);
 
-  console.log('🔄 Upgrade shop render:', { isConnected, isCorrectNetwork, address });
+  // console.log('🔄 Upgrade shop render:', { isConnected, isCorrectNetwork, address });
   return (
     <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg p-6 border border-gray-700">
       <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">

@@ -8,12 +8,12 @@ import { WalletConnect } from '@/components/wallet/WalletConnect'
 import P2ERewards from '@/components/p2e/P2ERewards'
 import BlockchainSync from '@/components/blockchain/BlockchainSync'
 import { useGameState, useIdleGameLoop } from '@/hooks/useGameState'
-import { useWallet } from '@/hooks/useWallet'
+import { useWalletContext } from '@/contexts/WalletContext'
 import { useContracts } from '@/hooks/useContracts'
 
 export default function Home() {
   const [mounted, setMounted] = useState(false)
-  const { isConnected } = useWallet()
+  const { isConnected } = useWalletContext()
   const { isReady, playerRegistered } = useContracts()
   
   // Initialize game hooks

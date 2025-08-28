@@ -172,13 +172,13 @@ export const useGameState = create<GameStore>()(
         const currentState = get();
         set({ lastSaveTime: Date.now() });
         // Debug: Log what's being saved
-        console.log('💾 Saving game state:', {
-          stardust: currentState.stardust.toString(),
-          credits: currentState.credits.toString(),
-          prestigeLevel: currentState.prestigeLevel,
-          upgrades: Object.keys(currentState.upgrades).length,
-          totalClicks: currentState.totalClicks,
-        });
+        // console.log('💾 Saving game state:', {
+        //   stardust: currentState.stardust.toString(),
+        //   credits: currentState.credits.toString(),
+        //   prestigeLevel: currentState.prestigeLevel,
+        //   upgrades: Object.keys(currentState.upgrades).length,
+        //   totalClicks: currentState.totalClicks,
+        // });
       },
 
       debouncedSave: (() => {

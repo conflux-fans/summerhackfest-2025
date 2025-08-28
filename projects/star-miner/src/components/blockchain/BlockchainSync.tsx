@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useWallet } from '@/hooks/useWallet';
+import { useWalletContext } from '@/contexts/WalletContext';
 import { useContracts } from '@/hooks/useContracts';
 import { useGameState } from '@/hooks/useGameState';
 
@@ -10,7 +10,7 @@ interface BlockchainSyncProps {
 }
 
 export default function BlockchainSync({ className = '' }: BlockchainSyncProps) {
-  const { isConnected, address } = useWallet();
+  const { isConnected, address } = useWalletContext();
   const { loadGameState, syncGameState, saveGameState, registerPlayer, playerRegistered, isLoading } = useContracts();
   const gameState = useGameState();
   
@@ -60,6 +60,7 @@ export default function BlockchainSync({ className = '' }: BlockchainSyncProps) 
   const handleLoadFromBlockchain = async () => {
     if (!isConnected || !playerRegistered) return;
 
+    console.log('🔄 Loading game state from blockchain...');
     setIsSyncing(true);
     setSyncStatus('syncing');
     

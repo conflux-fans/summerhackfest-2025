@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
 import { BrowserProvider, Contract, parseEther, formatEther, formatUnits } from 'ethers';
-import { useWallet } from './useWallet';
+import { useWalletContext } from '@/contexts/WalletContext';
 import { CONTRACT_ADDRESSES } from '@/lib/utils/constants';
 
 // Contract ABIs (simplified for essential functions)
@@ -44,7 +44,7 @@ interface ContractState {
 }
 
 export const useContracts = () => {
-  const { isConnected, address, isCorrectNetwork } = useWallet();
+  const { isConnected, address, isCorrectNetwork } = useWalletContext();
   const [contractState, setContractState] = useState<ContractState>({
     isLoading: false,
     error: null,

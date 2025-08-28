@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react';
-import { useWallet } from '@/hooks/useWallet';
+import { useWalletContext } from '@/contexts/WalletContext';
 import { Button } from '@/components/ui/Button';
 import { formatAddress, formatCFX } from '@/lib/utils/formatting';
 
@@ -61,19 +61,19 @@ const WalletModal: React.FC<WalletModalProps> = ({ isOpen, onClose, onConnect, i
 };
 
 export const WalletConnect: React.FC = () => {
-  const { 
-    isConnected, 
-    address, 
-    balance, 
+  const {
+    isConnected,
+    address,
+    balance,
     chainId,
     isCorrectNetwork,
     isConnecting,
     error,
-    connect, 
-    disconnect, 
+    connect,
+    disconnect,
     switchNetwork,
     refreshBalance
-  } = useWallet();
+  } = useWalletContext();
   
   const [showModal, setShowModal] = useState(false);
 
@@ -194,15 +194,15 @@ export const WalletConnect: React.FC = () => {
 
 // Compact version for mobile/smaller spaces
 export const WalletConnectCompact: React.FC = () => {
-  const { 
-    isConnected, 
-    address, 
-    balance, 
+  const {
+    isConnected,
+    address,
+    balance,
     isCorrectNetwork,
     isConnecting,
-    connect, 
+    connect,
     disconnect
-  } = useWallet();
+  } = useWalletContext();
   
   const [showModal, setShowModal] = useState(false);
 

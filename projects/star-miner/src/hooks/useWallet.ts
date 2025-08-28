@@ -1,8 +1,13 @@
-'use client'
+"use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { WalletState, WalletProvider, WalletType, NetworkConfig } from '@/types/wallet';
-import { CONFLUX_NETWORKS } from '@/lib/utils/constants';
+import React, { useState, useEffect, useCallback } from "react";
+import {
+  WalletState,
+  WalletProvider,
+  WalletType,
+  NetworkConfig,
+} from "@/types/wallet";
+import { CONFLUX_NETWORKS } from "@/lib/utils/constants";
 
 declare global {
   interface Window {
@@ -13,14 +18,14 @@ declare global {
 
 const CONFLUX_TESTNET_CONFIG: NetworkConfig = {
   chainId: 71,
-  chainName: 'Conflux eSpace Testnet',
+  chainName: "Conflux eSpace Testnet",
   nativeCurrency: {
-    name: 'CFX',
-    symbol: 'CFX',
+    name: "CFX",
+    symbol: "CFX",
     decimals: 18,
   },
-  rpcUrls: ['https://evmtestnet.confluxrpc.com'],
-  blockExplorerUrls: ['https://evmtestnet.confluxscan.io'],
+  rpcUrls: ["https://evmtestnet.confluxrpc.com"],
+  blockExplorerUrls: ["https://evmtestnet.confluxscan.io"],
 };
 
 export const useWallet = () => {
@@ -36,8 +41,8 @@ export const useWallet = () => {
 
   // Track manual disconnection to prevent auto-reconnection
   const [manuallyDisconnected, setManuallyDisconnected] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('wallet-manually-disconnected') === 'true';
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("wallet-manually-disconnected") === "true";
     }
     return false;
   });
@@ -45,127 +50,145 @@ export const useWallet = () => {
   // Persist manual disconnection state
   const updateManuallyDisconnected = useCallback((value: boolean) => {
     setManuallyDisconnected(value);
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       if (value) {
-        localStorage.setItem('wallet-manually-disconnected', 'true');
+        localStorage.setItem("wallet-manually-disconnected", "true");
       } else {
-        localStorage.removeItem('wallet-manually-disconnected');
+        localStorage.removeItem("wallet-manually-disconnected");
       }
     }
   }, []);
 
   // Check if wallet is available
   const isWalletAvailable = useCallback((walletType: WalletType): boolean => {
-    if (typeof window === 'undefined') return false;
-    
+    if (typeof window === "undefined") return false;
+
     switch (walletType) {
-      case 'metamask':
+      case "metamask":
         return !!(window.ethereum && window.ethereum.isMetaMask);
-      case 'fluent':
-        return !!(window.conflux || (window.ethereum && !window.ethereum.isMetaMask));
+      case "fluent":
+        return !!(
+          window.conflux ||
+          (window.ethereum && !window.ethereum.isMetaMask)
+        );
       default:
         return false;
     }
   }, []);
 
   // Get wallet provider
-  const getProvider = useCallback((walletType: WalletType): WalletProvider | null => {
-    if (typeof window === 'undefined') return null;
-    
-    switch (walletType) {
-      case 'metamask':
-        return window.ethereum && window.ethereum.isMetaMask ? window.ethereum : null;
-      case 'fluent':
-        return window.conflux || window.ethereum || null;
-      default:
-        return null;
-    }
-  }, []);
+  const getProvider = useCallback(
+    (walletType: WalletType): WalletProvider | null => {
+      if (typeof window === "undefined") return null;
+
+      switch (walletType) {
+        case "metamask":
+          return window.ethereum && window.ethereum.isMetaMask
+            ? window.ethereum
+            : null;
+        case "fluent":
+          return window.conflux || window.ethereum || null;
+        default:
+          return null;
+      }
+    },
+    []
+  );
 
   // Connect wallet
-  const connect = useCallback(async (walletType: WalletType) => {
-    if (!isWalletAvailable(walletType)) {
-      setWalletState(prev => ({
-        ...prev,
-        error: `${walletType === 'metamask' ? 'MetaMask' : 'Fluent Wallet'} is not installed`,
-      }));
-      return;
-    }
-
-    const provider = getProvider(walletType);
-    if (!provider) {
-      setWalletState(prev => ({
-        ...prev,
-        error: 'Wallet provider not found',
-      }));
-      return;
-    }
-
-    setWalletState(prev => ({ ...prev, isConnecting: true, error: null }));
-
-    try {
-      // Request account access
-      const accounts = await provider.request({
-        method: 'eth_requestAccounts',
-      });
-
-      if (accounts.length === 0) {
-        throw new Error('No accounts found');
+  const connect = useCallback(
+    async (walletType: WalletType) => {
+      console.log("🔌 Connecting wallet...");
+      if (!isWalletAvailable(walletType)) {
+        console.log("🔌 Wallet not available:", walletType);
+        setWalletState((prev) => ({
+          ...prev,
+          error: `${walletType === "metamask" ? "MetaMask" : "Fluent Wallet"} is not installed`,
+        }));
+        return;
       }
 
-      const address = accounts[0];
+      const provider = getProvider(walletType);
+      if (!provider) {
+        console.log("🔌 Provider not found");
+        setWalletState((prev) => ({
+          ...prev,
+          error: "Wallet provider not found",
+        }));
+        return;
+      }
 
-      // Get chain ID
-      const chainId = await provider.request({
-        method: 'eth_chainId',
-      });
+      console.log("🔌 Provider found:", provider);
 
-      const numericChainId = parseInt(chainId, 16);
-      const isCorrectNetwork = numericChainId === CONFLUX_TESTNET_CONFIG.chainId;
+      setWalletState((prev) => ({ ...prev, isConnecting: true, error: null }));
 
-      // Get balance
-      const balance = await provider.request({
-        method: 'eth_getBalance',
-        params: [address, 'latest'],
-      });
+      try {
+        // Request account access
+        const accounts = await provider.request({
+          method: "eth_requestAccounts",
+        });
 
-      const balanceInEther = (parseInt(balance, 16) / 1e18).toString();
+        if (accounts.length === 0) {
+          throw new Error("No accounts found");
+        }
 
-      setWalletState({
-        isConnected: true,
-        address,
-        balance: balanceInEther,
-        chainId: numericChainId,
-        isCorrectNetwork,
-        isConnecting: false,
-        error: null,
-      });
+        const address = accounts[0];
 
-      // Set up event listeners
-      provider.on('accountsChanged', handleAccountsChanged);
-      provider.on('chainChanged', handleChainChanged);
+        // Get chain ID
+        const chainId = await provider.request({
+          method: "eth_chainId",
+        });
 
-      // Reset manual disconnection flag on successful connection
-      updateManuallyDisconnected(false);
+        const numericChainId = parseInt(chainId, 16);
+        const isCorrectNetwork =
+          numericChainId === CONFLUX_TESTNET_CONFIG.chainId;
 
-    } catch (error: any) {
-      console.error('Wallet connection error:', error);
-      setWalletState(prev => ({
-        ...prev,
-        isConnecting: false,
-        error: error.message || 'Failed to connect wallet',
-      }));
-    }
-  }, [isWalletAvailable, getProvider]);
+        // Get balance
+        const balance = await provider.request({
+          method: "eth_getBalance",
+          params: [address, "latest"],
+        });
+
+        const balanceInEther = (parseInt(balance, 16) / 1e18).toString();
+
+        console.log("🔌 ABOUT TO SET WALLET STATE:");
+
+        setWalletState({
+          isConnected: true,
+          address,
+          balance: balanceInEther,
+          chainId: numericChainId,
+          isCorrectNetwork,
+          isConnecting: false,
+          error: null,
+        });
+
+        // Set up event listeners
+        provider.on("accountsChanged", handleAccountsChanged);
+        provider.on("chainChanged", handleChainChanged);
+
+        // Reset manual disconnection flag on successful connection
+        updateManuallyDisconnected(false);
+      } catch (error: any) {
+        console.error("Wallet connection error:", error);
+        setWalletState((prev) => ({
+          ...prev,
+          isConnecting: false,
+          error: error.message || "Failed to connect wallet",
+        }));
+      }
+    },
+    [isWalletAvailable, getProvider]
+  );
 
   // Disconnect wallet
   const disconnect = useCallback(() => {
-    console.log('🔌 Disconnecting wallet...');
-    
+    console.log("🔌 Disconnecting wallet...");
+
     // Remove event listeners
-    if (typeof window !== 'undefined' && window.ethereum) {
-      window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
-      window.ethereum.removeListener('chainChanged', handleChainChanged);
+    if (typeof window !== "undefined" && window.ethereum) {
+      window.ethereum.removeListener("accountsChanged", handleAccountsChanged);
+      window.ethereum.removeListener("chainChanged", handleChainChanged);
     }
 
     // Set manual disconnection flag to prevent auto-reconnection
@@ -182,18 +205,20 @@ export const useWallet = () => {
       error: null,
     };
     
+
     setWalletState(newState);
-    
-    console.log('🔌 Wallet disconnected:', newState);
+
+    console.log("🔌 Wallet disconnected:", newState);
   }, []);
 
   // Switch to Conflux eSpace network
   const switchNetwork = useCallback(async () => {
     const provider = window.ethereum;
     if (!provider) {
-      setWalletState(prev => ({
+      console.log("🔌 Provider not found in switchNetwork");
+      setWalletState((prev) => ({
         ...prev,
-        error: 'Wallet not found',
+        error: "Wallet not found",
       }));
       return;
     }
@@ -201,15 +226,17 @@ export const useWallet = () => {
     try {
       // Try to switch to the network
       await provider.request({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: `0x${CONFLUX_TESTNET_CONFIG.chainId.toString(16)}` }],
+        method: "wallet_switchEthereumChain",
+        params: [
+          { chainId: `0x${CONFLUX_TESTNET_CONFIG.chainId.toString(16)}` },
+        ],
       });
     } catch (switchError: any) {
       // If the network doesn't exist, add it
       if (switchError.code === 4902) {
         try {
           await provider.request({
-            method: 'wallet_addEthereumChain',
+            method: "wallet_addEthereumChain",
             params: [
               {
                 chainId: `0x${CONFLUX_TESTNET_CONFIG.chainId.toString(16)}`,
@@ -221,45 +248,51 @@ export const useWallet = () => {
             ],
           });
         } catch (addError: any) {
-          console.error('Failed to add network:', addError);
-          setWalletState(prev => ({
+          console.error("Failed to add network:", addError);
+          setWalletState((prev) => ({
             ...prev,
-            error: 'Failed to add Conflux eSpace network',
+            error: "Failed to add Conflux eSpace network",
           }));
         }
       } else {
-        console.error('Failed to switch network:', switchError);
-        setWalletState(prev => ({
+        console.error("Failed to switch network:", switchError);
+        setWalletState((prev) => ({
           ...prev,
-          error: 'Failed to switch to Conflux eSpace network',
+          error: "Failed to switch to Conflux eSpace network",
         }));
       }
     }
   }, []);
 
   // Handle account changes
-  const handleAccountsChanged = useCallback((accounts: string[]) => {
-    if (accounts.length === 0) {
-      // Only auto-disconnect if it wasn't a manual disconnection
-      if (!manuallyDisconnected) {
-        disconnect();
+  const handleAccountsChanged = useCallback(
+    (accounts: string[]) => {
+      if (accounts.length === 0) {
+        // Only auto-disconnect if it wasn't a manual disconnection
+        if (!manuallyDisconnected) {
+          disconnect();
+        }
+      } else {
+        console.log("🔌 Accounts changed:", accounts);
+        setWalletState((prev) => ({
+          ...prev,
+          address: accounts[0],
+        }));
+        // Refresh balance
+        refreshBalance();
       }
-    } else {
-      setWalletState(prev => ({
-        ...prev,
-        address: accounts[0],
-      }));
-      // Refresh balance
-      refreshBalance();
-    }
-  }, [disconnect, manuallyDisconnected]);
+    },
+    [disconnect, manuallyDisconnected]
+  );
 
   // Handle chain changes
   const handleChainChanged = useCallback((chainId: string) => {
     const numericChainId = parseInt(chainId, 16);
     const isCorrectNetwork = numericChainId === CONFLUX_TESTNET_CONFIG.chainId;
-    
-    setWalletState(prev => ({
+
+    console.log("🔌 Chain changed:", chainId);
+
+    setWalletState((prev) => ({
       ...prev,
       chainId: numericChainId,
       isCorrectNetwork,
@@ -275,52 +308,57 @@ export const useWallet = () => {
 
     try {
       const balance = await provider.request({
-        method: 'eth_getBalance',
-        params: [walletState.address, 'latest'],
+        method: "eth_getBalance",
+        params: [walletState.address, "latest"],
       });
 
       const balanceInEther = (parseInt(balance, 16) / 1e18).toString();
-      
-      setWalletState(prev => ({
+
+      console.log("🔌 Balance:", balanceInEther);
+      setWalletState((prev) => ({
         ...prev,
         balance: balanceInEther,
       }));
     } catch (error) {
-      console.error('Failed to refresh balance:', error);
+      console.error("Failed to refresh balance:", error);
     }
   }, [walletState.isConnected, walletState.address]);
 
   // Check if wallet is already connected on mount
   useEffect(() => {
     const checkConnection = async () => {
-      if (typeof window === 'undefined' || !window.ethereum) return;
-      
+      if (typeof window === "undefined" || !window.ethereum) return;
+
       // Don't auto-reconnect if user manually disconnected
       if (manuallyDisconnected) {
-        console.log('🔌 Skipping auto-reconnection due to manual disconnection');
+        console.log(
+          "🔌 Skipping auto-reconnection due to manual disconnection"
+        );
         return;
       }
 
       try {
         const accounts = await window.ethereum.request({
-          method: 'eth_accounts',
+          method: "eth_accounts",
         });
 
         if (accounts.length > 0) {
           const chainId = await window.ethereum.request({
-            method: 'eth_chainId',
+            method: "eth_chainId",
           });
 
           const numericChainId = parseInt(chainId, 16);
-          const isCorrectNetwork = numericChainId === CONFLUX_TESTNET_CONFIG.chainId;
+          const isCorrectNetwork =
+            numericChainId === CONFLUX_TESTNET_CONFIG.chainId;
 
           const balance = await window.ethereum.request({
-            method: 'eth_getBalance',
-            params: [accounts[0], 'latest'],
+            method: "eth_getBalance",
+            params: [accounts[0], "latest"],
           });
 
           const balanceInEther = (parseInt(balance, 16) / 1e18).toString();
 
+          console.log("🔌 ABOUT TO SET WALLET STATE ON MOUNT");
           setWalletState({
             isConnected: true,
             address: accounts[0],
@@ -332,16 +370,19 @@ export const useWallet = () => {
           });
 
           // Set up event listeners
-          window.ethereum.on('accountsChanged', handleAccountsChanged);
-          window.ethereum.on('chainChanged', handleChainChanged);
+          window.ethereum.on("accountsChanged", handleAccountsChanged);
+          window.ethereum.on("chainChanged", handleChainChanged);
         }
       } catch (error) {
-        console.error('Failed to check wallet connection:', error);
+        console.error("Failed to check wallet connection:", error);
       }
     };
 
     checkConnection();
   }, [handleAccountsChanged, handleChainChanged, manuallyDisconnected]);
+
+  console.log('🔌 Wallet state:', walletState);
+  console.count('🔌 Wallet state updates');
 
   return {
     ...walletState,
