@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useGameState } from "@/hooks/useGameState";
+import { useHydratedGameState } from "@/hooks/useGameState";
 import { formatNumber } from "@/lib/utils/formatting";
 
 export const StatsPanel: React.FC = () => {
@@ -12,7 +12,35 @@ export const StatsPanel: React.FC = () => {
     totalClicks,
     credits,
     prestigeLevel,
-  } = useGameState();
+    activatePrestigeMode,
+    isHydrated,
+  } = useHydratedGameState();
+
+  // Show loading state until hydrated
+  if (!isHydrated) {
+    return (
+      <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg p-6 border border-gray-700">
+        <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+          📊 Statistics
+        </h2>
+        <div className="text-center text-gray-400">Loading stats...</div>
+      </div>
+    );
+  }
+
+  const handlePrestige = () => {
+    const confirmed = window.confirm(
+      "Are you sure you want to activate prestige?\n\n" +
+      "This will reset your stardust, clicks, and upgrades, but you'll gain:\n" +
+      "• +1 Prestige Level\n" +
+      "• Permanent stardust per second bonus\n" +
+      "• Access to higher tier upgrades"
+    );
+    
+    if (confirmed) {
+      activatePrestigeMode();
+    }
+  };
 
   const stats = [
     {
@@ -100,7 +128,10 @@ export const StatsPanel: React.FC = () => {
       {/* Prestige Button */}
       {stardust >= BigInt(1000000) && (
         <div className="mt-4">
-          <button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold py-2 px-4 rounded-lg transition-all duration-200 transform hover:scale-105">
+          <button
+            onClick={handlePrestige}
+            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold py-2 px-4 rounded-lg transition-all duration-200 transform hover:scale-105"
+          >
             👑 Activate Prestige
           </button>
         </div>

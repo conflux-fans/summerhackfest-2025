@@ -47,10 +47,10 @@ export default function P2ERewards({ className = '' }: P2ERewardsProps) {
     if (!stardustToExchange || isExchanging) return;
 
     const stardustAmount = Number(stardustToExchange);
-    const minimumStardust = 10000; // Default minimum
+    const minimumStardust = 10000; // Minimum exchange amount
 
     if (stardustAmount < minimumStardust) {
-      alert(`Minimum exchange amount is ${minimumStardust} Stardust`);
+      alert(`Minimum exchange amount is ${minimumStardust.toLocaleString()} Stardust`);
       return;
     }
 
@@ -66,7 +66,7 @@ export default function P2ERewards({ className = '' }: P2ERewardsProps) {
       return;
     }
 
-    const remainingDaily = Number(exchangeInfo.dailyLimit) - Number(exchangeInfo.remainingDaily);
+    const remainingDaily = Number(exchangeInfo.remainingDaily) / 1e18;
     
     if (Number(cfxReward) > remainingDaily) {
       alert(`Daily limit exceeded. You can claim up to ${remainingDaily.toFixed(6)} CFX today`);

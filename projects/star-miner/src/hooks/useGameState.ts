@@ -37,6 +37,7 @@ interface GameStore extends GameState {
   setLoading: (loading: boolean) => void;
   resetGame: () => void;
   saveGame: () => void;
+  debouncedSave: () => void;
 }
 
 export const useGameState = create<GameStore>()(
@@ -53,6 +54,8 @@ export const useGameState = create<GameStore>()(
         set((state) => ({
           stardust: state.stardust + amount,
         }));
+        // Auto-save on stardust changes
+        get().saveGame();
       },
 
       handleClick: (x: number, y: number) => {
@@ -101,6 +104,8 @@ export const useGameState = create<GameStore>()(
             stardust: state.stardust + idleRewards,
             lastSaveTime: currentTime,
           });
+          // Auto-save idle rewards
+          get().saveGame();
         }
       },
 
@@ -115,10 +120,14 @@ export const useGameState = create<GameStore>()(
 
       updateCredits: (amount: bigint) => {
         set({ credits: amount });
+        // Automatically save when credits are updated
+        get().saveGame();
       },
 
       resetCredits: () => {
         set({ credits: BigInt(0) });
+        // Auto-save when credits are reset
+        get().saveGame();
       },
 
       updateWalletConnection: (connected: boolean, address: string) => {
@@ -126,6 +135,8 @@ export const useGameState = create<GameStore>()(
           walletConnected: connected,
           userAddress: address,
         });
+        // Auto-save wallet connection changes
+        get().saveGame();
       },
 
       addClickEffect: (effect: ClickEffect) => {
@@ -158,36 +169,67 @@ export const useGameState = create<GameStore>()(
       },
 
       saveGame: () => {
+        const currentState = get();
         set({ lastSaveTime: Date.now() });
+        // Debug: Log what's being saved
+        console.log('💾 Saving game state:', {
+          stardust: currentState.stardust.toString(),
+          credits: currentState.credits.toString(),
+          prestigeLevel: currentState.prestigeLevel,
+          upgrades: Object.keys(currentState.upgrades).length,
+          totalClicks: currentState.totalClicks,
+        });
       },
+
+      debouncedSave: (() => {
+        let timeoutId: NodeJS.Timeout | null = null;
+        return () => {
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+          }
+          timeoutId = setTimeout(() => {
+            get().saveGame();
+          }, 100); // Debounce saves by 100ms
+        };
+      })(),
     }),
     {
       name: 'star-miner-game-state',
       // Only persist game data, not UI state
+      // Credits are persisted locally and synced with blockchain on save
+      // Wallet connection state is NOT persisted - managed by useWallet hook
       partialize: (state) => ({
         stardust: state.stardust,
         stardustPerClick: state.stardustPerClick,
         stardustPerSecond: state.stardustPerSecond,
         totalClicks: state.totalClicks,
         upgrades: state.upgrades,
-        credits: state.credits,
-        walletConnected: state.walletConnected,
-        userAddress: state.userAddress,
+        credits: state.credits, // Persisted locally, synced on save
+        // walletConnected: state.walletConnected, // Removed - not persisted
+        // userAddress: state.userAddress, // Removed - not persisted
         prestigeLevel: state.prestigeLevel,
         achievements: state.achievements,
         lastSaveTime: state.lastSaveTime,
       }),
       // Custom serialization for BigInt
       serialize: (state) => {
-        const serialized = JSON.stringify(state, (key, value) =>
-          typeof value === 'bigint' ? value.toString() + 'n' : value
-        );
+        const serialized = JSON.stringify(state, (key, value) => {
+          if (typeof value === 'bigint') {
+            return value.toString() + 'n';
+          }
+          return value;
+        });
         return serialized;
       },
       deserialize: (str) => {
         const parsed = JSON.parse(str, (key, value) => {
-          if (typeof value === 'string' && value.endsWith('n')) {
+          // Only convert to BigInt if it's a string ending with 'n' and not prestigeLevel
+          if (typeof value === 'string' && value.endsWith('n') && key !== 'prestigeLevel') {
             return BigInt(value.slice(0, -1));
+          }
+          // Handle prestigeLevel specifically as a number
+          if (key === 'prestigeLevel' && typeof value === 'string' && value.endsWith('n')) {
+            return parseInt(value.slice(0, -1));
           }
           return value;
         });
@@ -236,6 +278,8 @@ export const useUpgradeCalculations = () => {
       stardustPerClick: newStardustPerClick,
       stardustPerSecond: newStardustPerSecond,
     });
+    // Auto-save when rates are recalculated
+    useGameState.getState().saveGame();
   }, [gameState]);
 
   React.useEffect(() => {
@@ -243,4 +287,28 @@ export const useUpgradeCalculations = () => {
   }, [gameState.upgrades, gameState.prestigeLevel, recalculateRates]);
 
   return { recalculateRates };
+};
+// Hydration-safe hook to ensure state is loaded properly
+export const useHydratedGameState = () => {
+  const [isHydrated, setIsHydrated] = React.useState(false);
+  const gameState = useGameState();
+
+  React.useEffect(() => {
+    // Force hydration on client side
+    setIsHydrated(true);
+    
+    // Debug: Log initial state after hydration
+    console.log('🔄 Game state hydrated:', {
+      stardust: gameState.stardust.toString(),
+      credits: gameState.credits.toString(),
+      prestigeLevel: gameState.prestigeLevel,
+      upgrades: Object.keys(gameState.upgrades).length,
+      totalClicks: gameState.totalClicks,
+    });
+  }, []);
+
+  return {
+    ...gameState,
+    isHydrated,
+  };
 };

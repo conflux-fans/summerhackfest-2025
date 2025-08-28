@@ -17,6 +17,7 @@ export default function BlockchainSync({ className = '' }: BlockchainSyncProps) 
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>('idle');
+  const [autoSaveEnabled, setAutoSaveEnabled] = useState(false); // Default unchecked
 
   // Auto-sync when wallet connects
   useEffect(() => {
@@ -25,16 +26,16 @@ export default function BlockchainSync({ className = '' }: BlockchainSyncProps) 
     }
   }, [isConnected, playerRegistered]);
 
-  // Auto-save every 5 minutes
+  // Auto-save every 5 minutes (only if enabled)
   useEffect(() => {
-    if (!isConnected || !playerRegistered) return;
+    if (!isConnected || !playerRegistered || !autoSaveEnabled) return;
 
     const interval = setInterval(() => {
       handleSaveToBlockchain();
     }, 5 * 60 * 1000); // 5 minutes
 
     return () => clearInterval(interval);
-  }, [isConnected, playerRegistered]);
+  }, [isConnected, playerRegistered, autoSaveEnabled]);
 
   // Register player if not registered
   const handleRegisterPlayer = async () => {
@@ -234,8 +235,20 @@ export default function BlockchainSync({ className = '' }: BlockchainSyncProps) 
         🔄 Full Sync
       </button>
 
-      <div className="text-xs text-slate-500 text-center mt-2">
-        Auto-saves every 5 minutes when connected
+      {/* Auto-save Settings */}
+      <div className="mt-3 pt-3 border-t border-slate-600">
+        <label className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={autoSaveEnabled}
+            onChange={(e) => setAutoSaveEnabled(e.target.checked)}
+            className="w-4 h-4 text-blue-600 bg-slate-700 border-slate-600 rounded focus:ring-blue-500 focus:ring-2"
+          />
+          <span>Auto-save every 5 minutes</span>
+        </label>
+        <div className="text-xs text-slate-500 mt-1 ml-6">
+          {autoSaveEnabled ? 'Automatically saves to blockchain' : 'Manual save only'}
+        </div>
       </div>
     </div>
   );

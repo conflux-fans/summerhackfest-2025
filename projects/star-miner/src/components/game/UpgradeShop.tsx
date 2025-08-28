@@ -80,7 +80,7 @@ const UpgradeItem: React.FC<UpgradeItemProps> = ({
 
 export const UpgradeShop: React.FC = () => {
   const gameState = useGameState();
-  const { buyUpgrade, updateCredits, updateWalletConnection, resetCredits } = gameState;
+  const { buyUpgrade, updateCredits, updateWalletConnection } = gameState;
   const { isConnected, isCorrectNetwork, address } = useWallet();
   const { purchaseCredits, isLoading: contractLoading, creditsBalance, refreshBalances } = useContracts();
   const [activeTab, setActiveTab] = useState<'stardust' | 'credits'>('stardust');
@@ -96,10 +96,14 @@ export const UpgradeShop: React.FC = () => {
   );
 
   const handlePurchase = (upgradeId: string) => {
+    // All upgrades use local game mechanics for better UX
+    // Credits will be synced with blockchain when game state is saved
     buyUpgrade(upgradeId);
   };
 
   const handleCreditsPurchase = async () => {
+    console.log('💳 Credit purchase attempt:', { isConnected, isCorrectNetwork, address });
+    
     if (!isConnected || !isCorrectNetwork) {
       alert('Please connect your wallet and switch to Conflux eSpace Testnet');
       return;
@@ -109,7 +113,13 @@ export const UpgradeShop: React.FC = () => {
     try {
       const txHash = await purchaseCredits(purchaseAmount);
       
-      // Refresh balances from blockchain
+      // Calculate credits purchased (1 CFX = 1000 Credits)
+      const creditsPurchased = BigInt(Math.floor(parseFloat(purchaseAmount) * 1000));
+      
+      // Update local credits immediately for better UX
+      updateCredits(gameState.credits + creditsPurchased);
+      
+      // Refresh blockchain balances in background
       await refreshBalances();
       
       alert(`Credits purchased successfully! Transaction: ${txHash}`);
@@ -121,18 +131,27 @@ export const UpgradeShop: React.FC = () => {
     }
   };
 
-  // Sync blockchain credits balance with local game state
+  // Sync blockchain credits balance with local game state only on initial connection
   useEffect(() => {
     if (isConnected && creditsBalance !== undefined) {
-      updateCredits(creditsBalance);
+      // Only sync from blockchain if local credits are 0 (initial state)
+      // This prevents overriding local changes during gameplay
+      if (gameState.credits === BigInt(0)) {
+        updateCredits(creditsBalance);
+      }
+    } else if (!isConnected) {
+      // When wallet is not connected, credits should be 0
+      updateCredits(BigInt(0));
     }
-  }, [isConnected, creditsBalance, updateCredits]);
+  }, [isConnected, creditsBalance, updateCredits, gameState.credits]);
 
   // Sync wallet connection status with local game state
   useEffect(() => {
+    console.log('🔄 Wallet connection sync:', { isConnected, address });
     updateWalletConnection(isConnected, address || '');
   }, [isConnected, address, updateWalletConnection]);
 
+  console.log('🔄 Upgrade shop render:', { isConnected, isCorrectNetwork, address });
   return (
     <div className="bg-gray-900/80 backdrop-blur-sm rounded-lg p-6 border border-gray-700">
       <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
@@ -229,18 +248,6 @@ export const UpgradeShop: React.FC = () => {
             }
           </Button>
           
-          {/* Reset Credits Button for Testing */}
-          <Button
-            onClick={() => {
-              resetCredits();
-              alert('Credits reset to 0 for testing');
-            }}
-            variant="secondary"
-            className="w-full mt-2 bg-red-600 hover:bg-red-500 text-xs"
-            size="sm"
-          >
-            🔄 Reset Credits (Testing)
-          </Button>
         </div>
       )}
       

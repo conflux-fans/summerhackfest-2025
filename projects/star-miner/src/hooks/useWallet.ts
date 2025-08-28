@@ -34,6 +34,26 @@ export const useWallet = () => {
     error: null,
   });
 
+  // Track manual disconnection to prevent auto-reconnection
+  const [manuallyDisconnected, setManuallyDisconnected] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('wallet-manually-disconnected') === 'true';
+    }
+    return false;
+  });
+
+  // Persist manual disconnection state
+  const updateManuallyDisconnected = useCallback((value: boolean) => {
+    setManuallyDisconnected(value);
+    if (typeof window !== 'undefined') {
+      if (value) {
+        localStorage.setItem('wallet-manually-disconnected', 'true');
+      } else {
+        localStorage.removeItem('wallet-manually-disconnected');
+      }
+    }
+  }, []);
+
   // Check if wallet is available
   const isWalletAvailable = useCallback((walletType: WalletType): boolean => {
     if (typeof window === 'undefined') return false;
@@ -125,6 +145,9 @@ export const useWallet = () => {
       provider.on('accountsChanged', handleAccountsChanged);
       provider.on('chainChanged', handleChainChanged);
 
+      // Reset manual disconnection flag on successful connection
+      updateManuallyDisconnected(false);
+
     } catch (error: any) {
       console.error('Wallet connection error:', error);
       setWalletState(prev => ({
@@ -137,13 +160,19 @@ export const useWallet = () => {
 
   // Disconnect wallet
   const disconnect = useCallback(() => {
+    console.log('🔌 Disconnecting wallet...');
+    
     // Remove event listeners
     if (typeof window !== 'undefined' && window.ethereum) {
       window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
       window.ethereum.removeListener('chainChanged', handleChainChanged);
     }
 
-    setWalletState({
+    // Set manual disconnection flag to prevent auto-reconnection
+    updateManuallyDisconnected(true);
+
+    // Clear wallet state
+    const newState = {
       isConnected: false,
       address: null,
       balance: null,
@@ -151,7 +180,11 @@ export const useWallet = () => {
       isCorrectNetwork: false,
       isConnecting: false,
       error: null,
-    });
+    };
+    
+    setWalletState(newState);
+    
+    console.log('🔌 Wallet disconnected:', newState);
   }, []);
 
   // Switch to Conflux eSpace network
@@ -207,7 +240,10 @@ export const useWallet = () => {
   // Handle account changes
   const handleAccountsChanged = useCallback((accounts: string[]) => {
     if (accounts.length === 0) {
-      disconnect();
+      // Only auto-disconnect if it wasn't a manual disconnection
+      if (!manuallyDisconnected) {
+        disconnect();
+      }
     } else {
       setWalletState(prev => ({
         ...prev,
@@ -216,7 +252,7 @@ export const useWallet = () => {
       // Refresh balance
       refreshBalance();
     }
-  }, [disconnect]);
+  }, [disconnect, manuallyDisconnected]);
 
   // Handle chain changes
   const handleChainChanged = useCallback((chainId: string) => {
@@ -258,6 +294,12 @@ export const useWallet = () => {
   useEffect(() => {
     const checkConnection = async () => {
       if (typeof window === 'undefined' || !window.ethereum) return;
+      
+      // Don't auto-reconnect if user manually disconnected
+      if (manuallyDisconnected) {
+        console.log('🔌 Skipping auto-reconnection due to manual disconnection');
+        return;
+      }
 
       try {
         const accounts = await window.ethereum.request({
@@ -299,7 +341,7 @@ export const useWallet = () => {
     };
 
     checkConnection();
-  }, [handleAccountsChanged, handleChainChanged]);
+  }, [handleAccountsChanged, handleChainChanged, manuallyDisconnected]);
 
   return {
     ...walletState,
