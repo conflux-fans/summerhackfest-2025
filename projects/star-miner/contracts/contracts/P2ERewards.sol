@@ -196,4 +196,17 @@ contract P2ERewards is Ownable, ReentrancyGuard {
         rewardPool += msg.value;
         emit RewardPoolFunded(msg.value, block.timestamp);
     }
+
+    /**
+     * @dev Sync reward pool with contract balance (for existing funds)
+     */
+    function syncRewardPool() external onlyOwner {
+        uint256 contractBalance = address(this).balance;
+        uint256 currentPool = rewardPool;
+        if (contractBalance > currentPool) {
+            uint256 additionalFunds = contractBalance - currentPool;
+            rewardPool = contractBalance;
+            emit RewardPoolFunded(additionalFunds, block.timestamp);
+        }
+    }
 }

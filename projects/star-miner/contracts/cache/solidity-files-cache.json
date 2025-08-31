@@ -336,8 +336,8 @@
       ]
     },
     "/Users/anicar.cabrera/Documents/Projects/summerhackfest-2025/projects/star-miner/contracts/contracts/P2ERewards.sol": {
-      "lastModificationDate": 1756251200526,
-      "contentHash": "0b387f33cbb08bbf7a5012c3ade66173",
+      "lastModificationDate": 1756677213251,
+      "contentHash": "924906a2dfce8e3928ef827b8448c644",
       "sourceName": "contracts/P2ERewards.sol",
       "solcConfig": {
         "version": "0.8.19",
