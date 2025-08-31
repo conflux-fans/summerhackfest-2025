@@ -67,4 +67,8 @@
 
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-gray-500;
+@keyframes shrink {
+  from { width: 100%; }
+  to { width: 0%; }
+}
 }

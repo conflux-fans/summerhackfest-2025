@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useWalletContext } from '@/contexts/WalletContext';
 import { useContracts } from '@/hooks/useContracts';
 import { useGameStateContext } from '@/contexts/GameStateContext';
+import { useToast } from '@/contexts/ToastContext';
 
 interface P2ERewardsProps {
   className?: string;
@@ -14,7 +15,8 @@ export default function P2ERewards({ className = '' }: P2ERewardsProps) {
   const { exchangeStardustForCFX, getExchangeInfo, isLoading: contractLoading } = useContracts();
   const gameState = useGameStateContext();
   const { stardust, incrementStardust } = gameState;
-  
+  const { showToast } = useToast();
+
   const [exchangeInfo, setExchangeInfo] = useState<any>(null);
   const [stardustToExchange, setStardustToExchange] = useState('');
   const [isExchanging, setIsExchanging] = useState(false);
@@ -50,26 +52,26 @@ export default function P2ERewards({ className = '' }: P2ERewardsProps) {
     const minimumStardust = 10000; // Minimum exchange amount
 
     if (stardustAmount < minimumStardust) {
-      alert(`Minimum exchange amount is ${minimumStardust.toLocaleString()} Stardust`);
+      showToast('warning', 'Minimum Amount Required', `You need at least ${minimumStardust.toLocaleString()} ✨ to exchange`);
       return;
     }
 
     if (BigInt(stardustAmount) > stardust) {
-      alert('Insufficient Stardust balance');
+      showToast('error', 'Insufficient Balance', 'You don\'t have enough ✨ Stardust');
       return;
     }
 
     const cfxReward = calculateCFXReward(stardustToExchange);
     
     if (!exchangeInfo) {
-      alert('Exchange information not loaded. Please try again.');
+      showToast('error', 'Exchange Unavailable', 'Exchange information not loaded. Please try again.');
       return;
     }
 
     const remainingDaily = Number(exchangeInfo.remainingDaily) / 1e18;
     
     if (Number(cfxReward) > remainingDaily) {
-      alert(`Daily limit exceeded. You can claim up to ${remainingDaily.toFixed(6)} CFX today`);
+      showToast('warning', 'Daily Limit Exceeded', `You can claim up to ${remainingDaily.toFixed(6)} CFX today`);
       return;
     }
 
@@ -85,10 +87,10 @@ export default function P2ERewards({ className = '' }: P2ERewardsProps) {
       setExchangeInfo(info);
       setStardustToExchange('');
 
-      alert(`Successfully exchanged ${stardustAmount} Stardust for ${cfxReward} CFX!\nTransaction: ${txHash}`);
+      showToast('success', 'Exchange Successful!', `Exchanged ${stardustAmount.toLocaleString()} ✨ for ${cfxReward} CFX`);
     } catch (error: any) {
       console.error('Exchange failed:', error);
-      alert(`Exchange failed: ${error.message || 'Unknown error'}`);
+      showToast('error', 'Exchange Failed', error.message || 'Unknown error occurred');
     } finally {
       setIsExchanging(false);
     }

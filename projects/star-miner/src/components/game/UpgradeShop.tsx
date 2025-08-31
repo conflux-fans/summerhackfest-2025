@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useGameStateContext } from '@/contexts/GameStateContext';
 import { useWalletContext } from '@/contexts/WalletContext';
 import { useContracts } from '@/hooks/useContracts';
+import { useToast } from '@/contexts/ToastContext';
 import { Button } from '@/components/ui/Button';
 import { formatNumber } from '@/lib/utils/formatting';
 import { UPGRADE_CONFIGS } from '@/lib/utils/constants';
@@ -83,6 +84,7 @@ export const UpgradeShop: React.FC = () => {
   const { buyUpgrade, updateCredits, updateWalletConnection } = gameState;
   const { isConnected, isCorrectNetwork, address } = useWalletContext();
   const { purchaseCredits, isLoading: contractLoading, creditsBalance, refreshBalances } = useContracts();
+  const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState<'stardust' | 'credits'>('stardust');
   const [purchaseAmount, setPurchaseAmount] = useState('1');
   const [isPurchasing, setIsPurchasing] = useState(false);
@@ -103,9 +105,9 @@ export const UpgradeShop: React.FC = () => {
 
   const handleCreditsPurchase = async () => {
     console.log('💳 Credit purchase attempt:', { isConnected, isCorrectNetwork, address });
-    
+
     if (!isConnected || !isCorrectNetwork) {
-      alert('Please connect your wallet and switch to Conflux eSpace Testnet');
+      showToast('warning', 'Wallet Connection Required', 'Please connect your wallet and switch to Conflux eSpace Testnet');
       return;
     }
 
@@ -118,14 +120,14 @@ export const UpgradeShop: React.FC = () => {
       
       // Update local credits immediately for better UX
       updateCredits(gameState.credits + creditsPurchased);
-      
+
       // Refresh blockchain balances in background
       await refreshBalances();
-      
-      alert(`Credits purchased successfully! Transaction: ${txHash}`);
+
+      showToast('success', 'Credits Purchased!', `Successfully purchased ${formatNumber(creditsPurchased)} 💎`);
     } catch (error: any) {
       console.error('Purchase failed:', error);
-      alert(`Purchase failed: ${error.message || 'Unknown error'}`);
+      showToast('error', 'Purchase Failed', error.message || 'Unknown error occurred');
     } finally {
       setIsPurchasing(false);
     }

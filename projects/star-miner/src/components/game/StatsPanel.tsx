@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useHydratedGameState } from "@/contexts/GameStateContext";
 import { formatNumber } from "@/lib/utils/formatting";
+import { ConfirmModal } from "@/components/ui/Modal";
 
 export const StatsPanel: React.FC = () => {
   const {
@@ -15,6 +16,8 @@ export const StatsPanel: React.FC = () => {
     activatePrestigeMode,
     isHydrated,
   } = useHydratedGameState();
+
+  const [showPrestigeModal, setShowPrestigeModal] = useState(false);
 
   // Show loading state until hydrated
   if (!isHydrated) {
@@ -29,17 +32,11 @@ export const StatsPanel: React.FC = () => {
   }
 
   const handlePrestige = () => {
-    const confirmed = window.confirm(
-      "Are you sure you want to activate prestige?\n\n" +
-      "This will reset your stardust, clicks, and upgrades, but you'll gain:\n" +
-      "• +1 Prestige Level\n" +
-      "• Permanent stardust per second bonus\n" +
-      "• Access to higher tier upgrades"
-    );
-    
-    if (confirmed) {
-      activatePrestigeMode();
-    }
+    setShowPrestigeModal(true);
+  };
+
+  const confirmPrestige = () => {
+    activatePrestigeMode();
   };
 
   const stats = [
@@ -136,6 +133,23 @@ export const StatsPanel: React.FC = () => {
           </button>
         </div>
       )}
+
+      {/* Prestige Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showPrestigeModal}
+        onClose={() => setShowPrestigeModal(false)}
+        onConfirm={confirmPrestige}
+        title="Activate Prestige"
+        message={`Are you sure you want to activate prestige?
+
+This will reset your stardust, clicks, and upgrades, but you'll gain:
+• +1 Prestige Level
+• Permanent stardust per second bonus
+• Access to higher tier upgrades`}
+        confirmText="Activate Prestige"
+        cancelText="Cancel"
+        type="warning"
+      />
     </div>
   );
 };
