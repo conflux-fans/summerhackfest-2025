@@ -282,7 +282,8 @@ export const GameStateProvider: React.FC<GameStateProviderProps> = ({ children }
         ...prev,
         stardust: blockchainState.stardust,
         totalClicks: blockchainState.totalClicks,
-        prestigeLevel: blockchainState.prestigeLevel,
+        // Only update prestigeLevel from blockchain if it's higher than local
+        prestigeLevel: Math.max(prev.prestigeLevel, blockchainState.prestigeLevel || 0),
         lastSaveTime: blockchainState.lastUpdateTime * 1000, // Convert to milliseconds
       };
       saveToStorage(newState);

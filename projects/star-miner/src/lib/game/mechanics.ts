@@ -57,7 +57,7 @@ export function calculateStardustPerSecond(gameState: GameState): bigint {
     }
   });
   
-  // Apply prestige bonus
+  // Apply prestige bonus (each prestige level gives +1 stardust per second)
   if (gameState.prestigeLevel > 0) {
     const prestigeBonus = BigInt(gameState.prestigeLevel);
     total += prestigeBonus;
@@ -173,12 +173,16 @@ export function activatePrestige(gameState: GameState): GameState {
     ...gameState,
     stardust: BigInt(0),
     stardustPerClick: GAME_CONSTANTS.INITIAL_STARDUST_PER_CLICK,
-    stardustPerSecond: BigInt(gameState.prestigeLevel + 1), // Prestige bonus
+    stardustPerSecond: GAME_CONSTANTS.INITIAL_STARDUST_PER_SECOND,
     totalClicks: 0,
     upgrades: {},
     prestigeLevel: gameState.prestigeLevel + 1,
     lastSaveTime: Date.now(),
   };
+  
+  // Recalculate rates with new prestige level
+  newGameState.stardustPerClick = calculateStardustPerClick(newGameState);
+  newGameState.stardustPerSecond = calculateStardustPerSecond(newGameState);
   
   return newGameState;
 }
