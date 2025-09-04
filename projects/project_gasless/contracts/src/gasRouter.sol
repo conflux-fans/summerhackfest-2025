@@ -3,142 +3,157 @@ pragma solidity ^0.8.20;
 
 import "@pythnetwork/pyth-sdk-solidity/IPyth.sol";
 import "@pythnetwork/pyth-sdk-solidity/PythStructs.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-interface IERC20 {
-    function transferFrom(address from, address to, uint amount) external returns (bool);
-    function approve(address spender, uint amount) external returns (bool);
-    function transfer(address to, uint amount) external returns (bool);
-    function balanceOf(address account) external view returns (uint);
-    function decimals() external view returns (uint8);
-}
+contract GasTopUp is Ownable, ReentrancyGuard {
+    using SafeERC20 for IERC20;
 
-interface IDexRouter {
-    function swapExactTokensForCFX(
-        uint amountIn,
-        uint amountOutMin,
-        address tokenIn,
-        address to
-    ) external payable returns (uint amountOut);
-}
+    IPyth public immutable pyth;
+    bytes32 public immutable cfxUsdFeedId;
 
-contract GasTopUp {
-    address public owner;
-    IDexRouter public dexRouter;
-    IPyth public pyth;
-
-    // Fee settings
-    uint public feeBasisPoints = 50; // 0.5%
-    address public feeCollector;
-
-    // Token whitelist (WBTC, ETH, USDT, USDC)
-    mapping(address => bool) public supportedTokens;
-
-    // Pyth price feed IDs
-    mapping(address => bytes32) public tokenPriceFeeds; // token -> feedId
-    bytes32 public cfxPriceFeed; // CFX/USD feedId
-
-    event GasToppedUp(address indexed user, address token, uint tokenAmount, uint cfxReceived);
-    event TokenSupported(address token, bool supported, bytes32 priceFeedId);
-    event FeeUpdated(uint feeBps, address collector);
-
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Not owner");
-        _;
+    struct TokenInfo {
+        address tokenAddress;
+        string ticker;
+        bytes32 feedId;
     }
 
-    constructor(address _router, address _pyth, bytes32 _cfxFeed) {
-        owner = msg.sender;
-        dexRouter = IDexRouter(_router);
+    TokenInfo[] public supportedTokens;
+    mapping(address => bytes32) public tokenFeedIds; // For quick lookup
+    mapping(address => string) public tokenTickers;  // For ticker by address
+
+    uint256 public constant MAX_CFX_PER_SWAP = 10 * 10**18; // 10 CFX
+
+    event TokenAdded(address indexed tokenAddress, string ticker, bytes32 feedId);
+    event Swapped(address indexed user, address indexed tokenAddress, uint256 tokenAmount, uint256 cfxAmount);
+
+    constructor(address _pyth, bytes32 _cfxUsdFeedId) Ownable(msg.sender) ReentrancyGuard() {
         pyth = IPyth(_pyth);
-        cfxPriceFeed = _cfxFeed;
-        feeCollector = msg.sender;
+        cfxUsdFeedId = _cfxUsdFeedId;
     }
 
-    // Owner can whitelist supported tokens + assign their price feed
-    function setSupportedToken(address token, bool supported, bytes32 feedId) external onlyOwner {
-        supportedTokens[token] = supported;
-        if (supported) {
-            tokenPriceFeeds[token] = feedId;
-        }
-        emit TokenSupported(token, supported, feedId);
+    // Owner adds a whitelisted token with its ticker and Pyth feed ID
+    function addToken(address tokenAddress, string calldata ticker, bytes32 feedId) external onlyOwner {
+        require(feedId != bytes32(0), "Invalid feed ID");
+        require(tokenFeedIds[tokenAddress] == bytes32(0), "Token already added");
+
+        supportedTokens.push(TokenInfo({
+            tokenAddress: tokenAddress,
+            ticker: ticker,
+            feedId: feedId
+        }));
+
+        tokenFeedIds[tokenAddress] = feedId;
+        tokenTickers[tokenAddress] = ticker;
+
+        emit TokenAdded(tokenAddress, ticker, feedId);
     }
 
-    // Owner can adjust fees
-    function setFee(uint _bps, address _collector) external onlyOwner {
-        require(_bps <= 500, "Fee too high"); // max 5%
-        feeBasisPoints = _bps;
-        feeCollector = _collector;
-        emit FeeUpdated(_bps, _collector);
+    // User swaps token for CFX using Pyth prices
+    function swapToCfx(
+        address tokenAddress,
+        uint256 amount,
+        bytes[] calldata updateData,
+        uint32 maxAge
+    ) external payable nonReentrant {
+        bytes32 tokenFeedId = tokenFeedIds[tokenAddress];
+        require(tokenFeedId != bytes32(0), "Token not whitelisted");
+
+        // Update Pyth prices and pay fee
+        uint256 fee = pyth.getUpdateFee(updateData);
+        require(msg.value >= fee, "Insufficient Pyth update fee");
+        pyth.updatePriceFeeds{value: fee}(updateData);
+
+        // Get prices (reverts if stale)
+        PythStructs.Price memory tokenPrice = pyth.getPriceNoOlderThan(tokenFeedId, maxAge);
+        PythStructs.Price memory cfxPrice = pyth.getPriceNoOlderThan(cfxUsdFeedId, maxAge);
+
+        // Ensure positive prices
+        require(tokenPrice.price > 0, "Invalid token price");
+        require(cfxPrice.price > 0, "Invalid CFX price");
+
+        // Transfer token from user to contract
+        IERC20(tokenAddress).safeTransferFrom(msg.sender, address(this), amount);
+
+        // Calculate USD value of token amount
+        uint8 tokenDecimals = IERC20Metadata(tokenAddress).decimals();
+        int32 tokenExpo = tokenPrice.expo;
+        require(tokenExpo < 0, "Unexpected positive expo");
+        uint256 tokenUsd = (amount * uint64(tokenPrice.price) * (10 ** uint32(-tokenExpo))) / (10 ** tokenDecimals);
+
+        // Calculate equivalent CFX amount
+        int32 cfxExpo = cfxPrice.expo;
+        require(cfxExpo < 0, "Unexpected positive expo");
+        uint256 cfxUsdPerUnit = uint64(cfxPrice.price) * (10 ** uint32(-cfxExpo));
+        uint256 cfxAmount = (tokenUsd * 10**18) / cfxUsdPerUnit;
+
+        // Enforce max CFX limit
+        require(cfxAmount <= MAX_CFX_PER_SWAP, "Exceeds max CFX per swap");
+
+        require(address(this).balance >= cfxAmount, "Insufficient CFX in contract");
+
+        // Transfer CFX to user
+        (bool success, ) = msg.sender.call{value: cfxAmount}("");
+        require(success, "CFX transfer failed");
+
+        emit Swapped(msg.sender, tokenAddress, amount, cfxAmount);
     }
 
-    // Estimate top-up amount in CFX using Pyth price feeds
-    function estimateTopUp(address token, uint amountIn, bytes[] calldata priceUpdateData)
-        public
-        payable
-        returns (uint expectedCFX)
-    {
-        require(supportedTokens[token], "Unsupported token");
+    // Estimate CFX output (approximate, based on last updated prices)
+    function estimateCfxOut(
+        address tokenAddress,
+        uint256 amount
+    ) external view returns (uint256 cfxAmount, uint64 tokenPublishTime, uint64 cfxPublishTime) {
+        bytes32 tokenFeedId = tokenFeedIds[tokenAddress];
+        require(tokenFeedId != bytes32(0), "Token not whitelisted");
 
-        // Update Pyth price feeds
-        pyth.updatePriceFeeds{value: msg.value}(priceUpdateData);
+        // Use unsafe to avoid revert if not recently updated
+        PythStructs.Price memory tokenPrice = pyth.getPriceUnsafe(tokenFeedId);
+        PythStructs.Price memory cfxPrice = pyth.getPriceUnsafe(cfxUsdFeedId);
 
-        // Get token/USD price
-        PythStructs.Price memory tokenPrice = pyth.getPriceNoOlderThan(tokenPriceFeeds[token], 60);
-        PythStructs.Price memory cfxPrice = pyth.getPriceNoOlderThan(cfxPriceFeed, 60);
+        // Ensure positive prices
+        require(tokenPrice.price > 0, "Invalid token price");
+        require(cfxPrice.price > 0, "Invalid CFX price");
 
-        require(tokenPrice.price > 0 && cfxPrice.price > 0, "Invalid price data");
+        // Return publish times for freshness check
+        tokenPublishTime = uint64(tokenPrice.publishTime);
+        cfxPublishTime = uint64(cfxPrice.publishTime);
 
-        // Normalize decimals
-        uint8 tokenDecimals = IERC20(token).decimals();
-        uint tokenValueUSD = (amountIn * uint(tokenPrice.price)) / (10 ** tokenDecimals);
+        // Calculate USD value of token amount
+        uint8 tokenDecimals = IERC20Metadata(tokenAddress).decimals();
+        int32 tokenExpo = tokenPrice.expo;
+        require(tokenExpo < 0, "Unexpected positive expo");
+        uint256 tokenUsd = (amount * uint64(tokenPrice.price) * (10 ** uint32(-tokenExpo))) / (10 ** tokenDecimals);
 
-        // Convert USD value into CFX
-        expectedCFX = (tokenValueUSD * (10 ** 18)) / uint(cfxPrice.price);
+        // Calculate equivalent CFX amount
+        int32 cfxExpo = cfxPrice.expo;
+        require(cfxExpo < 0, "Unexpected positive expo");
+        uint256 cfxUsdPerUnit = uint64(cfxPrice.price) * (10 ** uint32(-cfxExpo));
+        cfxAmount = (tokenUsd * 10**18) / cfxUsdPerUnit;
+
+        // Note: Does not check max limit or contract balance, as this is estimate only
     }
 
-    // Top-up function: swap user token -> CFX
-    function topUpGas(
-        address token,
-        uint amountIn,
-        uint minOut,
-        bytes[] calldata priceUpdateData
-    ) external payable {
-        require(supportedTokens[token], "Unsupported token");
-        require(amountIn > 0, "Amount must be > 0");
-
-        // Estimate top-up
-        uint expected = estimateTopUp(token, amountIn, priceUpdateData);
-        require(expected >= 0.05 ether, "Too small for useful gas");
-
-        // Take tokens from user
-        require(IERC20(token).transferFrom(msg.sender, address(this), amountIn), "Transfer failed");
-
-        // Approve router
-        IERC20(token).approve(address(dexRouter), amountIn);
-
-        // Swap on DEX
-        uint amountOut = dexRouter.swapExactTokensForCFX(
-            amountIn,
-            minOut,
-            token,
-            address(this)
-        );
-        require(amountOut > 0, "Swap failed");
-
-        // Fee
-        uint fee = (amountOut * feeBasisPoints) / 10000;
-        uint payout = amountOut - fee;
-
-        if (fee > 0) {
-            payable(feeCollector).transfer(fee);
-        }
-
-        // Send gas top-up to user
-        payable(msg.sender).transfer(payout);
-
-        emit GasToppedUp(msg.sender, token, amountIn, payout);
+    // Get list of supported tokens
+    function getSupportedTokens() external view returns (TokenInfo[] memory) {
+        return supportedTokens;
     }
 
-    // Receive CFX from DEX router
-    receive() external payable {}
+    // Owner deposits CFX into the contract
+    receive() external payable onlyOwner {}
+
+    // Owner withdraws CFX
+    function withdrawCfx(uint256 amount) external onlyOwner {
+        require(address(this).balance >= amount, "Insufficient balance");
+        (bool success, ) = msg.sender.call{value: amount}("");
+        require(success, "Withdraw failed");
+    }
+
+    // Owner withdraws tokens (in case of emergency or excess)
+    function withdrawToken(address tokenAddress, uint256 amount) external onlyOwner {
+        IERC20(tokenAddress).safeTransfer(msg.sender, amount);
+    }
 }
