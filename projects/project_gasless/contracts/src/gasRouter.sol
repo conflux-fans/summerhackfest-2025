@@ -30,10 +30,12 @@ contract GasTopUp is Ownable, ReentrancyGuard {
     event TokenAdded(address indexed tokenAddress, string ticker, bytes32 feedId);
     event Swapped(address indexed user, address indexed tokenAddress, uint256 tokenAmount, uint256 cfxAmount);
 
-    constructor(address _pyth, bytes32 _cfxUsdFeedId) Ownable(msg.sender) ReentrancyGuard() {
-        pyth = IPyth(_pyth);
-        cfxUsdFeedId = _cfxUsdFeedId;
-    }
+constructor(address _pyth, bytes32 _cfxUsdFeedId, address _owner) Ownable(_owner) {
+    pyth = IPyth(_pyth);
+    cfxUsdFeedId = _cfxUsdFeedId;
+}
+
+
 
     // Owner adds a whitelisted token with its ticker and Pyth feed ID
     function addToken(address tokenAddress, string calldata ticker, bytes32 feedId) external onlyOwner {

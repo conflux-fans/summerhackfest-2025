@@ -9,6 +9,9 @@ contract DeployGasTopUp is Script {
         // Load deployer private key from env
         uint256 deployerKey = vm.envUint("DEPLOYER_KEY");
 
+        // Compute deployer address from private key
+        address deployer = vm.addr(deployerKey);
+
         // Start broadcasting
         vm.startBroadcast(deployerKey);
 
@@ -16,8 +19,8 @@ contract DeployGasTopUp is Script {
         address pythAddr = vm.envAddress("PYTH_ADDRESS");
         bytes32 cfxUsdFeedId = bytes32(vm.envUint("CFX_USD_FEED_ID"));
 
-        // Deploy contract
-        GasTopUp gasTopUp = new GasTopUp(pythAddr, cfxUsdFeedId);
+        // Deploy contract with deployer as owner
+        GasTopUp gasTopUp = new GasTopUp(pythAddr, cfxUsdFeedId, deployer);
 
         // Log deployed address
         console.log("GasTopUp deployed at:", address(gasTopUp));
