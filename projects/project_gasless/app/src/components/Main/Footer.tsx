@@ -2,7 +2,7 @@
 export function Footer() {
   return (
     <footer className="bg-white text-black border-t border-gray-300 py-6">
-      <div className="container mx-auto px-4 flex flex-col items-center gap-4">
+      <div className="container-xxl mx-auto px-4 flex flex-col items-center gap-4">
 
 
         {/* Copyright */}

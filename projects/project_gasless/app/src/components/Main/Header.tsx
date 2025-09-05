@@ -6,8 +6,8 @@ export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   return (
-    <header className="sticky top-0 z-50 bg-white text-black border-b border-gray-300">
-      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+    <header className=" sticky top-0 z-50 bg-white text-black border-b border-gray-300">
+      <div className="container-xxl mx-auto px-4 py-4 flex justify-between items-center">
         {/* Logo */}
         <h1 className="text-xl font-bold">
           <NavLink to="/" className="hover:text-gray-600 transition-colors">
