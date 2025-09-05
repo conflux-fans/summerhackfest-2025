@@ -10,5 +10,9 @@
     "outDir": "dist",
     "rootDir": "src"
   },
+  "ts-node": {
+    "esm": true,
+    "experimentalResolver": true
+  },
   "include": ["src/**/*"]
 }
