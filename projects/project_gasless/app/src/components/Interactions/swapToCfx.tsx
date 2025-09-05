@@ -9,29 +9,34 @@ interface Token {
   ticker: string;
 }
 
+const ERC20_ABI = [
+  { constant: true, inputs: [], name: "decimals", outputs: [{ name: "", type: "uint8" }], type: "function" },
+  { constant: false, inputs: [{ name: "spender", type: "address" }, { name: "amount", type: "uint256" }], name: "approve", outputs: [{ name: "", type: "bool" }], type: "function" },
+  { constant: true, inputs: [{ name: "owner", type: "address" }, { name: "spender", type: "address" }], name: "allowance", outputs: [{ name: "", type: "uint256" }], type: "function" }
+];
+
 export function GasTopUp() {
   const { address: connectedAddress } = useAccount();
   const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
-
   const [tokens, setTokens] = useState<Token[]>([]);
   const [selectedToken, setSelectedToken] = useState<string | null>(null);
   const [tokenDecimals, setTokenDecimals] = useState<Record<string, number>>({});
   const [tickerMap, setTickerMap] = useState<Record<string, string>>({});
-  const [amount, setAmount] = useState<string>("");
+  const [amount, setAmount] = useState<string>("0.01"); // default 0.01 USDT
   const [estimatedCfx, setEstimatedCfx] = useState<string>("");
   const [estimateError, setEstimateError] = useState<string | null>(null);
   const [pythFee, setPythFee] = useState<bigint>(0n);
   const [maxAge, setMaxAge] = useState<number>(3600);
+  const [loading, setLoading] = useState(false);
 
   // Initialize ethers BrowserProvider
   useEffect(() => {
     if (typeof window.ethereum !== "undefined") {
-      const browserProvider = new ethers.BrowserProvider(window.ethereum);
-      setProvider(browserProvider);
+      setProvider(new ethers.BrowserProvider(window.ethereum));
     }
   }, []);
 
-  // Fetch supported tokens
+  // Fetch supported tokens and set USDT default
   useEffect(() => {
     if (!provider) return;
     const fetchTokens = async () => {
@@ -42,25 +47,27 @@ export function GasTopUp() {
 
         const dMap: Record<string, number> = {};
         const tMap: Record<string, string> = {};
-        for (const t of tokenList) {
+        tokenList.forEach((t) => {
           dMap[t.tokenAddress] = 18;
           tMap[t.tokenAddress] = t.ticker;
-        }
+        });
         setTokenDecimals(dMap);
         setTickerMap(tMap);
 
-        // Fetch actual decimals per token
+        // Fetch decimals dynamically
         for (const t of tokenList) {
           try {
-            const tokenContract = new ethers.Contract(t.tokenAddress, [
-              { constant: true, inputs: [], name: "decimals", outputs: [{ name: "", type: "uint8" }], type: "function" },
-            ], provider);
+            const tokenContract = new ethers.Contract(t.tokenAddress, ERC20_ABI, provider);
             const decimals = await tokenContract.decimals();
             setTokenDecimals((prev) => ({ ...prev, [t.tokenAddress]: Number(decimals) }));
           } catch (err) {
             console.warn("Failed to fetch decimals for token", t.tokenAddress, err);
           }
         }
+
+        // Set USDT as default if exists
+        const usdt = tokenList.find((t) => t.ticker.toLowerCase() === "usdt");
+        if (usdt) setSelectedToken(usdt.tokenAddress);
       } catch (err) {
         console.error("Failed to fetch tokens", err);
       }
@@ -106,23 +113,32 @@ export function GasTopUp() {
     fetchFee();
   }, [provider]);
 
-  // Handle MetaSwap (fixed for ethers v6)
+  // Handle gasless MetaSwap via relayer
   const handleMetaSwap = async () => {
     if (!provider || !connectedAddress || !selectedToken || !amount) return;
     try {
+      setLoading(true);
       const signer = await provider.getSigner();
-      const contract = new ethers.Contract(GAS_TOP_UP_ADDRESS, GAS_TOP_UP_ABI, signer);
-
-      const nonce = 0; // TODO: fetch user nonce from GasStation contract
-      const deadline = Math.floor(Date.now() / 1000) + 3600; // 1 hour expiry
-
+      const contract = new ethers.Contract(GAS_TOP_UP_ADDRESS, GAS_TOP_UP_ABI, provider);
+  
+      // Fetch real user nonce correctly
+      const nonce: bigint = await contract.nonces.call(connectedAddress);
+  
+      // Token approval
+      const tokenContract = new ethers.Contract(selectedToken, ERC20_ABI, signer);
+      const allowance: bigint = await tokenContract.allowance(connectedAddress, GAS_TOP_UP_ADDRESS);
+      if (allowance < amountWei) {
+        const approveTx = await tokenContract.approve(GAS_TOP_UP_ADDRESS, amountWei);
+        await approveTx.wait();
+      }
+  
+      const deadline = Math.floor(Date.now() / 1000) + 3600;
       const domain = {
         name: "GasStation",
         version: "1",
-        chainId: 1030, // replace with correct chain ID
+        chainId: 1030,
         verifyingContract: GAS_TOP_UP_ADDRESS,
       };
-
       const types = {
         SwapRequest: [
           { name: "user", type: "address" },
@@ -132,35 +148,30 @@ export function GasTopUp() {
           { name: "deadline", type: "uint256" },
         ],
       };
-
-      const value = {
-        user: connectedAddress,
-        tokenAddress: selectedToken,
-        amount: amountWei.toString(),
-        nonce,
-        deadline,
-      };
-
-      // ethers v6 correct EIP-712 signing
+      const value = { user: connectedAddress, tokenAddress: selectedToken, amount: amountWei.toString(), nonce, deadline };
+  
       const signature = await signer.signTypedData(domain, types, value);
-      const updateData: string[] = []; // replace with actual Pyth updates if needed
-
-      const tx = await contract.metaSwap(
-        connectedAddress,
-        selectedToken,
-        amountWei,
-        deadline,
-        signature,
-        updateData,
-        maxAge,
-        { value: pythFee }
-      );
-      await tx.wait();
-      console.log("MetaSwap complete");
+  
+      const response = await fetch("http://localhost:3000/metaSwap", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user: connectedAddress, tokenAddress: selectedToken, amount: amountWei.toString(), nonce, deadline, signature, updateData: [], maxAge }),
+      });
+      const result = await response.json();
+  
+      if (result.success) {
+        alert(`MetaSwap complete: txHash ${result.txHash}`);
+      } else {
+        alert(`MetaSwap failed: ${result.error}`);
+      }
     } catch (err) {
       console.error("MetaSwap failed:", err);
+      alert("MetaSwap failed, see console for details");
+    } finally {
+      setLoading(false);
     }
   };
+  
 
   return (
     <div className="flex justify-center items-center px-4">
@@ -198,10 +209,10 @@ export function GasTopUp() {
 
           <button
             onClick={handleMetaSwap}
-            disabled={!amount || !selectedToken || !!estimateError}
+            disabled={!amount || !selectedToken || !!estimateError || loading}
             className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:bg-gray-400"
           >
-            Swap {amount} {selectedTicker} via MetaSwap
+            {loading ? "Processing..." : `Swap ${amount} ${selectedTicker} via MetaSwap`}
           </button>
 
           {pythFee > 0n && (
