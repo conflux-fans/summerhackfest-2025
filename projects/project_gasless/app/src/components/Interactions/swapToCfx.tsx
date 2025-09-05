@@ -24,21 +24,42 @@ export function GasTopUp() {
   const [selectedToken, setSelectedToken] = useState<string | null>(null);
   const [tokenDecimals, setTokenDecimals] = useState<Record<string, number>>({});
   const [tickerMap, setTickerMap] = useState<Record<string, string>>({});
-  const [amount, setAmount] = useState<string>("0.01"); // default 0.01 USDT
+  const [amount, setAmount] = useState<string>("0.01");
   const [estimatedCfx, setEstimatedCfx] = useState<string>("");
   const [estimateError, setEstimateError] = useState<string | null>(null);
   const [pythFee, setPythFee] = useState<bigint>(0n);
   const [maxAge, setMaxAge] = useState<number>(3600);
   const [loading, setLoading] = useState(false);
   const [nonce, setNonce] = useState<string>("0");
+  const [addressError, setAddressError] = useState<string | null>(null);
 
-  // Initialize provider WITHOUT ENS
+  // Helper to validate hex address
+  function isHexAddress(addr: string | null | undefined): boolean {
+    return typeof addr === "string" && ethers.isAddress(addr);
+  }
+
+  // Helper to ensure checksummed hex address
+  function ensureHexAddress(address: string | null | undefined): string | null {
+    if (!address) return null;
+    if (!isHexAddress(address)) return null;
+    try {
+      return ethers.getAddress(address); // Returns checksummed address
+    } catch {
+      return null;
+    }
+  }
+
+  // SOLUTION 1: Initialize provider with explicit network configuration
   useEffect(() => {
     if (typeof window.ethereum !== "undefined") {
-      const customProvider = new ethers.BrowserProvider(window.ethereum, {
+      // Create custom network without ENS configuration
+      const customNetwork = {
         chainId: 1030,
         name: "conflux-espace",
-      });
+        // Don't include ensAddress to avoid ENS lookups
+      };
+
+      const customProvider = new ethers.BrowserProvider(window.ethereum, customNetwork);
       setProvider(customProvider);
     }
   }, []);
@@ -59,39 +80,47 @@ export function GasTopUp() {
         const dMap: Record<string, number> = {};
         const tMap: Record<string, string> = {};
         tokenList.forEach((t) => {
-          dMap[t.tokenAddress] = 18;
-          tMap[t.tokenAddress] = t.ticker;
+          // SOLUTION 2: Ensure token addresses are properly formatted
+          const normalizedAddress = ensureHexAddress(t.tokenAddress);
+          if (normalizedAddress) {
+            dMap[normalizedAddress] = 18;
+            tMap[normalizedAddress] = t.ticker;
+          }
         });
         setTokenDecimals(dMap);
         setTickerMap(tMap);
 
-        // Fetch decimals dynamically
-        for (const t of tokenList) {
+        // Fetch decimals dynamically for valid tokens only
+        for (const t of validTokens) {
+          const normalizedTokenAddress = t.tokenAddress; // Already validated above
+          
           try {
             const tokenContract = new ethers.Contract(
-              t.tokenAddress,
+              normalizedTokenAddress,
               ERC20_ABI,
               provider
             );
             const decimals = await tokenContract.decimals();
             setTokenDecimals((prev) => ({
               ...prev,
-              [t.tokenAddress]: Number(decimals),
+              [normalizedTokenAddress]: Number(decimals),
             }));
           } catch (err) {
             console.warn(
               "Failed to fetch decimals for token",
-              t.tokenAddress,
+              normalizedTokenAddress,
               err
             );
           }
         }
 
-        // Default to USDT
-        const usdt = tokenList.find(
+        // Default to USDT from valid tokens
+        const usdt = validTokens.find(
           (t) => t.ticker.toLowerCase() === "usdt"
         );
-        if (usdt) setSelectedToken(usdt.tokenAddress);
+        if (usdt) {
+          setSelectedToken(usdt.tokenAddress);
+        }
       } catch (err) {
         console.error("Failed to fetch tokens", err);
       }
@@ -108,12 +137,17 @@ export function GasTopUp() {
     if (!provider || !selectedToken || !amountWei) return;
     const fetchEstimate = async () => {
       try {
+        const normalizedTokenAddress = ensureHexAddress(selectedToken);
+        if (!normalizedTokenAddress) {
+          throw new Error("Invalid token address");
+        }
+
         const contract = new ethers.Contract(
           GAS_TOP_UP_ADDRESS,
           GAS_TOP_UP_ABI,
           provider
         );
-        const res = await contract.estimateCfxOut(selectedToken, amountWei);
+        const res = await contract.estimateCfxOut(normalizedTokenAddress, amountWei);
         setEstimatedCfx(formatUnits(res[2], 18));
         setEstimateError(null);
       } catch (err: any) {
@@ -130,12 +164,17 @@ export function GasTopUp() {
     if (!provider || !selectedToken) return;
     const fetchFee = async () => {
       try {
+        const normalizedTokenAddress = ensureHexAddress(selectedToken);
+        if (!normalizedTokenAddress) {
+          throw new Error("Invalid token address");
+        }
+
         const contract = new ethers.Contract(
           GAS_TOP_UP_ADDRESS,
           GAS_TOP_UP_ABI,
           provider
         );
-        const tokenFeedId = await contract.tokenFeedIds(selectedToken);
+        const tokenFeedId = await contract.tokenFeedIds(normalizedTokenAddress);
         const cfxUsdFeedId = await contract.cfxUsdFeedId();
         if (tokenFeedId === "0x" || cfxUsdFeedId === "0x") {
           throw new Error("Invalid feed IDs");
@@ -163,30 +202,40 @@ export function GasTopUp() {
 
   // MetaSwap via relayer
   const handleMetaSwap = async () => {
-    if (!provider || !connectedAddress || !selectedToken || !amount) return;
+    setAddressError(null);
+
+    // SOLUTION 3: Validate and normalize addresses before proceeding
+    const normalizedConnectedAddress = ensureHexAddress(connectedAddress);
+    const normalizedSelectedToken = ensureHexAddress(selectedToken);
+
+    if (!normalizedConnectedAddress) {
+      setAddressError("Connected address must be a valid hex address");
+      return;
+    }
+    if (!normalizedSelectedToken) {
+      setAddressError("Token address must be a valid hex address");
+      return;
+    }
+    if (!provider || !amount) return;
+
     try {
       setLoading(true);
-      const signer = await provider.getSigner();
+      
+      // SOLUTION 4: Get signer with explicit address
+      const signer = await provider.getSigner(normalizedConnectedAddress);
 
-      if (!ethers.isAddress(connectedAddress)) {
-        throw new Error("Invalid connected address (ENS not supported)");
-      }
-      if (!ethers.isAddress(selectedToken)) {
-        throw new Error("Invalid token address (ENS not supported)");
-      }
-
+      // Prepare contract and updateData
       const contract = new ethers.Contract(
         GAS_TOP_UP_ADDRESS,
         GAS_TOP_UP_ABI,
         provider
       );
-      const tokenFeedId = await contract.tokenFeedIds(selectedToken);
+      const tokenFeedId = await contract.tokenFeedIds(normalizedSelectedToken);
       const cfxUsdFeedId = await contract.cfxUsdFeedId();
       if (tokenFeedId === "0x" || cfxUsdFeedId === "0x") {
         throw new Error("Invalid feed IDs");
       }
 
-      // Normalize updateData
       const updateDataRaw = await fetchPythUpdateData(
         [tokenFeedId, cfxUsdFeedId],
         provider
@@ -197,7 +246,7 @@ export function GasTopUp() {
 
       // Nonce from relayer
       const nonceResponse = await fetch(
-        `http://localhost:3000/getNonce?user=${connectedAddress}`
+        `http://localhost:3000/getNonce?user=${normalizedConnectedAddress}`
       );
       const nonceJson = await nonceResponse.json();
       if (!nonceJson.success) {
@@ -208,7 +257,7 @@ export function GasTopUp() {
 
       const deadline = Math.floor(Date.now() / 1000) + 3600;
 
-      // Typed data
+      // SOLUTION 5: Use normalized addresses in typed data
       const domain = {
         name: "GasStation",
         version: "1",
@@ -227,8 +276,8 @@ export function GasTopUp() {
       };
 
       const value = {
-        user: connectedAddress,
-        tokenAddress: selectedToken,
+        user: normalizedConnectedAddress,
+        tokenAddress: normalizedSelectedToken,
         amount: amountWei.toString(),
         nonce: currentNonce,
         deadline,
@@ -240,8 +289,8 @@ export function GasTopUp() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          user: connectedAddress,
-          tokenAddress: selectedToken,
+          user: normalizedConnectedAddress,
+          tokenAddress: normalizedSelectedToken,
           amount: amountWei.toString(),
           nonce: currentNonce,
           deadline,
@@ -279,20 +328,29 @@ export function GasTopUp() {
         <p className="text-center">
           Connected: <b>{connectedAddress ?? "Not connected"}</b>
         </p>
+        {addressError && (
+          <p className="text-red-500 text-center">{addressError}</p>
+        )}
 
         <div className="p-4 border rounded-lg">
           <h3 className="text-lg font-semibold mb-2">Select Token</h3>
           <select
             className="border px-3 py-2 rounded w-full mb-3"
             value={selectedToken ?? ""}
-            onChange={(e) => setSelectedToken(e.target.value || null)}
+            onChange={(e) => {
+              const normalizedAddress = ensureHexAddress(e.target.value);
+              setSelectedToken(normalizedAddress);
+            }}
           >
             <option value="">-- Select --</option>
-            {tokens.map((t) => (
-              <option key={t.tokenAddress} value={t.tokenAddress}>
-                {t.ticker}
-              </option>
-            ))}
+            {tokens.map((t) => {
+              const normalizedAddress = ensureHexAddress(t.tokenAddress);
+              return normalizedAddress ? (
+                <option key={normalizedAddress} value={normalizedAddress}>
+                  {t.ticker}
+                </option>
+              ) : null;
+            })}
           </select>
         </div>
 
@@ -316,7 +374,14 @@ export function GasTopUp() {
 
           <button
             onClick={handleMetaSwap}
-            disabled={!amount || !selectedToken || !!estimateError || loading}
+            disabled={
+              !amount ||
+              !selectedToken ||
+              !!estimateError ||
+              loading ||
+              !ensureHexAddress(connectedAddress) ||
+              !ensureHexAddress(selectedToken)
+            }
             className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:bg-gray-400"
           >
             {loading

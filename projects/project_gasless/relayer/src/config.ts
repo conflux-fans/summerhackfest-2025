@@ -168,7 +168,7 @@ export const GAS_TOP_UP_ABI = [
 ];
 
 // Pyth Oracle
-export const PYTH_ADDRESS = "0x8879170230c9603342f3837cf9a8e76c61791198fb1271bb2552c9af7b33c933";
+export const PYTH_ADDRESS = "0xe9d69CdD6Fe41e7B621B4A688C5D1a68cB5c8ADc";
 export const PYTH_ABI = [
   {
     inputs: [
