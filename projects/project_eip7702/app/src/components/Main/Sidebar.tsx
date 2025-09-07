@@ -5,6 +5,8 @@ import {
   Github,
   CreditCard,
   ShoppingCart,
+  Repeat,
+  GitMerge,
 } from 'lucide-react'
 
 interface SidebarItem {
@@ -15,10 +17,12 @@ interface SidebarItem {
 
 const sidebarItems: SidebarItem[] = [
   { name: 'Portal', to: '/', icon: <Home size={20} /> },
-  { name: 'Gas Topup', to: '/gas', icon: <Cpu size={20} /> },
-  { name: 'Github', to: '/github', icon: <Github size={20} /> },
   { name: 'Wallet', to: '/wallet', icon: <CreditCard size={20} /> },
+  { name: 'Swap', to: '/swap', icon: <Repeat size={20} /> },
+  { name: 'Bridge', to: '/bridge', icon: <GitMerge size={20} /> },
+  { name: 'Gas Topup', to: '/gas', icon: <Cpu size={20} /> },
   { name: 'Buy Crypto', to: '/buy', icon: <ShoppingCart size={20} /> },
+  { name: 'Github', to: '/github', icon: <Github size={20} /> },
 ]
 
 export function Sidebar() {

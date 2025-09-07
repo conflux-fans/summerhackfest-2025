@@ -73,6 +73,10 @@ createAppKit({
   projectId,
   metadata,
   themeMode: 'light',
+  themeVariables: {
+    '--w3m-font-family': 'system-ui, sans-serif',
+    '--w3m-border-radius-master': '0.375rem', // Matches rounded-md (~6px)
+  },
   features: {
     analytics: true // Optional - defaults to your Cloud configuration
   }

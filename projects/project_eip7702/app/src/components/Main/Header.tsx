@@ -11,7 +11,7 @@ export function Header() {
         {/* Logo */}
         <h1 className="text-xl font-bold">
           <NavLink to="/" className="hover:text-gray-600 transition-colors">
-            Project
+          Eip-7702
           </NavLink>
         </h1>
 

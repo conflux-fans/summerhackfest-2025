@@ -10,7 +10,7 @@ export function DefaultLayout() {
 
       {/* Container with max width */}
       <main className="flex-grow w-full">
-        <div className="mx-auto max-w-[1300px] px-4 flex">
+        <div className="mx-auto max-w-[1300px] flex">
             <Sidebar />
 
           {/* Main Content */}
