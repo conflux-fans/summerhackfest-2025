@@ -166,7 +166,35 @@ export const GAS_TOP_UP_ABI = [
   // Fallback receive
   { stateMutability: "payable", type: "receive" },
 ];
-
+export const ERC20_ABI = [
+    {
+      constant: true,
+      inputs: [],
+      name: "decimals",
+      outputs: [{ name: "", type: "uint8" }],
+      type: "function",
+    },
+    {
+      constant: false,
+      inputs: [
+        { name: "spender", type: "address" },
+        { name: "amount", type: "uint256" },
+      ],
+      name: "approve",
+      outputs: [{ name: "", type: "bool" }],
+      type: "function",
+    },
+    {
+      constant: true,
+      inputs: [
+        { name: "owner", type: "address" },
+        { name: "spender", type: "address" },
+      ],
+      name: "allowance",
+      outputs: [{ name: "", type: "uint256" }],
+      type: "function",
+    },
+  ];
 // Pyth Oracle
 export const PYTH_ADDRESS = "0xe9d69CdD6Fe41e7B621B4A688C5D1a68cB5c8ADc";
 export const PYTH_ABI = [

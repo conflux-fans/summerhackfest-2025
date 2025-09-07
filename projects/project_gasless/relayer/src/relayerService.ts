@@ -1,5 +1,4 @@
 import { ethers } from "ethers";
-// Update these imports to match your actual config file structure
 import {
   GAS_TOP_UP_ADDRESS,
   GAS_TOP_UP_ABI,
@@ -7,8 +6,8 @@ import {
   RPC_URL,
   PYTH_ADDRESS,
   PYTH_ABI,
+  ERC20_ABI,
 } from "./config.js";
-
 // SOLUTION 1: Use StaticNetwork to completely disable ENS
 const staticNetwork = new ethers.Network("conflux-espace", 1030);
 
@@ -150,81 +149,54 @@ export async function handleMetaSwap(request: {
   signature: string;
   updateData: string[];
   maxAge: number;
+  permit?: {
+    v: number;
+    r: string;
+    s: string;
+    deadline: number;
+    value: string;
+  };
 }) {
-  const { user, tokenAddress, amount, nonce, deadline, signature, updateData, maxAge } = request;
+  const { user, tokenAddress, amount, nonce, deadline, signature, updateData, maxAge, permit } = request;
 
   try {
-    console.log("=== Starting MetaSwap Request Validation ===");
-    
-    // SOLUTION 8: Comprehensive request validation
-    validateSwapRequest(request);
-    
-    // SOLUTION 9: Normalize addresses with detailed logging
-    const normalizedUser = ensureHexAddress(user, "user");
-    const normalizedTokenAddress = ensureHexAddress(tokenAddress, "token");
-    
-    console.log("=== Validated Addresses ===");
-    console.log(`User: ${normalizedUser}`);
-    console.log(`Token: ${normalizedTokenAddress}`);
-    console.log(`Amount: ${amount}`);
-    console.log(`Nonce: ${nonce}`);
-    
-    // Validate amount conversion
+    console.log("=== Starting MetaSwap Request ===");
+
+    // Validate + normalize
+    const normalizedUser = ethers.getAddress(user);
+    const normalizedTokenAddress = ethers.getAddress(tokenAddress);
     const amountBigInt = BigInt(amount);
-    if (amountBigInt <= 0n) {
-      throw new Error("Amount must be positive");
-    }
-    
-    console.log("=== Fetching Pyth Update Fee ===");
-    // Fetch Pyth update fee
+
+    // Fetch Pyth fee
     const fee = await pythContract.getUpdateFee(updateData);
-    console.log(`Pyth update fee: ${ethers.formatEther(fee)} CFX`);
 
-    // Check relayer balance
-    const relayerBalance = await provider.getBalance(relayerWallet.address);
-    console.log(`Relayer balance: ${ethers.formatEther(relayerBalance)} CFX`);
-    
-    if (relayerBalance < fee) {
-      throw new Error(
-        `Insufficient relayer balance: ${ethers.formatEther(relayerBalance)} CFX, needed: ${ethers.formatEther(fee)} CFX`
-      );
-    }
-
-    console.log("=== Preparing Transaction ===");
-    // Prepare transaction options
     const txOptions = {
       value: fee,
       gasLimit: 5_000_000n,
-      // Get gas price safely
-      gasPrice: undefined as bigint | undefined
     };
 
-    try {
-      const feeData = await provider.getFeeData();
-      if (feeData.gasPrice) {
-        txOptions.gasPrice = feeData.gasPrice;
-        console.log(`Gas price: ${ethers.formatUnits(feeData.gasPrice, "gwei")} gwei`);
-      }
-    } catch (gasError) {
-      console.warn("Could not fetch gas price, using default:", gasError);
-      // Continue without setting gas price - let the network decide
+    // --- NEW: Execute permit if provided ---
+    if (permit) {
+      console.log("Executing permit()");
+      const token = new ethers.Contract(
+        normalizedTokenAddress,
+        ERC20_ABI,
+        relayerWallet
+      );
+      const txPermit = await token.permit(
+        normalizedUser,
+        GAS_TOP_UP_ADDRESS,
+        permit.value,
+        permit.deadline,
+        permit.v,
+        permit.r,
+        permit.s
+      );
+      await txPermit.wait();
+      console.log(`✅ Permit executed in tx: ${txPermit.hash}`);
     }
 
-    console.log("=== Sending Transaction ===");
-    console.log("Transaction parameters:", {
-      user: normalizedUser,
-      tokenAddress: normalizedTokenAddress,
-      amount: amount,
-      nonce: nonce,
-      deadline: deadline,
-      signature: signature.substring(0, 10) + "...", // Don't log full signature
-      updateDataLength: updateData.length,
-      maxAge: maxAge,
-      value: ethers.formatEther(fee),
-      gasLimit: txOptions.gasLimit.toString()
-    });
-
-    // SOLUTION 10: Call contract with all addresses pre-validated
+    // MetaSwap
     const tx = await gasTopUpContract.metaSwap(
       normalizedUser,
       normalizedTokenAddress,
@@ -235,48 +207,14 @@ export async function handleMetaSwap(request: {
       maxAge,
       txOptions
     );
-
-    console.log(`✅ Transaction sent: ${tx.hash}`);
+    console.log(`✅ MetaSwap sent: ${tx.hash}`);
 
     const receipt = await tx.wait();
-    console.log(`✅ Transaction confirmed: ${receipt?.transactionHash}`);
-
     return { success: true, txHash: receipt?.transactionHash };
-    
+
   } catch (err: any) {
     console.error("❌ MetaSwap relayer error:", err);
-
-    // SOLUTION 11: Enhanced error detection and reporting
-    let decodedError = "Unknown error occurred";
-    
-    if (err.message) {
-      decodedError = err.message;
-      
-      // Check for specific error patterns
-      if (err.message.includes("ENS") || err.message.includes("network does not support ENS")) {
-        decodedError = `ENS resolution error detected. Original error: ${err.message}. All addresses should be in hex format (0x...).`;
-        console.error("🔍 ENS Error Details:", {
-          originalError: err.message,
-          stack: err.stack,
-          code: err.code,
-          reason: err.reason
-        });
-      }
-    }
-    
-    // Try to decode contract errors
-    if (err.data) {
-      try {
-        const parsedError = gasTopUpContract.interface.parseError(err.data);
-        if (parsedError) {
-          decodedError = `Contract error - ${parsedError.name}: ${parsedError.args.join(", ")}`;
-        }
-      } catch (decodeErr) {
-        console.error("Failed to decode contract error:", decodeErr);
-      }
-    }
-
-    return { success: false, error: decodedError };
+    return { success: false, error: err.message ?? "Unknown error" };
   }
 }
 
@@ -311,3 +249,5 @@ export async function getNonce(user: string): Promise<string> {
     throw new Error(errorMessage);
   }
 }
+
+

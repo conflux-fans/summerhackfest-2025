@@ -33,38 +33,36 @@ export function GasTopUp() {
   const [nonce, setNonce] = useState<string>("0");
   const [addressError, setAddressError] = useState<string | null>(null);
 
-  // Helper to validate hex address
+  // Helpers
   function isHexAddress(addr: string | null | undefined): boolean {
     return typeof addr === "string" && ethers.isAddress(addr);
   }
-
-  // Helper to ensure checksummed hex address
   function ensureHexAddress(address: string | null | undefined): string | null {
     if (!address) return null;
     if (!isHexAddress(address)) return null;
     try {
-      return ethers.getAddress(address); // Returns checksummed address
+      return ethers.getAddress(address);
     } catch {
       return null;
     }
   }
 
-  // SOLUTION 1: Initialize provider with explicit network configuration
+  // Provider
   useEffect(() => {
     if (typeof window.ethereum !== "undefined") {
-      // Create custom network without ENS configuration
       const customNetwork = {
         chainId: 1030,
         name: "conflux-espace",
-        // Don't include ensAddress to avoid ENS lookups
       };
-
-      const customProvider = new ethers.BrowserProvider(window.ethereum, customNetwork);
+      const customProvider = new ethers.BrowserProvider(
+        window.ethereum,
+        customNetwork
+      );
       setProvider(customProvider);
     }
   }, []);
 
-  // Fetch supported tokens
+  // Fetch tokens
   useEffect(() => {
     if (!provider) return;
     const fetchTokens = async () => {
@@ -80,7 +78,6 @@ export function GasTopUp() {
         const dMap: Record<string, number> = {};
         const tMap: Record<string, string> = {};
         tokenList.forEach((t) => {
-          // SOLUTION 2: Ensure token addresses are properly formatted
           const normalizedAddress = ensureHexAddress(t.tokenAddress);
           if (normalizedAddress) {
             dMap[normalizedAddress] = 18;
@@ -90,10 +87,10 @@ export function GasTopUp() {
         setTokenDecimals(dMap);
         setTickerMap(tMap);
 
-        // Fetch decimals dynamically for valid tokens only
-        for (const t of validTokens) {
-          const normalizedTokenAddress = t.tokenAddress; // Already validated above
-          
+        // Fetch decimals dynamically
+        for (const t of tokenList) {
+          const normalizedTokenAddress = ensureHexAddress(t.tokenAddress);
+          if (!normalizedTokenAddress) continue;
           try {
             const tokenContract = new ethers.Contract(
               normalizedTokenAddress,
@@ -106,21 +103,14 @@ export function GasTopUp() {
               [normalizedTokenAddress]: Number(decimals),
             }));
           } catch (err) {
-            console.warn(
-              "Failed to fetch decimals for token",
-              normalizedTokenAddress,
-              err
-            );
+            console.warn("Failed to fetch decimals", normalizedTokenAddress, err);
           }
         }
 
-        // Default to USDT from valid tokens
-        const usdt = validTokens.find(
+        const usdt = tokenList.find(
           (t) => t.ticker.toLowerCase() === "usdt"
         );
-        if (usdt) {
-          setSelectedToken(usdt.tokenAddress);
-        }
+        if (usdt) setSelectedToken(usdt.tokenAddress);
       } catch (err) {
         console.error("Failed to fetch tokens", err);
       }
@@ -138,9 +128,7 @@ export function GasTopUp() {
     const fetchEstimate = async () => {
       try {
         const normalizedTokenAddress = ensureHexAddress(selectedToken);
-        if (!normalizedTokenAddress) {
-          throw new Error("Invalid token address");
-        }
+        if (!normalizedTokenAddress) throw new Error("Invalid token address");
 
         const contract = new ethers.Contract(
           GAS_TOP_UP_ADDRESS,
@@ -165,9 +153,7 @@ export function GasTopUp() {
     const fetchFee = async () => {
       try {
         const normalizedTokenAddress = ensureHexAddress(selectedToken);
-        if (!normalizedTokenAddress) {
-          throw new Error("Invalid token address");
-        }
+        if (!normalizedTokenAddress) throw new Error("Invalid token address");
 
         const contract = new ethers.Contract(
           GAS_TOP_UP_ADDRESS,
@@ -200,31 +186,63 @@ export function GasTopUp() {
     fetchFee();
   }, [provider, selectedToken]);
 
-  // MetaSwap via relayer
+  // --- NEW: Permit signing helper ---
+  async function getPermitSignature(
+    token: string,
+    owner: string,
+    spender: string,
+    value: bigint,
+    provider: ethers.BrowserProvider
+  ) {
+    const signer = await provider.getSigner(owner);
+    const tokenContract = new ethers.Contract(token, ERC20_ABI, provider);
+
+    const nonce = await tokenContract.nonces(owner);
+    const deadline = Math.floor(Date.now() / 1000) + 3600;
+
+    const domain = {
+      name: await tokenContract.name(),
+      version: "1",
+      chainId: 1030,
+      verifyingContract: token,
+    };
+
+    const types = {
+      Permit: [
+        { name: "owner", type: "address" },
+        { name: "spender", type: "address" },
+        { name: "value", type: "uint256" },
+        { name: "nonce", type: "uint256" },
+        { name: "deadline", type: "uint256" },
+      ],
+    };
+
+    const values = { owner, spender, value, nonce, deadline };
+    const signature = await signer.signTypedData(domain, types, values);
+    const { v, r, s } = ethers.Signature.from(signature);
+
+    return { v, r, s, deadline, value: value.toString() };
+  }
+
+  // MetaSwap
   const handleMetaSwap = async () => {
     setAddressError(null);
-
-    // SOLUTION 3: Validate and normalize addresses before proceeding
     const normalizedConnectedAddress = ensureHexAddress(connectedAddress);
     const normalizedSelectedToken = ensureHexAddress(selectedToken);
-
     if (!normalizedConnectedAddress) {
-      setAddressError("Connected address must be a valid hex address");
+      setAddressError("Connected address must be valid");
       return;
     }
     if (!normalizedSelectedToken) {
-      setAddressError("Token address must be a valid hex address");
+      setAddressError("Token address must be valid");
       return;
     }
     if (!provider || !amount) return;
 
     try {
       setLoading(true);
-      
-      // SOLUTION 4: Get signer with explicit address
-      const signer = await provider.getSigner(normalizedConnectedAddress);
 
-      // Prepare contract and updateData
+      const signer = await provider.getSigner(normalizedConnectedAddress);
       const contract = new ethers.Contract(
         GAS_TOP_UP_ADDRESS,
         GAS_TOP_UP_ABI,
@@ -257,14 +275,13 @@ export function GasTopUp() {
 
       const deadline = Math.floor(Date.now() / 1000) + 3600;
 
-      // SOLUTION 5: Use normalized addresses in typed data
+      // Domain + SwapRequest signature
       const domain = {
         name: "GasStation",
         version: "1",
         chainId: 1030,
         verifyingContract: GAS_TOP_UP_ADDRESS,
       };
-
       const types = {
         SwapRequest: [
           { name: "user", type: "address" },
@@ -274,7 +291,6 @@ export function GasTopUp() {
           { name: "deadline", type: "uint256" },
         ],
       };
-
       const value = {
         user: normalizedConnectedAddress,
         tokenAddress: normalizedSelectedToken,
@@ -282,9 +298,18 @@ export function GasTopUp() {
         nonce: currentNonce,
         deadline,
       };
+      const swapSignature = await signer.signTypedData(domain, types, value);
 
-      const signature = await signer.signTypedData(domain, types, value);
+      // --- NEW: Get EIP-2612 permit signature ---
+      const permit = await getPermitSignature(
+        normalizedSelectedToken,
+        normalizedConnectedAddress,
+        GAS_TOP_UP_ADDRESS,
+        amountWei,
+        provider
+      );
 
+      // Send everything to relayer
       const response = await fetch("http://localhost:3000/metaSwap", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -294,9 +319,10 @@ export function GasTopUp() {
           amount: amountWei.toString(),
           nonce: currentNonce,
           deadline,
-          signature,
+          signature: swapSignature,
           updateData,
           maxAge,
+          permit,
         }),
       });
 
@@ -322,9 +348,7 @@ export function GasTopUp() {
   return (
     <div className="flex justify-center items-center px-4">
       <div className="w-full max-w-2xl bg-white p-6 border mt-4 rounded-2xl shadow-md space-y-6">
-        <h2 className="text-2xl font-bold text-center">
-          Gas Top Up (MetaSwap)
-        </h2>
+        <h2 className="text-2xl font-bold text-center">Gas Top Up (MetaSwap)</h2>
         <p className="text-center">
           Connected: <b>{connectedAddress ?? "Not connected"}</b>
         </p>
