@@ -1,14 +1,25 @@
 import { Outlet } from 'react-router-dom'
 import { Header } from '../components/Main/Header'
 import { Footer } from '../components/Main/Footer'
+import { Sidebar } from '../components/Main/Sidebar'
 
 export function DefaultLayout() {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <main className="flex-grow container mx-auto p-4">
-        <Outlet />
+
+      {/* Container with max width */}
+      <main className="flex-grow w-full">
+        <div className="mx-auto max-w-[1300px] px-4 flex">
+            <Sidebar />
+
+          {/* Main Content */}
+          <div className="flex-grow p-4">
+            <Outlet />
+          </div>
+        </div>
       </main>
+
       <Footer />
     </div>
   )
