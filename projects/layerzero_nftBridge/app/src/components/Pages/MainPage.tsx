@@ -125,10 +125,20 @@ export function MainPage() {
           <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl">
             {/* Chain Selector */}
             <div className="mb-8">
-              <h3 className="text-white text-lg font-semibold mb-6 flex items-center">
-                <span className="w-2 h-2 bg-green-400 rounded-full mr-3 animate-pulse"></span>
-                Network Selection
-              </h3>
+            <div className="flex items-center justify-between mb-6">
+  <h3 className="text-white text-lg font-semibold flex items-center gap-3">
+    <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+    Network Selection
+  </h3>
+  <NetworkDropdown
+    chainId={chainId}
+    switchChainAsync={switchChainAsync}
+    setTxStatus={setTxStatus}
+    setTokenId={setTokenId}
+    setIsApproved={setIsApproved}
+  />
+</div>
+
               <div className="relative">
                 <div className="flex items-center justify-between bg-white/5 border border-white/10 rounded-2xl p-4">
                   <div className="flex items-center">
@@ -154,15 +164,6 @@ export function MainPage() {
                       <div className="text-gray-400 text-sm">Destination</div>
                     </div>
                   </div>
-                </div>
-                <div className="mt-4">
-                  <NetworkDropdown
-                    chainId={chainId}
-                    switchChainAsync={switchChainAsync}
-                    setTxStatus={setTxStatus}
-                    setTokenId={setTokenId}
-                    setIsApproved={setIsApproved}
-                  />
                 </div>
               </div>
             </div>
