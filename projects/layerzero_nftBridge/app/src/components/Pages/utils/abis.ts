@@ -1,21 +1,52 @@
 export const ESPACE_BRIDGE_ABI = [
   {
     "inputs": [
-      { "name": "_dstChainId", "type": "uint16" },
-      { "name": "_dstContractBytes", "type": "bytes" },
+      { "name": "_dstEid", "type": "uint32" },
       { "name": "_tokenId", "type": "uint256" },
       { "name": "_recipient", "type": "address" },
-      { "name": "_adapterParams", "type": "bytes" }
+      { "name": "_options", "type": "bytes" }
     ],
     "name": "bridgeOut",
-    "outputs": [],
+    "outputs": [
+      {
+        "components": [
+          { "name": "msgId", "type": "bytes32" },
+          { "name": "guid", "type": "bytes32" },
+          { "name": "nonce", "type": "uint64" },
+          { "name": "fee", "type": "uint256" }
+        ],
+        "name": "receipt",
+        "type": "tuple"
+      }
+    ],
     "stateMutability": "payable",
     "type": "function"
   },
   {
-    "inputs": [{ "name": "_dstChainId", "type": "uint16" }],
-    "name": "trustedRemoteLookup",
-    "outputs": [{ "name": "", "type": "bytes" }],
+    "inputs": [
+      { "name": "_dstEid", "type": "uint32" },
+      { "name": "_tokenId", "type": "uint256" },
+      { "name": "_recipient", "type": "address" },
+      { "name": "_options", "type": "bytes" }
+    ],
+    "name": "quoteBridgeOut",
+    "outputs": [
+      {
+        "components": [
+          { "name": "nativeFee", "type": "uint256" },
+          { "name": "lzTokenFee", "type": "uint256" }
+        ],
+        "name": "fee",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "name": "_eid", "type": "uint32" }],
+    "name": "peers",
+    "outputs": [{ "name": "", "type": "bytes32" }],
     "stateMutability": "view",
     "type": "function"
   }
@@ -24,14 +55,46 @@ export const ESPACE_BRIDGE_ABI = [
 export const BASE_WRAPPED_ABI = [
   {
     "inputs": [
-      { "name": "_dstChainId", "type": "uint16" },
-      { "name": "_dstContractBytes", "type": "bytes" },
+      { "name": "_dstEid", "type": "uint32" },
       { "name": "_wrappedTokenId", "type": "uint256" },
-      { "name": "_adapterParams", "type": "bytes" }
+      { "name": "_recipient", "type": "address" },
+      { "name": "_options", "type": "bytes" }
     ],
     "name": "bridgeBack",
-    "outputs": [],
+    "outputs": [
+      {
+        "components": [
+          { "name": "msgId", "type": "bytes32" },
+          { "name": "guid", "type": "bytes32" },
+          { "name": "nonce", "type": "uint64" },
+          { "name": "fee", "type": "uint256" }
+        ],
+        "name": "receipt",
+        "type": "tuple"
+      }
+    ],
     "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "name": "_dstEid", "type": "uint32" },
+      { "name": "_wrappedTokenId", "type": "uint256" },
+      { "name": "_recipient", "type": "address" },
+      { "name": "_options", "type": "bytes" }
+    ],
+    "name": "quoteBridgeBack",
+    "outputs": [
+      {
+        "components": [
+          { "name": "nativeFee", "type": "uint256" },
+          { "name": "lzTokenFee", "type": "uint256" }
+        ],
+        "name": "fee",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -53,9 +116,22 @@ export const BASE_WRAPPED_ABI = [
     "type": "function"
   },
   {
-    "inputs": [{ "name": "_dstChainId", "type": "uint16" }],
-    "name": "trustedRemoteLookup",
-    "outputs": [{ "name": "", "type": "bytes" }],
+    "inputs": [{ "name": "_eid", "type": "uint32" }],
+    "name": "peers",
+    "outputs": [{ "name": "", "type": "bytes32" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "name": "_wrappedTokenId", "type": "uint256" }
+    ],
+    "name": "wrappedOriginInfo",
+    "outputs": [
+      { "name": "originEid", "type": "uint32" },
+      { "name": "originContract", "type": "address" },
+      { "name": "originTokenId", "type": "uint256" }
+    ],
     "stateMutability": "view",
     "type": "function"
   }
@@ -106,19 +182,19 @@ export const IMAGE_MINT_NFT_ABI = [
 
 export const LAYERZERO_ENDPOINT_ABI = [
   {
-    inputs: [
-      { name: "_dstChainId", type: "uint16" },
-      { name: "_userApplication", type: "address" },
-      { name: "_payload", type: "bytes" },
-      { name: "_payInZRO", type: "bool" },
-      { name: "_adapterParams", type: "bytes" }
+    "inputs": [
+      { "name": "_dstEid", "type": "uint32" },
+      { "name": "_message", "type": "bytes" },
+      { "name": "_options", "type": "bytes" },
+      { "name": "_payInLzToken", "type": "bool" },
+      { "name": "_sender", "type": "address" }
     ],
-    name: "estimateFees",
-    outputs: [
-      { name: "nativeFee", type: "uint256" },
-      { name: "zroFee", type: "uint256" }
+    "name": "quote",
+    "outputs": [
+      { "name": "nativeFee", "type": "uint256" },
+      { "name": "lzTokenFee", "type": "uint256" }
     ],
-    stateMutability: "view",
-    type: "function"
+    "stateMutability": "view",
+    "type": "function"
   }
 ];

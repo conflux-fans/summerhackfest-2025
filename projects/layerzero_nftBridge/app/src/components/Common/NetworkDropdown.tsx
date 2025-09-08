@@ -18,7 +18,7 @@ export function NetworkDropdown({ chainId, switchChainAsync, setTxStatus, setTok
     <div className="relative inline-block text-left">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 hover:bg-gray-200 transition text-sm font-medium"
+        className="flex items-center gap-2 px-3 py-2 rounded-md bg-gray-100 hover:bg-gray-200 transition text-sm font-medium"
       >
         {chainId === CONFLUX_CHAIN_ID && (
           <>

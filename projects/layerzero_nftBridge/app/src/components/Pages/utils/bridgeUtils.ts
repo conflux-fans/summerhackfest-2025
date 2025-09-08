@@ -63,55 +63,41 @@ export const bridgeToBase = async (
   }
   setIsBridging(true);
   try {
-    // Verify trusted remote
-    const trustedRemote = await publicClient.readContract({
+    // Verify peer
+    const peer = await publicClient.readContract({
       address: CONFLUX_ORIGIN_ADDRESS,
-      abi: [
-        {
-          inputs: [{ name: "_dstChainId", type: "uint16" }],
-          name: "trustedRemoteLookup",
-          outputs: [{ name: "", type: "bytes" }],
-          stateMutability: "view",
-          type: "function"
-        }
-      ],
-      functionName: 'trustedRemoteLookup',
+      abi: ESPACE_BRIDGE_ABI,
+      functionName: 'peers',
       args: [BASE_EID],
-    }) as string;
-    const expectedRemote = encodePacked(['address', 'address'], [BASE_WRAPPED_ADDRESS, CONFLUX_ORIGIN_ADDRESS]);
-    if (trustedRemote.toLowerCase() !== expectedRemote.toLowerCase()) {
+    }) as `0x${string}`;
+    const expectedPeer = encodePacked(['address'], [BASE_WRAPPED_ADDRESS]).padStart(66, '0') as `0x${string}`;
+    if (peer.toLowerCase() !== expectedPeer.toLowerCase()) {
       setTxStatus(
-        `Trusted remote not set. Call setTrustedRemote on EspaceBridge (0x${CONFLUX_ORIGIN_ADDRESS.slice(2)}) with dstChainId=30184 and path=0x${expectedRemote.slice(2)}.`
+        `Peer not set. Call setPeer on EspaceBridge (0x${CONFLUX_ORIGIN_ADDRESS.slice(2)}) with dstEid=30184 and peer=0x${expectedPeer.slice(2)}.`
       );
       return;
     }
-
-    const dstContractBytes = toHex(BASE_WRAPPED_ADDRESS);
-    // Correctly encode adapterParams (version 2, 1,000,000 gas)
+    // V2 options for lzReceive: type 1, gas 1,000,000, value 0
     const adapterParams = encodePacked(
-      ['uint16', 'uint256'],
-      [2, 1000000]
+      ['uint8', 'uint16', 'uint128', 'uint128'],
+      [1, 32, 1000000n, 0n]
     );
-    console.log('adapterParams:', adapterParams); // Debug: Should be 0x000200000000000000000000000f4240
-    const payload = encodeFunctionData({
+    console.log('adapterParams:', adapterParams);
+    // Estimate fee using contract's quote function
+    const fee = await publicClient.readContract({
+      address: CONFLUX_ORIGIN_ADDRESS,
       abi: ESPACE_BRIDGE_ABI,
-      functionName: 'bridgeOut',
-      args: [BASE_EID, dstContractBytes, BigInt(tokenId), recipient, adapterParams],
-    });
-    console.log('payload:', payload); // Debug
-    const { nativeFee } = await publicClient.readContract({
-      address: LAYERZERO_ENDPOINT,
-      abi: LAYERZERO_ENDPOINT_ABI,
-      functionName: 'estimateFees',
-      args: [BASE_EID, BASE_WRAPPED_ADDRESS, payload, false, adapterParams],
-    });
-    console.log('Estimated native fee:', nativeFee); // Debug
+      functionName: 'quoteBridgeOut',
+      args: [BASE_EID, BigInt(tokenId), recipient as Address, adapterParams],
+    }) as { nativeFee: bigint; lzTokenFee: bigint };
+    console.log('Estimated native fee:', fee.nativeFee);
+    // Bridge
     const hash = await walletClient.writeContract({
       address: CONFLUX_ORIGIN_ADDRESS,
       abi: ESPACE_BRIDGE_ABI,
       functionName: 'bridgeOut',
-      args: [BASE_EID, dstContractBytes, BigInt(tokenId), recipient, adapterParams],
-      value: nativeFee,
+      args: [BASE_EID, BigInt(tokenId), recipient as Address, adapterParams],
+      value: fee.nativeFee,
     });
     await publicClient.waitForTransactionReceipt({ hash });
     setTxStatus(`NFT ${tokenId} bridged to Base!`);
@@ -151,53 +137,41 @@ export const bridgeBackToConflux = async (
       setTxStatus('You do not own this wrapped token');
       return;
     }
-    const trustedRemote = await publicClient.readContract({
+    // Verify peer
+    const peer = await publicClient.readContract({
       address: BASE_WRAPPED_ADDRESS,
-      abi: [
-        {
-          inputs: [{ name: "_dstChainId", type: "uint16" }],
-          name: "trustedRemoteLookup",
-          outputs: [{ name: "", type: "bytes" }],
-          stateMutability: "view",
-          type: "function"
-        }
-      ],
-      functionName: 'trustedRemoteLookup',
+      abi: BASE_WRAPPED_ABI,
+      functionName: 'peers',
       args: [CONFLUX_EID],
-    }) as string;
-    const expectedRemote = encodePacked(['address', 'address'], [CONFLUX_ORIGIN_ADDRESS, BASE_WRAPPED_ADDRESS]);
-    if (trustedRemote.toLowerCase() !== expectedRemote.toLowerCase()) {
+    }) as `0x${string}`;
+    const expectedPeer = encodePacked(['address'], [CONFLUX_ORIGIN_ADDRESS]).padStart(66, '0') as `0x${string}`;
+    if (peer.toLowerCase() !== expectedPeer.toLowerCase()) {
       setTxStatus(
-        `Trusted remote not set. Call setTrustedRemote on BaseWrappedBridge (0x${BASE_WRAPPED_ADDRESS.slice(2)}) with dstChainId=30212 and path=0x${expectedRemote.slice(2)}.`
+        `Peer not set. Call setPeer on BaseWrappedBridge (0x${BASE_WRAPPED_ADDRESS.slice(2)}) with dstEid=30212 and peer=0x${expectedPeer.slice(2)}.`
       );
       return;
     }
-
-    const dstContractBytes = toHex(CONFLUX_ORIGIN_ADDRESS);
+    // V2 options
     const adapterParams = encodePacked(
-      ['uint16', 'uint256'],
-      [2, 1000000]
+      ['uint8', 'uint16', 'uint128', 'uint128'],
+      [1, 32, 1000000n, 0n]
     );
-    console.log('adapterParams:', adapterParams); // Debug
-    const payload = encodeFunctionData({
+    console.log('adapterParams:', adapterParams);
+    // Estimate fee using contract's quote function
+    const fee = await publicClient.readContract({
+      address: BASE_WRAPPED_ADDRESS,
       abi: BASE_WRAPPED_ABI,
-      functionName: 'bridgeBack',
-      args: [CONFLUX_EID, dstContractBytes, BigInt(tokenId), adapterParams],
-    });
-    console.log('payload:', payload); // Debug
-    const { nativeFee } = await publicClient.readContract({
-      address: LAYERZERO_ENDPOINT,
-      abi: LAYERZERO_ENDPOINT_ABI,
-      functionName: 'estimateFees',
-      args: [CONFLUX_EID, BASE_WRAPPED_ADDRESS, payload, false, adapterParams],
-    });
-    console.log('Estimated native fee:', nativeFee); // Debug
+      functionName: 'quoteBridgeBack',
+      args: [CONFLUX_EID, BigInt(tokenId), recipient as Address, adapterParams],
+    }) as { nativeFee: bigint; lzTokenFee: bigint };
+    console.log('Estimated native fee:', fee.nativeFee);
+    // Bridge back
     const hash = await walletClient.writeContract({
       address: BASE_WRAPPED_ADDRESS,
       abi: BASE_WRAPPED_ABI,
       functionName: 'bridgeBack',
-      args: [CONFLUX_EID, dstContractBytes, BigInt(tokenId), adapterParams],
-      value: nativeFee,
+      args: [CONFLUX_EID, BigInt(tokenId), recipient as Address, adapterParams],
+      value: fee.nativeFee,
     });
     await publicClient.waitForTransactionReceipt({ hash });
     setTxStatus(`Wrapped NFT ${tokenId} bridged back to Conflux!`);

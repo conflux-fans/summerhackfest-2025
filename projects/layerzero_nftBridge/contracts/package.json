@@ -20,7 +20,9 @@
   },
   "type": "module",
   "dependencies": {
-    "@openzeppelin/contracts": "^5.4.0",
+    "@layerzerolabs/lz-evm-oapp-v2": "^3.0.128",
+    "@layerzerolabs/oapp-evm": "^0.3.2",
+    "@openzeppelin/contracts": "^5.0.1",
     "dotenv": "^17.2.2"
   }
 }

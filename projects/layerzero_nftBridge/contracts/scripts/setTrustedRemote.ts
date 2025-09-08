@@ -1,85 +1,72 @@
-import hre from "hardhat";
-import { Wallet, JsonRpcProvider, Contract, solidityPacked } from "ethers";
+import { ethers } from "ethers";
 import * as dotenv from "dotenv";
 dotenv.config();
-
-// Contract addresses and chain IDs
-const CONFLUX_ORIGIN_ADDRESS = "0x17f99bad7981986c684FDc8d78B1342ec7470ac1";
-const BASE_WRAPPED_ADDRESS = "0x16dED18bd0ead69b331B0222110F74b5716627f8";
+// Contract addresses and EIDs
+const CONFLUX_ORIGIN_ADDRESS = "0x45a8c758a42B0515dB5FfC880d1dffC7358cac03";
+const BASE_WRAPPED_ADDRESS = "0xF5d65814E2584cD504F1AC836C0A24d438CDf7Ec";
 const CONFLUX_EID = 30212;
 const BASE_EID = 30184;
-
-// ABI for setTrustedRemote and trustedRemoteLookup
+// ABI for setPeer and peers
 const BRIDGE_ABI = [
   {
     inputs: [
-      { name: "_dstChainId", type: "uint16" },
-      { name: "_path", type: "bytes" },
+      { name: "_dstEid", type: "uint32" },
+      { name: "_peer", type: "bytes32" },
     ],
-    name: "setTrustedRemote",
+    name: "setPeer",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },
   {
-    inputs: [{ name: "_dstChainId", type: "uint16" }],
-    name: "trustedRemoteLookup",
-    outputs: [{ name: "", type: "bytes" }],
+    inputs: [{ name: "_eid", type: "uint32" }],
+    name: "peers",
+    outputs: [{ name: "", type: "bytes32" }],
     stateMutability: "view",
     type: "function",
   },
 ];
-
-// Utility to compute the path
-function computePath(addr1: string, addr2: string) {
-  return solidityPacked(["address", "address"], [addr1, addr2]);
+// Utility to compute the peer (bytes32 from address)
+function computePeer(addr: string) {
+  return ethers.utils.hexZeroPad(addr, 32);
 }
-
 async function main() {
   // Providers
-  const confluxProvider = new JsonRpcProvider(process.env.CONFLUX_RPC || "https://evm.confluxrpc.com");
-  const baseProvider = new JsonRpcProvider(process.env.BASE_RPC || "https://mainnet.base.org");
-
+  const confluxProvider = new ethers.providers.JsonRpcProvider(process.env.CONFLUX_RPC || "https://evm.confluxrpc.com");
+  const baseProvider = new ethers.providers.JsonRpcProvider(process.env.BASE_RPC || "https://mainnet.base.org");
   // Wallet (same private key works on both networks)
-  const wallet = new Wallet(process.env.PRIVATE_KEY || "", confluxProvider);
+  const wallet = new ethers.Wallet(process.env.PRIVATE_KEY || "", confluxProvider);
   console.log("Wallet address:", wallet.address);
-
-  // Compute paths
-  const confluxToBasePath = computePath(BASE_WRAPPED_ADDRESS, CONFLUX_ORIGIN_ADDRESS);
-  const baseToConfluxPath = computePath(CONFLUX_ORIGIN_ADDRESS, BASE_WRAPPED_ADDRESS);
-
+  // Compute peers
+  const confluxToBasePeer = computePeer(BASE_WRAPPED_ADDRESS);
+  const baseToConfluxPeer = computePeer(CONFLUX_ORIGIN_ADDRESS);
   // --- Conflux Bridge ---
-  const confluxBridge = new Contract(CONFLUX_ORIGIN_ADDRESS, BRIDGE_ABI, wallet);
-  const currentConfluxRemote = await confluxBridge.trustedRemoteLookup(BASE_EID);
-
-  if (currentConfluxRemote.toLowerCase() === confluxToBasePath.toLowerCase()) {
-    console.log("✅ Trusted remote already set on Conflux for Base EID 30184");
+  const confluxBridge = new ethers.Contract(CONFLUX_ORIGIN_ADDRESS, BRIDGE_ABI, wallet.connect(confluxProvider));
+  const currentConfluxPeer = await confluxBridge.peers(BASE_EID);
+  if (currentConfluxPeer.toLowerCase() === confluxToBasePeer.toLowerCase()) {
+    console.log("✅ Peer already set on Conflux for Base EID 30184");
   } else {
-    console.log("⏳ Setting trusted remote on Conflux...");
-    const tx = await confluxBridge.setTrustedRemote(BASE_EID, confluxToBasePath);
+    console.log("⏳ Setting peer on Conflux...");
+    const tx = await confluxBridge.setPeer(BASE_EID, confluxToBasePeer);
     await tx.wait();
-    console.log("✅ Trusted remote set on Conflux:", tx.hash);
+    console.log("✅ Peer set on Conflux:", tx.hash);
     console.log("🔗 ConfluxScan:", `https://evm.confluxscan.net/tx/${tx.hash}`);
   }
-
   // --- Base Bridge ---
-  const baseWallet = new Wallet(process.env.PRIVATE_KEY || "", baseProvider);
-  const baseBridge = new Contract(BASE_WRAPPED_ADDRESS, BRIDGE_ABI, baseWallet);
-  const currentBaseRemote = await baseBridge.trustedRemoteLookup(CONFLUX_EID);
-
-  if (currentBaseRemote.toLowerCase() === baseToConfluxPath.toLowerCase()) {
-    console.log("✅ Trusted remote already set on Base for Conflux EID 30212");
+  const baseWallet = wallet.connect(baseProvider);
+  const baseBridge = new ethers.Contract(BASE_WRAPPED_ADDRESS, BRIDGE_ABI, baseWallet);
+  const currentBasePeer = await baseBridge.peers(CONFLUX_EID);
+  if (currentBasePeer.toLowerCase() === baseToConfluxPeer.toLowerCase()) {
+    console.log("✅ Peer already set on Base for Conflux EID 30212");
   } else {
-    console.log("⏳ Setting trusted remote on Base...");
-    const tx = await baseBridge.setTrustedRemote(CONFLUX_EID, baseToConfluxPath);
+    console.log("⏳ Setting peer on Base...");
+    const tx = await baseBridge.setPeer(CONFLUX_EID, baseToConfluxPeer);
     await tx.wait();
-    console.log("✅ Trusted remote set on Base:", tx.hash);
+    console.log("✅ Peer set on Base:", tx.hash);
     console.log("🔗 BaseScan:", `https://basescan.org/tx/${tx.hash}`);
   }
-
-  console.log("🎉 Trusted remote setup complete!");
+  console.log("🎉 Peer setup complete!");
 }
-
 main()
   .then(() => process.exit(0))
   .catch((error) => {
