@@ -76,17 +76,36 @@ const ethereumSepolia = {
   testnet: true,
 }
 
-// 5. Set the networks
-const networks = [confluxESpaceMainnet, confluxESpaceTestnet, ethereumSepolia]
+// 5. Define Base network
+const baseMainnet = {
+  id: 8453,
+  name: 'Base',
+  network: 'base',
+  nativeCurrency: {
+    name: 'Ethereum',
+    symbol: 'ETH',
+    decimals: 18,
+  },
+  rpcUrls: {
+    default: { http: ['https://base-rpc.publicnode.com'] },
+    public: { http: ['https://base-rpc.publicnode.com'] },
+  },
+  blockExplorers: {
+    default: { name: 'Base Explorer', url: 'https://basescan.org' },
+  },
+}
 
-// 6. Create Wagmi Adapter
+// 6. Set the networks
+const networks = [confluxESpaceMainnet, confluxESpaceTestnet, ethereumSepolia, baseMainnet]
+
+// 7. Create Wagmi Adapter
 export const wagmiAdapter = new WagmiAdapter({
   networks,
   projectId,
   ssr: true,
 })
 
-// 7. Create modal (note the added `chainImages` mapping)
+// 8. Create modal (note the added `chainImages` mapping)
 createAppKit({
   adapters: [wagmiAdapter],
   networks,
@@ -109,7 +128,7 @@ createAppKit({
   }
 })
 
-// 8. Export AppKitProvider
+// 9. Export AppKitProvider
 export function AppKitProvider({ children }: { children: ReactNode }) {
   return (
     <WagmiProvider config={wagmiAdapter.wagmiConfig}>

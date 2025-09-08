@@ -4,11 +4,10 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 
-const CONFLUX_RPC_URL = process.env.CONFLUX_RPC_URL;
-const CONFLUX_PRIVATE_KEY = process.env.CONFLUX_PRIVATE_KEY;
+const PRIVATE_KEY = process.env.PRIVATE_KEY;
 
-if (!CONFLUX_RPC_URL || !CONFLUX_PRIVATE_KEY) {
-  throw new Error("Please set CONFLUX_TESTNET_RPC_URL and CONFLUX_TESTNET_PRIVATE_KEY in your .env file");
+if (!PRIVATE_KEY) {
+  throw new Error("Please set PRIVATE_KEY .env");
 }
 
 const config: HardhatUserConfig = {
@@ -26,15 +25,21 @@ const config: HardhatUserConfig = {
     conflux: {
       type: "http",
       chainType: "l1",
-      url: CONFLUX_RPC_URL, // guaranteed string
-      chainId: 71,
-      accounts: [CONFLUX_PRIVATE_KEY],
+      url: "https://evm.confluxrpc.com", // guaranteed string
+      chainId: 1030,
+      accounts: [PRIVATE_KEY],
     },
     sepolia: {
       type: "http",
       url: "https://ethereum-sepolia-rpc.publicnode.com", // public Sepolia RPC
       chainId: 11155111,
-      accounts: [CONFLUX_PRIVATE_KEY], // replace with your test account private key
+      accounts: [PRIVATE_KEY], // replace with your test account private key
+    },
+    base: {
+      type: "http",
+      url: "https://base-rpc.publicnode.com", // public Sepolia RPC
+      chainId: 8453,
+      accounts: [PRIVATE_KEY], // replace with your test account private key
     },
   },
 };
