@@ -6,10 +6,10 @@ export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   return (
-    <header className="sticky top-0 z-50 bg-white text-black border-b border-gray-300">
+    <header className="sticky top-0 z-50 border-b border-gray-300">
       <div className="mx-auto max-w-[1300px] px-4 py-4 flex justify-between items-center">
         {/* Logo */}
-        <h1 className="text-xl font-bold">
+        <h1 className="text-gray-300 text-xl font-bold">
           <NavLink to="/" className="hover:text-gray-600 transition-colors">
           Eip-7702
           </NavLink>

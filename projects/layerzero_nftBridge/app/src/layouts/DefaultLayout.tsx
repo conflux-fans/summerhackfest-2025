@@ -5,7 +5,7 @@ import { Sidebar } from '../components/Main/Sidebar'
 
 export function DefaultLayout() {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <Header />
 
       {/* Container with max width */}

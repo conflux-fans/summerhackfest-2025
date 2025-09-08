@@ -24,7 +24,7 @@ export function Sidebar() {
               `flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
                 isActive
                   ? 'bg-black text-white'
-                  : 'text-gray-700 hover:bg-gray-200 hover:text-black'
+                  : 'text-gray-300 hover:bg-gray-700'
               }`
             }
           >
