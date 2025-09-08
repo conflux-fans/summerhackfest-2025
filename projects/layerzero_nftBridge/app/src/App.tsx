@@ -1,14 +1,14 @@
 import { Routes, Route } from 'react-router-dom'
 import { DefaultLayout } from './layouts/DefaultLayout'
 import { MainPage } from './components/Pages/MainPage'
-import { WalletPage } from './components/Pages/Wallet'
+import { MintNFT } from './components/Pages/MintNFT'
 
 function App() {
   return (
     <Routes>
       <Route element={<DefaultLayout />}>
         <Route path="/" element={<MainPage />} />
-        <Route path="/wallet" element={<WalletPage />} />
+        <Route path="/mint-nft" element={<MintNFT />} />
       </Route>
     </Routes>
   )

@@ -405,7 +405,6 @@ export function MainPage() {
         Bridge your NFTs between Conflux eSpace and Base using LayerZero.
       </p>
       <div className="flex flex-col gap-4 mb-12 w-full max-w-md">
-        <WalletConnectButton />
         <div className="flex flex-col gap-2">
           <button
             onClick={switchToConflux}
