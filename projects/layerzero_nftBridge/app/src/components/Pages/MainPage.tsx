@@ -1,127 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useAppKitAccount, useAppKitNetwork } from '@reown/appkit/react';
 import { useWalletClient, usePublicClient, useSwitchChain } from 'wagmi';
-import { parseUnits, encodeFunctionData, toHex, Address } from 'viem';
 import { WalletConnectButton } from '../Buttons/WalletConnect';
-
-const CONFLUX_ORIGIN_ADDRESS = '0x17f99bad7981986c684FDc8d78B1342ec7470ac1';
-const BASE_WRAPPED_ADDRESS = '0x16dED18bd0ead69b331B0222110F74b5716627f8';
-const LAYERZERO_ENDPOINT = '0x1a44076050125825900e736c501f859c50fE728c';
-const CONFLUX_EID = 30212; // Conflux eSpace Mainnet EID
-const BASE_EID = 30184; // Base Mainnet EID
-const CONFLUX_CHAIN_ID = 1030; // Conflux eSpace Mainnet
-const BASE_CHAIN_ID = 8453; // Base Mainnet
-
-const ESPACE_BRIDGE_ABI = [
-  {
-    "inputs": [
-      { "name": "_dstChainId", "type": "uint16" },
-      { "name": "_dstContractBytes", "type": "bytes" },
-      { "name": "_tokenId", "type": "uint256" },
-      { "name": "_recipient", "type": "address" },
-      { "name": "_adapterParams", "type": "bytes" }
-    ],
-    "name": "bridgeOut",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "name": "tokenId", "type": "uint256" }
-    ],
-    "name": "_getTokenURI",
-    "outputs": [{ "name": "", "type": "string" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "originalNFT",
-    "outputs": [{ "name": "", "type": "address" }],
-    "stateMutability": "view",
-    "type": "function"
-  }
-];
-
-const BASE_WRAPPED_ABI = [
-  {
-    "inputs": [
-      { "name": "_dstChainId", "type": "uint16" },
-      { "name": "_dstContractBytes", "type": "bytes" },
-      { "name": "_wrappedTokenId", "type": "uint256" },
-      { "name": "_adapterParams", "type": "bytes" }
-    ],
-    "name": "bridgeBack",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "name": "_wrappedTokenId", "type": "uint256" }
-    ],
-    "name": "ownerOf",
-    "outputs": [{ "name": "", "type": "address" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "name": "tokenId", "type": "uint256" }
-    ],
-    "name": "tokenURI",
-    "outputs": [{ "name": "", "type": "string" }],
-    "stateMutability": "view",
-    "type": "function"
-  }
-];
-
-const ERC721_ABI = [
-  {
-    "inputs": [
-      { "name": "to", "type": "address" },
-      { "name": "tokenId", "type": "uint256" }
-    ],
-    "name": "approve",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "name": "owner", "type": "address" }
-    ],
-    "name": "balanceOf",
-    "outputs": [{ "name": "", "type": "uint256" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "name": "owner", "type": "address" },
-      { "name": "index", "type": "uint256" }
-    ],
-    "name": "tokenOfOwnerByIndex",
-    "outputs": [{ "name": "", "type": "uint256" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "name": "tokenId", "type": "uint256" }
-    ],
-    "name": "tokenURI",
-    "outputs": [{ "name": "", "type": "string" }],
-    "stateMutability": "view",
-    "type": "function"
-  }
-];
-
-interface NFT {
-  tokenId: string;
-  tokenURI?: string;
-}
+import { NFT } from './utils/types';
+import { fetchNFTs } from './utils/nftUtils';
+import { approveNFT, bridgeToBase, bridgeBackToConflux } from './utils/bridgeUtils';
+import { switchToConflux, switchToBase } from './utils/chainUtils';
+import { CONFLUX_CHAIN_ID, BASE_CHAIN_ID } from './utils/constants';
 
 export function MainPage() {
   const { address, isConnected } = useAppKitAccount();
@@ -132,9 +17,11 @@ export function MainPage() {
   const [ready, setReady] = useState(false);
   const [tokenId, setTokenId] = useState('');
   const [recipient, setRecipient] = useState('');
+  const [useCustomRecipient, setUseCustomRecipient] = useState(false);
   const [txStatus, setTxStatus] = useState('');
   const [isApproved, setIsApproved] = useState(false);
-  const [originalNFTAddress, setOriginalNFTAddress] = useState<Address | null>(null);
+  const [isApproving, setIsApproving] = useState(false);
+  const [isBridging, setIsBridging] = useState(false);
   const [showNFTModal, setShowNFTModal] = useState(false);
   const [nfts, setNfts] = useState<NFT[]>([]);
   const [isLoadingNfts, setIsLoadingNfts] = useState(false);
@@ -143,254 +30,37 @@ export function MainPage() {
     const initialize = async () => {
       if (isConnected && address && walletClient && publicClient) {
         setReady(true);
-        if (chainId === CONFLUX_CHAIN_ID) {
-          try {
-            const nftAddress = await publicClient.readContract({
-              address: CONFLUX_ORIGIN_ADDRESS,
-              abi: ESPACE_BRIDGE_ABI,
-              functionName: 'originalNFT',
-            }) as Address;
-            setOriginalNFTAddress(nftAddress);
-          } catch (err) {
-            console.error('Failed to fetch originalNFT:', err);
-            setTxStatus('Error fetching NFT contract');
-          }
+        setRecipient(address); // Set default recipient to user's wallet
+        if (chainId !== CONFLUX_CHAIN_ID && chainId !== BASE_CHAIN_ID) {
+          setTxStatus('Please switch to Conflux eSpace or Base');
+        } else {
+          setTxStatus('');
         }
       } else {
         setReady(false);
+        setRecipient('');
         setTxStatus('Please connect wallet');
       }
     };
     initialize();
   }, [isConnected, address, walletClient, publicClient, chainId]);
 
-  const fetchNFTs = async () => {
-    if (!publicClient || !address) return;
-    setIsLoadingNfts(true);
-    try {
-      const contractAddress = chainId === CONFLUX_CHAIN_ID ? originalNFTAddress : BASE_WRAPPED_ADDRESS;
-      if (!contractAddress) {
-        setTxStatus('NFT contract address not available');
-        return;
-      }
-      const balance = await publicClient.readContract({
-        address: contractAddress,
-        abi: ERC721_ABI,
-        functionName: 'balanceOf',
-        args: [address],
-      }) as bigint;
-      const nftList: NFT[] = [];
-      for (let i = 0; i < Number(balance); i++) {
-        const tokenId = await publicClient.readContract({
-          address: contractAddress,
-          abi: ERC721_ABI,
-          functionName: 'tokenOfOwnerByIndex',
-          args: [address, BigInt(i)],
-        }) as bigint;
-        let tokenURI = '';
-        try {
-          tokenURI = await publicClient.readContract({
-            address: contractAddress,
-            abi: ERC721_ABI,
-            functionName: 'tokenURI',
-            args: [tokenId],
-          }) as string;
-        } catch (err) {
-          console.warn(`Failed to fetch tokenURI for token ${tokenId}:`, err);
-        }
-        nftList.push({ tokenId: tokenId.toString(), tokenURI });
-      }
-      setNfts(nftList);
-      setShowNFTModal(true);
-    } catch (err) {
-      console.error('Failed to fetch NFTs:', err);
-      setTxStatus('Failed to load NFT inventory');
-    } finally {
-      setIsLoadingNfts(false);
-    }
+  const handleFetchNFTs = () => {
+    fetchNFTs(publicClient, address, chainId, setNfts, setTxStatus, setIsLoadingNfts).then(() => setShowNFTModal(true));
   };
 
   const selectNFT = (tokenId: string) => {
     setTokenId(tokenId);
     setShowNFTModal(false);
-    setIsApproved(false); // Reset approval status when selecting a new NFT
+    setIsApproved(false);
   };
 
-  const switchToConflux = async () => {
-    try {
-      await switchChainAsync({ chainId: CONFLUX_CHAIN_ID });
-      setTxStatus('Switched to Conflux eSpace');
-      setTokenId('');
-      setIsApproved(false);
-    } catch (err) {
-      console.error('Failed to switch to Conflux:', err);
-      setTxStatus('Failed to switch to Conflux');
-    }
-  };
-
-  const switchToBase = async () => {
-    try {
-      await switchChainAsync({ chainId: BASE_CHAIN_ID });
-      setTxStatus('Switched to Base');
-      setTokenId('');
-      setIsApproved(false);
-    } catch (err) {
-      console.error('Failed to switch to Base:', err);
-      setTxStatus('Failed to switch to Base');
-    }
-  };
-
-  const approveNFT = async () => {
-    if (!walletClient || !publicClient || !originalNFTAddress || !tokenId) {
-      setTxStatus('Missing wallet, NFT contract, or token ID');
-      return;
-    }
-    try {
-      const hash = await walletClient.writeContract({
-        address: originalNFTAddress,
-        abi: ERC721_ABI,
-        functionName: 'approve',
-        args: [CONFLUX_ORIGIN_ADDRESS, BigInt(tokenId)],
-      });
-      await publicClient.waitForTransactionReceipt({ hash });
-      setIsApproved(true);
-      setTxStatus('NFT approved for bridging');
-    } catch (err) {
-      console.error('Approval error:', err);
-      setTxStatus('Failed to approve NFT');
-    }
-  };
-
-  const bridgeToBase = async () => {
-    if (!walletClient || !publicClient || !recipient || !tokenId) {
-      setTxStatus('Missing wallet, recipient, or token ID');
-      return;
-    }
-    if (!isApproved) {
-      setTxStatus('Please approve NFT first');
-      return;
-    }
-    try {
-      const dstContractBytes = toHex(BASE_WRAPPED_ADDRESS);
-      const adapterParams = toHex(
-        Buffer.concat([
-          Buffer.from('0002', 'hex'), // v2 adapter params type
-          Buffer.from((200000).toString(16).padStart(64, '0'), 'hex'), // gas limit
-          Buffer.from((0).toString(16).padStart(64, '0'), 'hex'), // native for dst
-          Buffer.from('0000000000000000000000000000000000000000', 'hex'), // refund address
-        ])
-      );
-      const payload = encodeFunctionData({
-        abi: ESPACE_BRIDGE_ABI,
-        functionName: 'bridgeOut',
-        args: [BASE_EID, dstContractBytes, BigInt(tokenId), recipient, adapterParams],
-      });
-      const { nativeFee } = await publicClient.readContract({
-        address: LAYERZERO_ENDPOINT,
-        abi: [
-          {
-            inputs: [
-              { name: "_dstChainId", type: "uint16" },
-              { name: "_userApplication", type: "address" },
-              { name: "_payload", type: "bytes" },
-              { name: "_payInZRO", type: "bool" },
-              { name: "_adapterParams", type: "bytes" }
-            ],
-            name: "estimateFees",
-            outputs: [
-              { name: "nativeFee", type: "uint256" },
-              { name: "zroFee", type: "uint256" }
-            ],
-            stateMutability: "view",
-            type: "function"
-          }
-        ],
-        functionName: 'estimateFees',
-        args: [BASE_EID, CONFLUX_ORIGIN_ADDRESS, payload, false, adapterParams],
-      });
-      const hash = await walletClient.writeContract({
-        address: CONFLUX_ORIGIN_ADDRESS,
-        abi: ESPACE_BRIDGE_ABI,
-        functionName: 'bridgeOut',
-        args: [BASE_EID, dstContractBytes, BigInt(tokenId), recipient, adapterParams],
-        value: nativeFee,
-      });
-      await publicClient.waitForTransactionReceipt({ hash });
-      setTxStatus(`NFT ${tokenId} bridged to Base!`);
-      setIsApproved(false);
-      setTokenId('');
-    } catch (err: any) {
-      console.error('Bridge to Base error:', err);
-      setTxStatus('Failed to bridge to Base: ' + (err?.message || err));
-    }
-  };
-
-  const bridgeBackToConflux = async () => {
-    if (!walletClient || !publicClient || !recipient || !tokenId) {
-      setTxStatus('Missing wallet, recipient, or token ID');
-      return;
-    }
-    try {
-      const owner = await publicClient.readContract({
-        address: BASE_WRAPPED_ADDRESS,
-        abi: BASE_WRAPPED_ABI,
-        functionName: 'ownerOf',
-        args: [BigInt(tokenId)],
-      });
-      if (owner.toLowerCase() !== address?.toLowerCase()) {
-        setTxStatus('You do not own this wrapped token');
-        return;
-      }
-      const dstContractBytes = toHex(CONFLUX_ORIGIN_ADDRESS);
-      const adapterParams = toHex(
-        Buffer.concat([
-          Buffer.from('0002', 'hex'),
-          Buffer.from((200000).toString(16).padStart(64, '0'), 'hex'),
-          Buffer.from((0).toString(16).padStart(64, '0'), 'hex'),
-          Buffer.from('0000000000000000000000000000000000000000', 'hex'),
-        ])
-      );
-      const payload = encodeFunctionData({
-        abi: BASE_WRAPPED_ABI,
-        functionName: 'bridgeBack',
-        args: [CONFLUX_EID, dstContractBytes, BigInt(tokenId), adapterParams],
-      });
-      const { nativeFee } = await publicClient.readContract({
-        address: LAYERZERO_ENDPOINT,
-        abi: [
-          {
-            inputs: [
-              { name: "_dstChainId", type: "uint16" },
-              { name: "_userApplication", type: "address" },
-              { name: "_payload", type: "bytes" },
-              { name: "_payInZRO", type: "bool" },
-              { name: "_adapterParams", type: "bytes" }
-            ],
-            name: "estimateFees",
-            outputs: [
-              { name: "nativeFee", type: "uint256" },
-              { name: "zroFee", type: "uint256" }
-            ],
-            stateMutability: "view",
-            type: "function"
-          }
-        ],
-        functionName: 'estimateFees',
-        args: [CONFLUX_EID, BASE_WRAPPED_ADDRESS, payload, false, adapterParams],
-      });
-      const hash = await walletClient.writeContract({
-        address: BASE_WRAPPED_ADDRESS,
-        abi: BASE_WRAPPED_ABI,
-        functionName: 'bridgeBack',
-        args: [CONFLUX_EID, dstContractBytes, BigInt(tokenId), adapterParams],
-        value: nativeFee,
-      });
-      await publicClient.waitForTransactionReceipt({ hash });
-      setTxStatus(`Wrapped NFT ${tokenId} bridged back to Conflux!`);
-      setTokenId('');
-    } catch (err: any) {
-      console.error('Bridge back to Conflux error:', err);
-      setTxStatus('Failed to bridge back: ' + (err?.message || err));
+  const toggleCustomRecipient = () => {
+    setUseCustomRecipient(!useCustomRecipient);
+    if (!useCustomRecipient) {
+      setRecipient(''); // Clear for custom input
+    } else {
+      setRecipient(address || ''); // Reset to wallet address
     }
   };
 
@@ -405,9 +75,10 @@ export function MainPage() {
         Bridge your NFTs between Conflux eSpace and Base using LayerZero.
       </p>
       <div className="flex flex-col gap-4 mb-12 w-full max-w-md">
+        <WalletConnectButton />
         <div className="flex flex-col gap-2">
           <button
-            onClick={switchToConflux}
+            onClick={() => switchToConflux(switchChainAsync, setTxStatus, setTokenId, setIsApproved)}
             className={`bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition ${
               chainId === CONFLUX_CHAIN_ID ? 'opacity-50 cursor-not-allowed' : ''
             }`}
@@ -416,7 +87,7 @@ export function MainPage() {
             Switch to Conflux
           </button>
           <button
-            onClick={switchToBase}
+            onClick={() => switchToBase(switchChainAsync, setTxStatus, setTokenId, setIsApproved)}
             className={`bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition ${
               chainId === BASE_CHAIN_ID ? 'opacity-50 cursor-not-allowed' : ''
             }`}
@@ -426,43 +97,91 @@ export function MainPage() {
           </button>
         </div>
         <button
-          onClick={fetchNFTs}
+          onClick={handleFetchNFTs}
           disabled={!ready || isLoadingNfts}
-          className={`bg-indigo-600 text-white px-6 py-3 rounded-md hover:bg-indigo-700 transition ${
+          className={`bg-indigo-600 text-white px-6 py-3 rounded-md hover:bg-indigo-700 transition flex items-center justify-center ${
             !ready || isLoadingNfts ? 'opacity-50 cursor-not-allowed' : ''
           }`}
         >
-          {isLoadingNfts ? 'Loading NFTs...' : 'Select NFT'}
+          {isLoadingNfts ? (
+            <>
+              <svg className="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Loading NFTs...
+            </>
+          ) : (
+            'Select NFT'
+          )}
         </button>
         {tokenId && (
           <p className="text-gray-700">Selected Token ID: {tokenId}</p>
         )}
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={useCustomRecipient}
+            onChange={toggleCustomRecipient}
+            className="w-5 h-5"
+          />
+          <label className="text-gray-700">Use custom recipient address</label>
+        </div>
         <input
           type="text"
           placeholder="Recipient Address"
           value={recipient}
           onChange={(e) => setRecipient(e.target.value)}
-          className="border border-gray-300 rounded-md px-4 py-2 w-full"
+          disabled={!useCustomRecipient}
+          className={`border border-gray-300 rounded-md px-4 py-2 w-full ${
+            !useCustomRecipient ? 'bg-gray-100 cursor-not-allowed' : ''
+          }`}
         />
         {chainId === CONFLUX_CHAIN_ID && (
           <button
-            onClick={approveNFT}
-            disabled={!ready || !tokenId || isApproved}
-            className={`bg-indigo-600 text-white px-6 py-3 rounded-md hover:bg-indigo-700 transition ${
-              !ready || !tokenId || isApproved ? 'opacity-50 cursor-not-allowed' : ''
+            onClick={() => approveNFT(walletClient, publicClient, tokenId, setTxStatus, setIsApproved, setIsApproving)}
+            disabled={!ready || !tokenId || isApproved || isApproving}
+            className={`bg-indigo-600 text-white px-6 py-3 rounded-md hover:bg-indigo-700 transition flex items-center justify-center ${
+              !ready || !tokenId || isApproved || isApproving ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
-            {isApproved ? 'NFT Approved' : 'Approve NFT'}
+            {isApproving ? (
+              <>
+                <svg className="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Approving...
+              </>
+            ) : isApproved ? (
+              'NFT Approved'
+            ) : (
+              'Approve NFT'
+            )}
           </button>
         )}
         <button
-          onClick={chainId === CONFLUX_CHAIN_ID ? bridgeToBase : bridgeBackToConflux}
-          disabled={!ready || !tokenId || !recipient || (chainId === CONFLUX_CHAIN_ID && !isApproved)}
-          className={`bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 transition ${
-            !ready || !tokenId || !recipient || (chainId === CONFLUX_CHAIN_ID && !isApproved) ? 'opacity-50 cursor-not-allowed' : ''
+          onClick={() =>
+            chainId === CONFLUX_CHAIN_ID
+              ? bridgeToBase(walletClient, publicClient, tokenId, recipient, isApproved, setTxStatus, setIsApproved, setTokenId, setIsBridging)
+              : bridgeBackToConflux(walletClient, publicClient, tokenId, recipient, address, setTxStatus, setTokenId, setIsBridging)
+          }
+          disabled={!ready || !tokenId || !recipient || (chainId === CONFLUX_CHAIN_ID && !isApproved) || isBridging}
+          className={`bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 transition flex items-center justify-center ${
+            !ready || !tokenId || !recipient || (chainId === CONFLUX_CHAIN_ID && !isApproved) || isBridging ? 'opacity-50 cursor-not-allowed' : ''
           }`}
         >
-          {chainId === CONFLUX_CHAIN_ID ? 'Bridge to Base' : 'Bridge Back to Conflux'}
+          {isBridging ? (
+            <>
+              <svg className="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Bridging...
+            </>
+          ) : (
+            chainId === CONFLUX_CHAIN_ID ? 'Bridge to Base' : 'Bridge Back to Conflux'
+          )}
         </button>
         {txStatus && (
           <p className={`mt-4 ${txStatus.includes('Failed') ? 'text-red-600' : 'text-green-600'}`}>
@@ -479,7 +198,7 @@ export function MainPage() {
             {nfts.length === 0 ? (
               <p className="text-gray-700">No NFTs found in your wallet.</p>
             ) : (
-              <div className="grid grid-cols-1 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {nfts.map((nft) => (
                   <div
                     key={nft.tokenId}
@@ -487,7 +206,23 @@ export function MainPage() {
                     onClick={() => selectNFT(nft.tokenId)}
                   >
                     <p className="font-semibold">Token ID: {nft.tokenId}</p>
-                    {nft.tokenURI && (
+                    {nft.name && <p className="text-gray-600">Name: {nft.name}</p>}
+                    {nft.image ? (
+                      <img
+                        src={nft.image}
+                        alt={`NFT ${nft.tokenId}`}
+                        className="w-full h-48 object-contain rounded-md mt-2"
+                        onError={(e) => {
+                          e.currentTarget.src = 'https://via.placeholder.com/150?text=No+Image';
+                          e.currentTarget.alt = 'No image available';
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-48 flex items-center justify-center bg-gray-100 rounded-md mt-2">
+                        <p className="text-gray-500">No image available</p>
+                      </div>
+                    )}
+                    {nft.tokenURI && !nft.image && (
                       <p className="text-gray-600 truncate">URI: {nft.tokenURI}</p>
                     )}
                   </div>
