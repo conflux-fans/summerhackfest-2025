@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useAppKitAccount } from '@reown/appkit/react';
-import { useAccount, useWalletClient } from 'wagmi';
-import { ethers } from 'ethers';
+import { useAccount, useWalletClient, usePublicClient } from 'wagmi';
+import { parseUnits } from 'viem';
 import { WalletConnectButton } from '../Buttons/WalletConnect';
 
-const CONTRACT_ADDRESS = '0x5FbDB2315678afecb367f032d93F642f64180aa3'; // Your deployed contract
+const CONTRACT_ADDRESS = '0x79d9d9837F4E2a31259d4C1e89578D7Be82508dE'; // Your deployed contract
 const CONTRACT_ABI = [
   "function execute((address to,uint256 value,bytes data)[] calldata calls, bytes calldata signature) external payable",
   "function nonce() view returns (uint256)"
@@ -14,46 +14,41 @@ export function MainPage() {
   const { address, isConnected } = useAppKitAccount();
   const { data: walletClient } = useWalletClient();
   const { isConnected: wagmiConnected } = useAccount();
+  const publicClient = usePublicClient(); // ✅ comes from current connected chain
+
   const [ready, setReady] = useState(false);
-  const [signer, setSigner] = useState<ethers.Signer | null>(null);
   const [isDelegated, setIsDelegated] = useState(false);
 
-  // Initialize signer when wallet is connected
+  // Initialize when wallet is connected
   useEffect(() => {
-    const initializeSigner = async () => {
-      if (isConnected && wagmiConnected && address && walletClient) {
+    const initialize = async () => {
+      if (isConnected && wagmiConnected && address && walletClient && publicClient) {
         try {
-          console.log('Initializing provider with walletClient:', walletClient);
-          const provider = new ethers.BrowserProvider(walletClient);
-          const signer = await provider.getSigner();
-          console.log('Signer initialized:', await signer.getAddress());
-          setSigner(signer);
+          console.log('WalletClient ready:', walletClient);
           setReady(true);
           // Check delegation status
-          await checkDelegation(signer, address);
+          await checkDelegation(address);
         } catch (err) {
-          console.error('Failed to initialize provider or signer:', err);
-          setSigner(null);
+          console.error('Failed to initialize:', err);
           setReady(false);
         }
       } else {
-        console.log('Not connected or missing walletClient:', { isConnected, wagmiConnected, address, walletClient });
-        setSigner(null);
+        console.log('Not connected or missing client:', { isConnected, wagmiConnected, address, walletClient, publicClient });
         setReady(false);
       }
     };
 
-    initializeSigner();
-  }, [isConnected, wagmiConnected, address, walletClient]);
+    initialize();
+  }, [isConnected, wagmiConnected, address, walletClient, publicClient]);
 
   // Check if EOA has an EIP-7702 delegation (0xef0100 prefix)
-  const checkDelegation = async (signer: ethers.Signer, userAddress: string) => {
+  const checkDelegation = async (userAddress: string) => {
+    if (!publicClient) return;
+
     try {
-      const provider = await signer.provider;
-      if (!provider) throw new Error('Provider not available');
-      const code = await provider.getCode(userAddress);
+      const code = await publicClient.getBytecode({ address: userAddress });
       console.log('EOA code:', code);
-      if (code.startsWith('0xef0100') && code.slice(6).toLowerCase() === CONTRACT_ADDRESS.toLowerCase()) {
+      if (code && code.startsWith('0xef0100') && code.slice(6).toLowerCase() === CONTRACT_ADDRESS.slice(2).toLowerCase()) {
         setIsDelegated(true);
         console.log('EOA is delegated to:', CONTRACT_ADDRESS);
       } else {
@@ -68,66 +63,45 @@ export function MainPage() {
 
   // Send EIP-7702 transaction to delegate to TokenTransferDelegate
   const executeEIP7702 = async () => {
-    if (!signer || !address || !walletClient) {
-      console.log('Signer, address, or walletClient not ready:', { signer, address, walletClient });
+    if (!address || !walletClient || !publicClient) {
+      console.log('Missing dependencies:', { address, walletClient, publicClient });
       alert('Wallet not properly connected');
       return;
     }
 
     try {
-      const provider = await signer.provider;
-      if (!provider) throw new Error('Provider not available');
-      const network = await provider.getNetwork();
-      const chainId = Number(network.chainId);
+      const chainId = await walletClient.getChainId();
       console.log('Chain ID:', chainId);
-      const nonce = await provider.getTransactionCount(address, 'pending');
+      const nonce = await publicClient.getTransactionCount({ address, blockTag: 'pending' });
       console.log('Nonce:', nonce);
 
-      // Create authorization message for EIP-7702 delegation
-      const authMessage = ethers.concat([
-        ethers.toBeHex(chainId, 32),
-        CONTRACT_ADDRESS,
-        ethers.toBeHex(nonce, 32)
-      ]);
-      const authHash = ethers.keccak256(authMessage);
-      console.log('Auth hash:', authHash);
-
-      // Sign the authorization
-      const signature = await walletClient.signMessage({
-        account: address,
-        message: { raw: authHash }
-      });
-      console.log('Signature:', signature);
-      const { v, r, s } = ethers.Signature.from(signature);
-
-      // Construct EIP-7702 transaction (type 0x04)
-      const tx = {
-        type: 0x04, // EIP-7702 transaction type
+      // Sign the authorization (delegates the contract to the EOA)
+      const authorization = await walletClient.signAuthorization({
+        account: walletClient.account,
+        contractAddress: CONTRACT_ADDRESS,
         chainId,
         nonce,
-        maxPriorityFeePerGas: ethers.parseUnits('2', 'gwei'),
-        maxFeePerGas: ethers.parseUnits('20', 'gwei'),
-        gasLimit: 100000, // Adjust based on network
-        to: address, // Target is the user's EOA
-        value: 0,
-        data: '0x', // No data for delegation setup
-        accessList: [],
-        authorizationList: [{
-          chainId,
-          address: CONTRACT_ADDRESS,
-          nonce,
-          yParity: v - 27, // Convert v to yParity (0 or 1)
-          r,
-          s
-        }]
-      };
+      });
+      console.log('Authorization:', authorization);
 
-      console.log('Transaction object:', tx);
-      // Send transaction
-      const txResponse = await signer.sendTransaction(tx);
-      console.log('Delegation transaction sent:', txResponse.hash);
-      await txResponse.wait();
-      console.log('Delegation confirmed!');
+      // Construct and send EIP-7702 transaction
+      const hash = await walletClient.sendTransaction({
+        authorizationList: [authorization],
+        chainId,
+        nonce,
+        maxPriorityFeePerGas: parseUnits('2', 'gwei'),
+        maxFeePerGas: parseUnits('20', 'gwei'),
+        gas: 100000n,
+        to: address,
+        value: 0n,
+        data: '0x',
+      });
+      console.log('Delegation transaction sent:', hash);
+
+      // Wait for confirmation
+      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+      console.log('Delegation confirmed!', receipt);
+
       setIsDelegated(true);
       alert('EIP-7702 delegation set successfully!');
     } catch (err: any) {

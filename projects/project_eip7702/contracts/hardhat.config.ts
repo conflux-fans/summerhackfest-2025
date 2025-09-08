@@ -23,12 +23,18 @@ const config: HardhatUserConfig = {
     },
   },
   networks: {
-    confluxTestnet: {
+    conflux: {
       type: "http",
       chainType: "l1",
       url: CONFLUX_RPC_URL, // guaranteed string
       chainId: 71,
       accounts: [CONFLUX_PRIVATE_KEY],
+    },
+    sepolia: {
+      type: "http",
+      url: "https://ethereum-sepolia-rpc.publicnode.com", // public Sepolia RPC
+      chainId: 11155111,
+      accounts: [CONFLUX_PRIVATE_KEY], // replace with your test account private key
     },
   },
 };

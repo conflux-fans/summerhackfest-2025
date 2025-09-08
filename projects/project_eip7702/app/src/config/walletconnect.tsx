@@ -56,22 +56,49 @@ const confluxESpaceTestnet = {
   testnet: true,
 }
 
-// 4. Set the networks
-const networks = [confluxESpaceMainnet, confluxESpaceTestnet]
+// 4. Define Ethereum Sepolia
+const ethereumSepolia = {
+  id: 11155111,
+  name: 'Ethereum Sepolia',
+  network: 'sepolia',
+  nativeCurrency: {
+    name: 'Ethereum',
+    symbol: 'ETH',
+    decimals: 18,
+  },
+  rpcUrls: {
+    default: { http: ['https://ethereum-sepolia-rpc.publicnode.com'] },
+    public: { http: ['https://ethereum-sepolia-rpc.publicnode.com'] },
+  },
+  blockExplorers: {
+    default: { name: 'Etherscan', url: 'https://sepolia.etherscan.io' },
+  },
+  testnet: true,
+}
 
-// 5. Create Wagmi Adapter
+// 5. Set the networks
+const networks = [confluxESpaceMainnet, confluxESpaceTestnet, ethereumSepolia]
+
+// 6. Create Wagmi Adapter
 export const wagmiAdapter = new WagmiAdapter({
   networks,
   projectId,
   ssr: true,
 })
 
-// 6. Create modal
+// 7. Create modal (note the added `chainImages` mapping)
 createAppKit({
   adapters: [wagmiAdapter],
   networks,
   projectId,
   metadata,
+  // map chainId -> image URL
+  chainImages: {
+    1030: 'https://cdn.jsdelivr.net/gh/Conflux-Chain/helios@dev/packages/built-in-network-icons/Conflux.svg',
+    71: 'https://cdn.jsdelivr.net/gh/Conflux-Chain/helios@dev/packages/built-in-network-icons/Conflux.svg',
+    // optionally add sepolia icon as well:
+    // 11155111: 'https://path.to/sepolia-icon.svg',
+  },
   themeMode: 'light',
   themeVariables: {
     '--w3m-font-family': 'system-ui, sans-serif',
@@ -82,7 +109,7 @@ createAppKit({
   }
 })
 
-// 7. Export AppKitProvider
+// 8. Export AppKitProvider
 export function AppKitProvider({ children }: { children: ReactNode }) {
   return (
     <WagmiProvider config={wagmiAdapter.wagmiConfig}>
