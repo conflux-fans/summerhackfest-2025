@@ -5,7 +5,6 @@ import { WalletConnectButton } from '../Buttons/WalletConnect';
 
 const CONFLUX_CHAIN_ID = 1030; // Conflux eSpace Mainnet
 const IMAGE_MINT_NFT_ADDRESS = '0xD9Ed0B00Aa868Cd2E7aa4198C7D792D3aF9ec61d';
-
 const IMAGE_MINT_NFT_ABI = [
   {
     "inputs": [
@@ -31,6 +30,7 @@ export function MintNFT() {
   const [txStatus, setTxStatus] = useState('');
   const [isMinting, setIsMinting] = useState(false);
   const [isSwitching, setIsSwitching] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState('');
 
   useEffect(() => {
     const initialize = async () => {
@@ -48,6 +48,14 @@ export function MintNFT() {
     };
     initialize();
   }, [isConnected, address, walletClient, publicClient, chainId]);
+
+  useEffect(() => {
+    if (ipfsCid) {
+      setPreviewUrl(`https://ipfs.io/ipfs/${ipfsCid}`);
+    } else {
+      setPreviewUrl('');
+    }
+  }, [ipfsCid]);
 
   const switchToConflux = async () => {
     setIsSwitching(true);
@@ -70,7 +78,6 @@ export function MintNFT() {
       setTxStatus('Please switch to Conflux eSpace Mainnet');
       return;
     }
-    
     setIsMinting(true);
     try {
       setTxStatus('Preparing transaction...');
@@ -80,13 +87,10 @@ export function MintNFT() {
         functionName: 'mintNFT',
         args: [nftName, ipfsCid],
       });
-      
       setTxStatus('Transaction sent! Waiting for confirmation...');
       const receipt = await publicClient.waitForTransactionReceipt({ hash });
-      
       const tokenId = receipt.logs[0].topics[3] ? BigInt(receipt.logs[0].topics[3]).toString() : 'unknown';
       setTxStatus(`🎉 NFT minted successfully! Token ID: ${tokenId}`);
-      
       // Reset form
       setNftName('');
       setIpfsCid('');
@@ -95,12 +99,6 @@ export function MintNFT() {
       setTxStatus('Failed to mint NFT: ' + (err?.message || 'Unknown error'));
     }
     setIsMinting(false);
-  };
-
-  // Generate preview URL from IPFS CID
-  const getImagePreview = (cid: string) => {
-    if (!cid || !cid.startsWith('Qm')) return null;
-    return `https://ipfs.io/ipfs/${cid}`;
   };
 
   if (!isConnected) {
@@ -210,7 +208,6 @@ export function MintNFT() {
                   className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                 />
               </div>
-
               <div>
                 <label className="block text-white text-sm font-semibold mb-3 flex items-center">
                   <span className="w-2 h-2 bg-purple-400 rounded-full mr-3 animate-pulse"></span>
@@ -262,8 +259,8 @@ export function MintNFT() {
               {/* Status Message */}
               {txStatus && (
                 <div className={`p-4 rounded-2xl border ${
-                  txStatus.includes('Failed') || txStatus.includes('Please') 
-                    ? 'bg-red-500/10 border-red-500/20 text-red-300' 
+                  txStatus.includes('Failed') || txStatus.includes('Please')
+                    ? 'bg-red-500/10 border-red-500/20 text-red-300'
                     : txStatus.includes('🎉') || txStatus.includes('Successfully')
                     ? 'bg-green-500/10 border-green-500/20 text-green-300'
                     : 'bg-blue-500/10 border-blue-500/20 text-blue-300'
@@ -280,23 +277,31 @@ export function MintNFT() {
               <span className="w-2 h-2 bg-pink-400 rounded-full mr-3 animate-pulse"></span>
               NFT Preview
             </h3>
-            
             <div className="text-center">
               {/* Image Preview */}
               <div className="relative mb-6">
                 <div className="w-full max-w-sm mx-auto aspect-square bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-3xl p-4 border border-white/10">
-                  {getImagePreview(ipfsCid) ? (
+                  {previewUrl ? (
                     <img
-                      src={getImagePreview(ipfsCid)}
+                      src={previewUrl}
                       alt="NFT Preview"
                       className="w-full h-full object-cover rounded-2xl"
                       onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                        e.currentTarget.nextElementSibling.style.display = 'flex';
+                        if (previewUrl.startsWith('https://ipfs.io/')) {
+                          setPreviewUrl(`https://cloudflare-ipfs.com/ipfs/${ipfsCid}`);
+                        } else {
+                          e.currentTarget.style.display = 'none';
+                          if (e.currentTarget.nextElementSibling) {
+                            e.currentTarget.nextElementSibling.style.display = 'flex';
+                          }
+                        }
                       }}
                     />
                   ) : null}
-                  <div className={`w-full h-full flex items-center justify-center rounded-2xl bg-gradient-to-br from-gray-700 to-gray-800 ${getImagePreview(ipfsCid) ? 'hidden' : 'flex'}`}>
+                  <div 
+                    className={`w-full h-full flex items-center justify-center rounded-2xl bg-gradient-to-br from-gray-700 to-gray-800 ${previewUrl ? 'hidden' : 'flex'}`}
+                    style={{ display: previewUrl ? 'none' : 'flex' }}
+                  >
                     <div className="text-center">
                       <div className="text-6xl mb-4">🖼️</div>
                       <p className="text-gray-400">
@@ -312,7 +317,7 @@ export function MintNFT() {
                   </div>
                 )}
               </div>
-              
+
               {/* NFT Info */}
               <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
                 <h4 className="text-white text-xl font-bold mb-4">
@@ -338,12 +343,12 @@ export function MintNFT() {
                   <div className="flex justify-between">
                     <span>Status:</span>
                     <span className={`${
-                      chainId === CONFLUX_CHAIN_ID && nftName && ipfsCid 
-                        ? 'text-green-300' 
+                      chainId === CONFLUX_CHAIN_ID && nftName && ipfsCid
+                        ? 'text-green-300'
                         : 'text-yellow-300'
                     }`}>
-                      {chainId === CONFLUX_CHAIN_ID && nftName && ipfsCid 
-                        ? 'Ready to Mint' 
+                      {chainId === CONFLUX_CHAIN_ID && nftName && ipfsCid
+                        ? 'Ready to Mint'
                         : 'Incomplete'}
                     </span>
                   </div>

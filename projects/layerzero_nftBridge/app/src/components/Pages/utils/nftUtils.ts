@@ -74,19 +74,31 @@ export const fetchNFTs = async (
           name = metadata[0];
           const ipfsHash = metadata[1];
           if (ipfsHash) {
-            // Try primary IPFS gateway
-            let metadataResponse = await fetch(`https://ipfs.io/ipfs/${ipfsHash}`, { signal: AbortSignal.timeout(5000) });
+            // Primary gateway
+            let metadataUrl = `https://ipfs.io/ipfs/${ipfsHash}`;
+            let metadataResponse = await fetch(metadataUrl, { signal: AbortSignal.timeout(5000) });
             if (!metadataResponse.ok) {
-              // Fallback to Cloudflare IPFS gateway
-              metadataResponse = await fetch(`https://cloudflare-ipfs.com/ipfs/${ipfsHash}`, { signal: AbortSignal.timeout(5000) });
+              // Fallback gateway
+              metadataUrl = `https://cloudflare-ipfs.com/ipfs/${ipfsHash}`;
+              metadataResponse = await fetch(metadataUrl, { signal: AbortSignal.timeout(5000) });
             }
             if (metadataResponse.ok) {
-              const metadataJson = await metadataResponse.json();
-              image = metadataJson.image || '';
-              if (image.startsWith('ipfs://')) {
-                image = image.replace('ipfs://', 'https://ipfs.io/ipfs/');
-              } else if (image && !image.startsWith('http')) {
-                image = `https://ipfs.io/ipfs/${image}`;
+              const contentType = metadataResponse.headers.get('Content-Type') || '';
+              if (contentType.startsWith('image/')) {
+                // Direct image file—use the URL as-is
+                image = metadataUrl;
+              } else if (contentType.includes('json')) {
+                // JSON metadata—parse and extract image field
+                const metadataJson = await metadataResponse.json();
+                image = metadataJson.image || '';
+                if (image.startsWith('ipfs://')) {
+                  image = image.replace('ipfs://', 'https://ipfs.io/ipfs/');
+                } else if (image && !image.startsWith('http')) {
+                  image = `https://ipfs.io/ipfs/${image}`;
+                }
+              } else {
+                // Unexpected type—log and skip
+                console.warn(`Unexpected content type for token ${tokenId}: ${contentType}`);
               }
             }
           }

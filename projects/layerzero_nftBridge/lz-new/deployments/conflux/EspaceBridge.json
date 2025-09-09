@@ -1,5 +1,5 @@
 {
-    "address": "0x45a8c758a42B0515dB5FfC880d1dffC7358cac03",
+    "address": "0x549E05CDE1f00e2FDfA3D58B7402E76438FF48CE",
     "abi": [
       {
         "inputs": [
@@ -137,6 +137,36 @@
         "name": "ownerWithdrawToken",
         "outputs": [],
         "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "struct EnforcedOptionParam[]",
+            "name": "_enforcedOptions",
+            "type": "tuple[]",
+            "components": [
+              { "internalType": "uint32", "name": "eid", "type": "uint32" },
+              { "internalType": "uint16", "name": "msgType", "type": "uint16" },
+              { "internalType": "bytes", "name": "options", "type": "bytes" }
+            ]
+          }
+        ],
+        "name": "setEnforcedOptions",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          { "internalType": "uint32", "name": "_eid", "type": "uint32" },
+          { "internalType": "uint16", "name": "_msgType", "type": "uint16" }
+        ],
+        "name": "enforcedOptions",
+        "outputs": [
+          { "internalType": "bytes", "name": "", "type": "bytes" }
+        ],
+        "stateMutability": "view",
         "type": "function"
       }
     ]

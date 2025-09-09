@@ -15,6 +15,10 @@ pragma solidity ^0.8.19;
   - Use app.layerzero.network to configure DVNs and executors for the deployed OApps to avoid reverts in quote/send.
 */
 
+// For setting enforced options in scripts/tests (not required in contract):
+// import { EnforcedOptionParam } from "@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/interfaces/IOAppOptionsType3.sol";
+// import { OptionsBuilder } from "@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/libs/OptionsBuilder.sol";
+
 import { OApp, Origin, MessagingFee } from "@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/OApp.sol";
 import { MessagingReceipt } from "@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/OAppSender.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
@@ -28,17 +32,13 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 ///////////////////////////////////////////////////////////////////////////
 contract EspaceBridge is OApp, ReentrancyGuard {
     using Strings for uint256;
-
     IERC721 public originalNFT;
     mapping(uint256 => bool) public locked;
-
     event BridgeOut(address indexed sender, uint32 dstEid, address dstAddress, uint256 tokenId, string tokenURI);
     event BridgeIn(address indexed recipient, uint32 srcEid, address srcAddress, uint256 tokenId);
-
     constructor(address _endpoint, address _originalNFT, address _delegate) OApp(_endpoint, _delegate) Ownable(_delegate) {
         originalNFT = IERC721(_originalNFT);
     }
-
     function quoteBridgeOut(
         uint32 _dstEid,
         uint256 _tokenId,
@@ -50,7 +50,6 @@ contract EspaceBridge is OApp, ReentrancyGuard {
         bytes memory payload = abi.encode(action, endpoint.eid(), address(originalNFT), _tokenId, tokenURI, _recipient);
         fee = _quote(_dstEid, payload, _options, false);
     }
-
     function bridgeOut(
         uint32 _dstEid,
         uint256 _tokenId,
@@ -66,7 +65,6 @@ contract EspaceBridge is OApp, ReentrancyGuard {
         receipt = _lzSend(_dstEid, payload, _options, MessagingFee(msg.value, 0), payable(msg.sender));
         emit BridgeOut(msg.sender, _dstEid, _bytes32ToAddress(peers[_dstEid]), _tokenId, tokenURI);
     }
-
     function _getTokenURI(uint256 tokenId) internal view returns (string memory) {
         (bool success, bytes memory data) = address(originalNFT).staticcall(
             abi.encodeWithSignature("tokenURI(uint256)", tokenId)
@@ -74,7 +72,6 @@ contract EspaceBridge is OApp, ReentrancyGuard {
         if (!success) return "";
         return abi.decode(data, (string));
     }
-
     function _lzReceive(
         Origin calldata _origin,
         bytes32 _guid,
@@ -96,18 +93,15 @@ contract EspaceBridge is OApp, ReentrancyGuard {
             revert("Unsupported action on EspaceBridge");
         }
     }
-
     function _bytes32ToAddress(bytes32 _bytes) internal pure returns (address) {
         return address(uint160(uint256(_bytes)));
     }
-
     function ownerWithdrawToken(uint256 tokenId, address to) external onlyOwner {
         require(locked[tokenId], "Token not locked");
         locked[tokenId] = false;
         originalNFT.transferFrom(address(this), to, tokenId);
     }
 }
-
 ///////////////////////////////////////////////////////////////////////////
 // BaseWrappedBridge (Destination, multi-chain ready)
 ///////////////////////////////////////////////////////////////////////////
@@ -116,13 +110,11 @@ contract BaseWrappedBridge is OApp, ERC721, ReentrancyGuard {
     mapping(uint256 => bytes32) public wrappedToOriginKey;
     mapping(uint256 => OriginInfo) public wrappedOriginInfo;
     uint256 public nextTokenId = 1;
-
     struct OriginInfo {
         uint32 originEid;
         address originContract;
         uint256 originTokenId;
     }
-
     event WrappedMinted(
         address indexed recipient,
         uint32 srcEid,
@@ -138,13 +130,11 @@ contract BaseWrappedBridge is OApp, ERC721, ReentrancyGuard {
         address destContract,
         uint256 originTokenId
     );
-
     constructor(string memory name_, string memory symbol_, address _endpoint, address _delegate)
         OApp(_endpoint, _delegate)
         Ownable(_delegate)
         ERC721(name_, symbol_)
     {}
-
     function quoteBridgeBack(
         uint32 _dstEid,
         uint256 _wrappedTokenId,
@@ -156,7 +146,6 @@ contract BaseWrappedBridge is OApp, ERC721, ReentrancyGuard {
         bytes memory payload = abi.encode(action, info.originEid, info.originContract, info.originTokenId, "", _recipient);
         fee = _quote(_dstEid, payload, _options, false);
     }
-
     function _lzReceive(
         Origin calldata _origin,
         bytes32 _guid,
@@ -182,7 +171,6 @@ contract BaseWrappedBridge is OApp, ERC721, ReentrancyGuard {
             revert("Unsupported action on BaseWrappedBridge");
         }
     }
-
     function bridgeBack(
         uint32 _dstEid,
         uint256 _wrappedTokenId,
@@ -198,7 +186,6 @@ contract BaseWrappedBridge is OApp, ERC721, ReentrancyGuard {
         receipt = _lzSend(_dstEid, payload, _options, MessagingFee(msg.value, 0), payable(msg.sender));
         emit WrappedBurned(msg.sender, _wrappedTokenId, _dstEid, _bytes32ToAddress(peers[_dstEid]), info.originTokenId);
     }
-
     function _bytes32ToAddress(bytes32 _bytes) internal pure returns (address) {
         return address(uint160(uint256(_bytes)));
     }
