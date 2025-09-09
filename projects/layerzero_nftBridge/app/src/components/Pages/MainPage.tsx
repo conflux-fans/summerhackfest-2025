@@ -5,16 +5,15 @@ import { WalletConnectButton } from '../Buttons/WalletConnect';
 import { NFT } from './utils/types';
 import { fetchNFTs } from './utils/nftUtils';
 import { NetworkDropdown } from '../Common/NetworkDropdown';
-import { approveNFT, bridgeToBase, bridgeBackToConflux } from './utils/bridgeUtils';
-import { CONFLUX_CHAIN_ID } from './utils/constants';
-
+import { approveNFT, bridgeToBase, bridgeBackToConflux, registerCollection } from './utils/bridgeUtils';
+import { CONFLUX_CHAIN_ID, IMAGE_MINT_NFT_ADDRESS } from './utils/constants';
+import { ESPACE_BRIDGE_ABI } from './utils/abis';
 export function MainPage() {
   const { address, isConnected } = useAppKitAccount();
   const { chainId } = useAppKitNetwork();
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
   const { switchChainAsync } = useSwitchChain();
-
   const [ready, setReady] = useState(false);
   const [tokenId, setTokenId] = useState('');
   const [recipient, setRecipient] = useState('');
@@ -27,14 +26,33 @@ export function MainPage() {
   const [nfts, setNfts] = useState<NFT[]>([]);
   const [isLoadingNfts, setIsLoadingNfts] = useState(false);
   const [selectedNFT, setSelectedNFT] = useState<NFT | null>(null);
-
+  const [isSupported, setIsSupported] = useState(true);
+  const [isWhitelisting, setIsWhitelisting] = useState(false);
   useEffect(() => {
     const initialize = async () => {
       if (isConnected && address && walletClient && publicClient) {
         setReady(true);
         setRecipient(address);
-        if (chainId !== CONFLUX_CHAIN_ID) setTxStatus('Please switch to Conflux eSpace or Base');
-        else setTxStatus('');
+        if (chainId !== CONFLUX_CHAIN_ID && chainId !== 8453) {
+          setTxStatus('Please switch to Conflux eSpace or Base');
+        } else {
+          setTxStatus('');
+        }
+        // Check if collection is supported on Conflux
+        if (chainId === CONFLUX_CHAIN_ID) {
+          try {
+            const supported = await publicClient.readContract({
+              address: CONFLUX_ORIGIN_ADDRESS,
+              abi: ESPACE_BRIDGE_ABI,
+              functionName: 'supportedTokens',
+              args: [IMAGE_MINT_NFT_ADDRESS],
+            });
+            setIsSupported(!!supported);
+          } catch (err) {
+            console.error('Failed to check supportedTokens', err);
+            setIsSupported(false);
+          }
+        }
       } else {
         setReady(false);
         setRecipient('');
@@ -43,25 +61,21 @@ export function MainPage() {
     };
     initialize();
   }, [isConnected, address, walletClient, publicClient, chainId]);
-
   const handleFetchNFTs = () => {
     fetchNFTs(publicClient, address, chainId, setNfts, setTxStatus, setIsLoadingNfts).then(() =>
       setShowNFTModal(true)
     );
   };
-
   const selectNFT = (nft: NFT) => {
     setTokenId(nft.tokenId);
     setSelectedNFT(nft);
     setShowNFTModal(false);
     setIsApproved(false);
   };
-
   const toggleCustomRecipient = () => {
     setUseCustomRecipient(!useCustomRecipient);
     setRecipient(!useCustomRecipient ? '' : address || '');
   };
-
   const getChainInfo = (id: number) => {
     switch(id) {
       case CONFLUX_CHAIN_ID:
@@ -72,10 +86,8 @@ export function MainPage() {
         return { name: 'Unknown', color: 'from-gray-400 to-gray-500', logo: '?' };
     }
   };
-
   const currentChain = getChainInfo(chainId || 0);
   const targetChain = getChainInfo(chainId === CONFLUX_CHAIN_ID ? 8453 : CONFLUX_CHAIN_ID);
-
   if (!isConnected) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
@@ -94,7 +106,6 @@ export function MainPage() {
       </div>
     );
   }
-
   return (
     <div className="min-h-screen p-4">
       {/* Animated background elements */}
@@ -103,7 +114,6 @@ export function MainPage() {
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
         <div className="absolute top-3/4 left-1/2 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
       </div>
-
       <div className="relative z-10 max-w-6xl mx-auto pt-8">
         {/* Header */}
         <div className="text-center mb-12">
@@ -119,26 +129,24 @@ export function MainPage() {
             Bridge your NFTs seamlessly between Conflux eSpace and Base using LayerZero technology
           </p>
         </div>
-
         <div className="grid lg:grid-cols-2 gap-8 items-start">
           {/* Left Panel - Bridge Controls */}
           <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl">
             {/* Chain Selector */}
             <div className="mb-8">
-            <div className="flex items-center justify-between mb-6">
-  <h3 className="text-white text-lg font-semibold flex items-center gap-3">
-    <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-    Network Selection
-  </h3>
-  <NetworkDropdown
-    chainId={chainId}
-    switchChainAsync={switchChainAsync}
-    setTxStatus={setTxStatus}
-    setTokenId={setTokenId}
-    setIsApproved={setIsApproved}
-  />
-</div>
-
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-white text-lg font-semibold flex items-center gap-3">
+                  <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                  Network Selection
+                </h3>
+                <NetworkDropdown
+                  chainId={chainId}
+                  switchChainAsync={switchChainAsync}
+                  setTxStatus={setTxStatus}
+                  setTokenId={setTokenId}
+                  setIsApproved={setIsApproved}
+                />
+              </div>
               <div className="relative">
                 <div className="flex items-center justify-between bg-white/5 border border-white/10 rounded-2xl p-4">
                   <div className="flex items-center">
@@ -167,7 +175,6 @@ export function MainPage() {
                 </div>
               </div>
             </div>
-
             {/* NFT Selection */}
             <div className="mb-8">
               <h3 className="text-white text-lg font-semibold mb-6 flex items-center">
@@ -199,20 +206,18 @@ export function MainPage() {
                 )}
               </button>
             </div>
-
             {/* Recipient Address */}
             <div className="mb-8">
               <h3 className="text-white text-lg font-semibold mb-6 flex items-center">
                 <span className="w-2 h-2 bg-yellow-400 rounded-full mr-3 animate-pulse"></span>
                 Recipient Address
               </h3>
-              
               <div className="mb-4">
                 <label className="flex items-center text-gray-300 cursor-pointer">
-                  <input 
-                    type="checkbox" 
-                    checked={useCustomRecipient} 
-                    onChange={toggleCustomRecipient} 
+                  <input
+                    type="checkbox"
+                    checked={useCustomRecipient}
+                    onChange={toggleCustomRecipient}
                     className="sr-only"
                   />
                   <div className={`w-6 h-6 rounded-lg border-2 mr-3 flex items-center justify-center transition-all ${useCustomRecipient ? 'bg-purple-500 border-purple-500' : 'border-gray-500'}`}>
@@ -225,7 +230,6 @@ export function MainPage() {
                   Use custom recipient address
                 </label>
               </div>
-
               <input
                 type="text"
                 placeholder="Recipient Address (0x...)"
@@ -237,10 +241,35 @@ export function MainPage() {
                 }`}
               />
             </div>
-
             {/* Action Buttons */}
             <div className="space-y-4">
-              {chainId === CONFLUX_CHAIN_ID && (
+              {chainId === CONFLUX_CHAIN_ID && !isSupported && (
+                <button
+                  onClick={() => registerCollection(walletClient, publicClient, setTxStatus, setIsSupported, setIsWhitelisting)}
+                  disabled={!ready || isWhitelisting}
+                  className={`w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center justify-center ${
+                    !ready || isWhitelisting ? 'opacity-50 cursor-not-allowed hover:scale-100' : ''
+                  }`}
+                >
+                  {isWhitelisting ? (
+                    <>
+                      <svg className="animate-spin h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Whitelisting...
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                      Whitelist Collection
+                    </>
+                  )}
+                </button>
+              )}
+              {chainId === CONFLUX_CHAIN_ID && isSupported && (
                 <button
                   onClick={() => approveNFT(walletClient, publicClient, tokenId, setTxStatus, setIsApproved, setIsApproving)}
                   disabled={!ready || !tokenId || isApproved || isApproving}
@@ -273,16 +302,15 @@ export function MainPage() {
                   )}
                 </button>
               )}
-
               <button
                 onClick={() =>
                   chainId === CONFLUX_CHAIN_ID
                     ? bridgeToBase(walletClient, publicClient, tokenId, recipient, isApproved, setTxStatus, setIsApproved, setTokenId, setIsBridging)
                     : bridgeBackToConflux(walletClient, publicClient, tokenId, recipient, address, setTxStatus, setTokenId, setIsBridging)
                 }
-                disabled={!ready || !tokenId || !recipient || (chainId === CONFLUX_CHAIN_ID && !isApproved) || isBridging}
+                disabled={!ready || !tokenId || !recipient || (chainId === CONFLUX_CHAIN_ID && (!isSupported || !isApproved)) || isBridging}
                 className={`w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center justify-center ${
-                  !ready || !tokenId || !recipient || (chainId === CONFLUX_CHAIN_ID && !isApproved) || isBridging
+                  !ready || !tokenId || !recipient || (chainId === CONFLUX_CHAIN_ID && (!isSupported || !isApproved)) || isBridging
                     ? 'opacity-50 cursor-not-allowed hover:scale-100'
                     : ''
                 }`}
@@ -303,26 +331,23 @@ export function MainPage() {
                 )}
               </button>
             </div>
-
             {/* Status Message */}
             {txStatus && (
               <div className={`mt-6 p-4 rounded-2xl border ${
-                txStatus.includes('Failed') || txStatus.includes('Please') 
-                  ? 'bg-red-500/10 border-red-500/20 text-red-300' 
+                txStatus.includes('Failed') || txStatus.includes('Please')
+                  ? 'bg-red-500/10 border-red-500/20 text-red-300'
                   : 'bg-green-500/10 border-green-500/20 text-green-300'
               }`}>
                 <p className="text-center font-medium">{txStatus}</p>
               </div>
             )}
           </div>
-
           {/* Right Panel - Selected NFT Display */}
           <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl">
             <h3 className="text-white text-lg font-semibold mb-6 flex items-center">
               <span className="w-2 h-2 bg-pink-400 rounded-full mr-3 animate-pulse"></span>
               Selected NFT
             </h3>
-            
             {selectedNFT ? (
               <div className="text-center">
                 <div className="relative mb-6">
@@ -351,7 +376,6 @@ export function MainPage() {
                     #{selectedNFT.tokenId}
                   </div>
                 </div>
-                
                 <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
                   <h4 className="text-white text-xl font-bold mb-2">
                     {selectedNFT.name || `Token #${selectedNFT.tokenId}`}
@@ -386,7 +410,6 @@ export function MainPage() {
           </div>
         </div>
       </div>
-
       {/* Enhanced NFT Modal */}
       {showNFTModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -405,7 +428,6 @@ export function MainPage() {
                 </svg>
               </button>
             </div>
-            
             <div className="overflow-y-auto max-h-[calc(90vh-200px)]">
               {nfts.length === 0 ? (
                 <div className="text-center py-16">
@@ -440,14 +462,12 @@ export function MainPage() {
                           </div>
                         )}
                       </div>
-                      
                       <div className="text-center">
                         <h4 className="text-white font-semibold text-lg mb-1">
                           {nft.name || `Token #${nft.tokenId}`}
                         </h4>
                         <p className="text-gray-400 text-sm font-mono">ID: {nft.tokenId}</p>
                       </div>
-                      
                       <div className="mt-4 bg-purple-500/20 rounded-lg p-2 text-center opacity-0 group-hover:opacity-100 transition-opacity">
                         <span className="text-purple-300 text-sm font-medium">Click to Select</span>
                       </div>

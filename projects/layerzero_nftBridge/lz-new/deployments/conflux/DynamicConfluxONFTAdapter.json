@@ -1,0 +1,112 @@
+{
+    "address": "0xE8F77846Db1493c971FAF8DE97123De48173CcDd",
+    "abi": [
+      {
+        "type": "constructor",
+        "inputs": [
+          { "name": "_lzEndpoint", "type": "address" },
+          { "name": "_delegate", "type": "address" }
+        ],
+        "stateMutability": "nonpayable"
+      },
+      {
+        "type": "function",
+        "name": "approvalRequired",
+        "inputs": [],
+        "outputs": [{ "name": "", "type": "bool" }],
+        "stateMutability": "pure"
+      },
+      {
+        "type": "function",
+        "name": "bridgeSend",
+        "inputs": [
+          { "name": "_originalToken", "type": "address" },
+          { "name": "_dstEid", "type": "uint32" },
+          { "name": "_to", "type": "address" },
+          { "name": "_tokenIds", "type": "uint256[]" },
+          { "name": "_options", "type": "bytes" },
+          {
+            "name": "_fee",
+            "type": "tuple",
+            "components": [
+              { "name": "nativeFee", "type": "uint256" },
+              { "name": "lzTokenFee", "type": "uint256" }
+            ]
+          },
+          { "name": "_refundAddress", "type": "address" }
+        ],
+        "outputs": [],
+        "stateMutability": "payable"
+      },
+      {
+        "type": "function",
+        "name": "isERC721",
+        "inputs": [{ "name": "_token", "type": "address" }],
+        "outputs": [{ "name": "", "type": "bool" }],
+        "stateMutability": "view"
+      },
+      {
+        "type": "function",
+        "name": "quoteBridgeSend",
+        "inputs": [
+          { "name": "_originalToken", "type": "address" },
+          { "name": "_dstEid", "type": "uint32" },
+          { "name": "_to", "type": "address" },
+          { "name": "_tokenIds", "type": "uint256[]" },
+          { "name": "_options", "type": "bytes" },
+          { "name": "_payInLzToken", "type": "bool" }
+        ],
+        "outputs": [
+          {
+            "name": "fee",
+            "type": "tuple",
+            "components": [
+              { "name": "nativeFee", "type": "uint256" },
+              { "name": "lzTokenFee", "type": "uint256" }
+            ]
+          }
+        ],
+        "stateMutability": "view"
+      },
+      {
+        "type": "function",
+        "name": "registerToken",
+        "inputs": [{ "name": "_token", "type": "address" }],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+      },
+      {
+        "type": "function",
+        "name": "supportedTokens",
+        "inputs": [{ "name": "", "type": "address" }],
+        "outputs": [{ "name": "", "type": "bool" }],
+        "stateMutability": "view"
+      },
+      {
+        "type": "function",
+        "name": "token",
+        "inputs": [],
+        "outputs": [{ "name": "", "type": "address" }],
+        "stateMutability": "pure"
+      },
+      {
+        "type": "function",
+        "name": "unregisterToken",
+        "inputs": [{ "name": "_token", "type": "address" }],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+      },
+      {
+        "type": "event",
+        "name": "TokenRegistered",
+        "inputs": [{ "name": "token", "type": "address", "indexed": true }],
+        "anonymous": false
+      },
+      {
+        "type": "event",
+        "name": "TokenUnregistered",
+        "inputs": [{ "name": "token", "type": "address", "indexed": true }],
+        "anonymous": false
+      }
+    ]
+  }

@@ -7,7 +7,18 @@ dotenv.config();
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.28",
+    compilers: [
+      {
+        version: "0.8.22",
+        settings: {
+          viaIR: true,
+          optimizer: {
+            enabled: true,
+            runs: 1,  // Low runs prioritizes smaller bytecode size over runtime gas efficiency
+          },
+        },
+      },
+    ],
   },
   networks: {
     conflux: {

@@ -1,36 +1,11 @@
-// abis.ts
 export const ESPACE_BRIDGE_ABI = [
   {
     "inputs": [
-      { "internalType": "address", "name": "_endpoint", "type": "address" },
-      { "internalType": "address", "name": "_originalNFT", "type": "address" },
+      { "internalType": "address", "name": "_lzEndpoint", "type": "address" },
       { "internalType": "address", "name": "_delegate", "type": "address" }
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      { "indexed": true, "internalType": "address", "name": "sender", "type": "address" },
-      { "indexed": false, "internalType": "uint32", "name": "dstEid", "type": "uint32" },
-      { "indexed": false, "internalType": "address", "name": "dstAddress", "type": "address" },
-      { "indexed": false, "internalType": "uint256", "name": "tokenId", "type": "uint256" },
-      { "indexed": false, "internalType": "string", "name": "tokenURI", "type": "string" }
-    ],
-    "name": "BridgeOut",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      { "indexed": true, "internalType": "address", "name": "recipient", "type": "address" },
-      { "indexed": false, "internalType": "uint32", "name": "srcEid", "type": "uint32" },
-      { "indexed": false, "internalType": "address", "name": "srcAddress", "type": "address" },
-      { "indexed": false, "internalType": "uint256", "name": "tokenId", "type": "uint256" }
-    ],
-    "name": "BridgeIn",
-    "type": "event"
   },
   {
     "anonymous": false,
@@ -42,96 +17,64 @@ export const ESPACE_BRIDGE_ABI = [
     "type": "event"
   },
   {
+    "anonymous": false,
     "inputs": [
+      { "indexed": true, "internalType": "address", "name": "token", "type": "address" }
+    ],
+    "name": "TokenRegistered",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "address", "name": "token", "type": "address" }
+    ],
+    "name": "TokenUnregistered",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "approvalRequired",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_originalToken", "type": "address" },
       { "internalType": "uint32", "name": "_dstEid", "type": "uint32" },
-      { "internalType": "uint256", "name": "_tokenId", "type": "uint256" },
-      { "internalType": "address", "name": "_recipient", "type": "address" },
-      { "internalType": "bytes", "name": " _options", "type": "bytes" }
-    ],
-    "name": "bridgeOut",
-    "outputs": [
+      { "internalType": "address", "name": "_to", "type": "address" },
+      { "internalType": "uint256[]", "name": "_tokenIds", "type": "uint256[]" },
+      { "internalType": "bytes", "name": "_options", "type": "bytes" },
       {
+        "internalType": "struct MessagingFee",
+        "name": "_fee",
+        "type": "tuple",
         "components": [
-          { "internalType": "bytes32", "name": "guid", "type": "bytes32" },
-          { "internalType": "uint64", "name": "nonce", "type": "uint64" },
-          {
-            "components": [
-              { "internalType": "uint256", "name": "nativeFee", "type": "uint256" },
-              { "internalType": "uint256", "name": "lzTokenFee", "type": "uint256" }
-            ],
-            "internalType": "struct MessagingFee",
-            "name": "fee",
-            "type": "tuple"
-          }
-        ],
-        "internalType": "struct MessagingReceipt",
-        "name": "receipt",
-        "type": "tuple"
-      }
+          { "internalType": "uint256", "name": "nativeFee", "type": "uint256" },
+          { "internalType": "uint256", "name": "lzTokenFee", "type": "uint256" }
+        ]
+      },
+      { "internalType": "address", "name": "_refundAddress", "type": "address" }
     ],
+    "name": "bridgeSend",
+    "outputs": [],
     "stateMutability": "payable",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "uint32", "name": "_eid", "type": "uint32" },
-      { "internalType": "uint16", "name": "_msgType", "type": "uint16" }
+      { "internalType": "address", "name": "_token", "type": "address" }
     ],
-    "name": "enforcedOptions",
-    "outputs": [
-      { "internalType": "bytes", "name": "", "type": "bytes" }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "uint32", "name": "_eid", "type": "uint32" },
-      { "internalType": "bytes32", "name": "_peer", "type": "bytes32" }
-    ],
-    "name": "isPeer",
-    "outputs": [
-      { "internalType": "bool", "name": "", "type": "bool" }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "uint256", "name": "", "type": "uint256" }
-    ],
-    "name": "locked",
-    "outputs": [
-      { "internalType": "bool", "name": "", "type": "bool" }
-    ],
+    "name": "isERC721",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "owner",
-    "outputs": [
-      { "internalType": "address", "name": "", "type": "address" }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "uint256", "name": "tokenId", "type": "uint256" },
-      { "internalType": "address", "name": "to", "type": "address" }
-    ],
-    "name": "ownerWithdrawToken",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "originalNFT",
-    "outputs": [
-      { "internalType": "contract IERC721", "name": "", "type": "address" }
-    ],
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -140,32 +83,41 @@ export const ESPACE_BRIDGE_ABI = [
       { "internalType": "uint32", "name": "", "type": "uint32" }
     ],
     "name": "peers",
+    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_originalToken", "type": "address" },
+      { "internalType": "uint32", "name": "_dstEid", "type": "uint32" },
+      { "internalType": "address", "name": "_to", "type": "address" },
+      { "internalType": "uint256[]", "name": "_tokenIds", "type": "uint256[]" },
+      { "internalType": "bytes", "name": "_options", "type": "bytes" },
+      { "internalType": "bool", "name": "_payInLzToken", "type": "bool" }
+    ],
+    "name": "quoteBridgeSend",
     "outputs": [
-      { "internalType": "bytes32", "name": "", "type": "bytes32" }
+      {
+        "internalType": "struct MessagingFee",
+        "name": "fee",
+        "type": "tuple",
+        "components": [
+          { "internalType": "uint256", "name": "nativeFee", "type": "uint256" },
+          { "internalType": "uint256", "name": "lzTokenFee", "type": "uint256" }
+        ]
+      }
     ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "uint32", "name": "_dstEid", "type": "uint32" },
-      { "internalType": "uint256", "name": "_tokenId", "type": "uint256" },
-      { "internalType": "address", "name": "_recipient", "type": "address" },
-      { "internalType": "bytes", "name": "_options", "type": "bytes" }
+      { "internalType": "address", "name": "_token", "type": "address" }
     ],
-    "name": "quoteBridgeOut",
-    "outputs": [
-      {
-        "components": [
-          { "internalType": "uint256", "name": "nativeFee", "type": "uint256" },
-          { "internalType": "uint256", "name": "lzTokenFee", "type": "uint256" }
-        ],
-        "internalType": "struct MessagingFee",
-        "name": "fee",
-        "type": "tuple"
-      }
-    ],
-    "stateMutability": "view",
+    "name": "registerToken",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -177,7 +129,16 @@ export const ESPACE_BRIDGE_ABI = [
   },
   {
     "inputs": [
-      { "internalType": "struct EnforcedOptionParam[]", "name": "_enforcedOptions", "type": "tuple[]", "components": [ { "internalType": "uint32", "name": "eid", "type": "uint32" }, { "internalType": "uint16", "name": "msgType", "type": "uint16" }, { "internalType": "bytes", "name": "options", "type": "bytes" } ] }
+      {
+        "internalType": "struct EnforcedOptionParam[]",
+        "name": "_enforcedOptions",
+        "type": "tuple[]",
+        "components": [
+          { "internalType": "uint32", "name": "eid", "type": "uint32" },
+          { "internalType": "uint16", "name": "msgType", "type": "uint16" },
+          { "internalType": "bytes", "name": "options", "type": "bytes" }
+        ]
+      }
     ],
     "name": "setEnforcedOptions",
     "outputs": [],
@@ -196,9 +157,34 @@ export const ESPACE_BRIDGE_ABI = [
   },
   {
     "inputs": [
+      { "internalType": "address", "name": "", "type": "address" }
+    ],
+    "name": "supportedTokens",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "token",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
       { "internalType": "address", "name": "newOwner", "type": "address" }
     ],
     "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_token", "type": "address" }
+    ],
+    "name": "unregisterToken",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -208,9 +194,7 @@ export const ESPACE_BRIDGE_ABI = [
 export const BASE_WRAPPED_ABI = [
   {
     "inputs": [
-      { "internalType": "string", "name": "name_", "type": "string" },
-      { "internalType": "string", "name": "symbol_", "type": "string" },
-      { "internalType": "address", "name": "_endpoint", "type": "address" },
+      { "internalType": "address", "name": "_lzEndpoint", "type": "address" },
       { "internalType": "address", "name": "_delegate", "type": "address" }
     ],
     "stateMutability": "nonpayable",
@@ -248,6 +232,24 @@ export const BASE_WRAPPED_ABI = [
   {
     "anonymous": false,
     "inputs": [
+      { "indexed": true, "internalType": "address", "name": "to", "type": "address" },
+      { "indexed": false, "internalType": "uint256", "name": "wrappedId", "type": "uint256" }
+    ],
+    "name": "TokenMinted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "address", "name": "from", "type": "address" },
+      { "indexed": false, "internalType": "uint256", "name": "wrappedId", "type": "uint256" }
+    ],
+    "name": "TokenBurned",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
       { "indexed": true, "internalType": "address", "name": "from", "type": "address" },
       { "indexed": true, "internalType": "address", "name": "to", "type": "address" },
       { "indexed": true, "internalType": "uint256", "name": "tokenId", "type": "uint256" }
@@ -256,29 +258,11 @@ export const BASE_WRAPPED_ABI = [
     "type": "event"
   },
   {
-    "anonymous": false,
-    "inputs": [
-      { "indexed": true, "internalType": "address", "name": "recipient", "type": "address" },
-      { "indexed": false, "internalType": "uint32", "name": "srcEid", "type": "uint32" },
-      { "indexed": false, "internalType": "address", "name": "srcContract", "type": "address" },
-      { "indexed": false, "internalType": "uint256", "name": "originTokenId", "type": "uint256" },
-      { "indexed": false, "internalType": "uint256", "name": "wrappedTokenId", "type": "uint256" },
-      { "indexed": false, "internalType": "string", "name": "tokenURI", "type": "string" }
-    ],
-    "name": "WrappedMinted",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      { "indexed": true, "internalType": "address", "name": "owner", "type": "address" },
-      { "indexed": false, "internalType": "uint256", "name": "wrappedTokenId", "type": "uint256" },
-      { "indexed": false, "internalType": "uint32", "name": "destEid", "type": "uint32" },
-      { "indexed": false, "internalType": "address", "name": "destContract", "type": "address" },
-      { "indexed": false, "internalType": "uint256", "name": "originTokenId", "type": "uint256" }
-    ],
-    "name": "WrappedBurned",
-    "type": "event"
+    "inputs": [],
+    "name": "approvalRequired",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "pure",
+    "type": "function"
   },
   {
     "inputs": [
@@ -295,90 +279,73 @@ export const BASE_WRAPPED_ABI = [
       { "internalType": "address", "name": "owner", "type": "address" }
     ],
     "name": "balanceOf",
-    "outputs": [
-      { "internalType": "uint256", "name": "", "type": "uint256" }
-    ],
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
       { "internalType": "uint32", "name": "_dstEid", "type": "uint32" },
-      { "internalType": "uint256", "name": "_wrappedTokenId", "type": "uint256" },
-      { "internalType": "address", "name": "_recipient", "type": "address" },
-      { "internalType": "bytes", "name": "_options", "type": "bytes" }
-    ],
-    "name": "bridgeBack",
-    "outputs": [
+      { "internalType": "address", "name": "_to", "type": "address" },
+      { "internalType": "uint256[]", "name": "_wrappedIds", "type": "uint256[]" },
+      { "internalType": "bytes", "name": "_options", "type": "bytes" },
       {
+        "internalType": "struct MessagingFee",
+        "name": "_fee",
+        "type": "tuple",
         "components": [
-          { "internalType": "bytes32", "name": "guid", "type": "bytes32" },
-          { "internalType": "uint64", "name": "nonce", "type": "uint64" },
-          {
-            "components": [
-              { "internalType": "uint256", "name": "nativeFee", "type": "uint256" },
-              { "internalType": "uint256", "name": "lzTokenFee", "type": "uint256" }
-            ],
-            "internalType": "struct MessagingFee",
-            "name": "fee",
-            "type": "tuple"
-          }
-        ],
-        "internalType": "struct MessagingReceipt",
-        "name": "receipt",
-        "type": "tuple"
-      }
+          { "internalType": "uint256", "name": "nativeFee", "type": "uint256" },
+          { "internalType": "uint256", "name": "lzTokenFee", "type": "uint256" }
+        ]
+      },
+      { "internalType": "address", "name": "_refundAddress", "type": "address" }
     ],
+    "name": "bridgeSend",
+    "outputs": [],
     "stateMutability": "payable",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "bytes32", "name": "", "type": "bytes32" }
+      { "internalType": "address", "name": "_originalToken", "type": "address" },
+      { "internalType": "uint32", "name": "_originalEid", "type": "uint32" },
+      { "internalType": "uint256", "name": "_originalId", "type": "uint256" }
     ],
-    "name": "bridgedToWrapped",
-    "outputs": [
-      { "internalType": "uint256", "name": "", "type": "uint256" }
+    "name": "computeWrappedId",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "tokenId", "type": "uint256" }
     ],
+    "name": "getApproved",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "uint32", "name": "_eid", "type": "uint32" },
-      { "internalType": "bytes32", "name": "_peer", "type": "bytes32" }
+      { "internalType": "address", "name": "owner", "type": "address" },
+      { "internalType": "address", "name": "operator", "type": "address" }
     ],
-    "name": "isPeer",
-    "outputs": [
-      { "internalType": "bool", "name": "", "type": "bool" }
-    ],
+    "name": "isApprovedForAll",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "name",
-    "outputs": [
-      { "internalType": "string", "name": "", "type": "string" }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "nextTokenId",
-    "outputs": [
-      { "internalType": "uint256", "name": "", "type": "uint256" }
-    ],
+    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "owner",
-    "outputs": [
-      { "internalType": "address", "name": "", "type": "address" }
-    ],
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -387,9 +354,7 @@ export const BASE_WRAPPED_ABI = [
       { "internalType": "uint256", "name": "tokenId", "type": "uint256" }
     ],
     "name": "ownerOf",
-    "outputs": [
-      { "internalType": "address", "name": "", "type": "address" }
-    ],
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -398,29 +363,28 @@ export const BASE_WRAPPED_ABI = [
       { "internalType": "uint32", "name": "", "type": "uint32" }
     ],
     "name": "peers",
-    "outputs": [
-      { "internalType": "bytes32", "name": "", "type": "bytes32" }
-    ],
+    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
       { "internalType": "uint32", "name": "_dstEid", "type": "uint32" },
-      { "internalType": "uint256", "name": "_wrappedTokenId", "type": "uint256" },
-      { "internalType": "address", "name": "_recipient", "type": "address" },
-      { "internalType": "bytes", "name": "_options", "type": "bytes" }
+      { "internalType": "address", "name": "_to", "type": "address" },
+      { "internalType": "uint256[]", "name": "_wrappedIds", "type": "uint256[]" },
+      { "internalType": "bytes", "name": "_options", "type": "bytes" },
+      { "internalType": "bool", "name": "_payInLzToken", "type": "bool" }
     ],
-    "name": "quoteBridgeBack",
+    "name": "quoteBridgeSend",
     "outputs": [
       {
+        "internalType": "struct MessagingFee",
+        "name": "fee",
+        "type": "tuple",
         "components": [
           { "internalType": "uint256", "name": "nativeFee", "type": "uint256" },
           { "internalType": "uint256", "name": "lzTokenFee", "type": "uint256" }
-        ],
-        "internalType": "struct MessagingFee",
-        "name": "fee",
-        "type": "tuple"
+        ]
       }
     ],
     "stateMutability": "view",
@@ -468,7 +432,16 @@ export const BASE_WRAPPED_ABI = [
   },
   {
     "inputs": [
-      { "internalType": "struct EnforcedOptionParam[]", "name": "_enforcedOptions", "type": "tuple[]", "components": [ { "internalType": "uint32", "name": "eid", "type": "uint32" }, { "internalType": "uint16", "name": "msgType", "type": "uint16" }, { "internalType": "bytes", "name": "options", "type": "bytes" } ] }
+      {
+        "internalType": "struct EnforcedOptionParam[]",
+        "name": "_enforcedOptions",
+        "type": "tuple[]",
+        "components": [
+          { "internalType": "uint32", "name": "eid", "type": "uint32" },
+          { "internalType": "uint16", "name": "msgType", "type": "uint16" },
+          { "internalType": "bytes", "name": "options", "type": "bytes" }
+        ]
+      }
     ],
     "name": "setEnforcedOptions",
     "outputs": [],
@@ -490,18 +463,21 @@ export const BASE_WRAPPED_ABI = [
       { "internalType": "bytes4", "name": "interfaceId", "type": "bytes4" }
     ],
     "name": "supportsInterface",
-    "outputs": [
-      { "internalType": "bool", "name": "", "type": "bool" }
-    ],
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "symbol",
-    "outputs": [
-      { "internalType": "string", "name": "", "type": "string" }
-    ],
+    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "token",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -510,9 +486,7 @@ export const BASE_WRAPPED_ABI = [
       { "internalType": "uint256", "name": "tokenId", "type": "uint256" }
     ],
     "name": "tokenURI",
-    "outputs": [
-      { "internalType": "string", "name": "", "type": "string" }
-    ],
+    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -540,12 +514,8 @@ export const BASE_WRAPPED_ABI = [
     "inputs": [
       { "internalType": "uint256", "name": "", "type": "uint256" }
     ],
-    "name": "wrappedOriginInfo",
-    "outputs": [
-      { "internalType": "uint32", "name": "originEid", "type": "uint32" },
-      { "internalType": "address", "name": "originContract", "type": "address" },
-      { "internalType": "uint256", "name": "originTokenId", "type": "uint256" }
-    ],
+    "name": "wrappedToOriginalEid",
+    "outputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -553,10 +523,17 @@ export const BASE_WRAPPED_ABI = [
     "inputs": [
       { "internalType": "uint256", "name": "", "type": "uint256" }
     ],
-    "name": "wrappedToOriginKey",
-    "outputs": [
-      { "internalType": "bytes32", "name": "", "type": "bytes32" }
+    "name": "wrappedToOriginalId",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "", "type": "uint256" }
     ],
+    "name": "wrappedToOriginalToken",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
   }

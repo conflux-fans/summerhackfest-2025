@@ -74,6 +74,7 @@
     "hardhat-deploy": "^0.12.1"
   },
   "dependencies": {
-    "@layerzerolabs/lz-evm-oapp-v2": "^3.0.128"
+    "@layerzerolabs/lz-evm-oapp-v2": "^3.0.128",
+    "@layerzerolabs/onft-evm": "^0.2.3"
   }
 }
