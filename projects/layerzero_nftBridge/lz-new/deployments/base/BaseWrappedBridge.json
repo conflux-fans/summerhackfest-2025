@@ -1,0 +1,161 @@
+{
+    "address": "0xF5d65814E2584cD504F1AC836C0A24d438CDf7Ec",
+    "abi": [
+      {
+        "inputs": [
+          { "internalType": "string", "name": "name_", "type": "string" },
+          { "internalType": "string", "name": "symbol_", "type": "string" },
+          { "internalType": "address", "name": "_endpoint", "type": "address" },
+          { "internalType": "address", "name": "_delegate", "type": "address" }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          { "indexed": true, "internalType": "address", "name": "recipient", "type": "address" },
+          { "indexed": false, "internalType": "uint32", "name": "srcEid", "type": "uint32" },
+          { "indexed": false, "internalType": "address", "name": "srcContract", "type": "address" },
+          { "indexed": false, "internalType": "uint256", "name": "originTokenId", "type": "uint256" },
+          { "indexed": false, "internalType": "uint256", "name": "wrappedTokenId", "type": "uint256" },
+          { "indexed": false, "internalType": "string", "name": "tokenURI", "type": "string" }
+        ],
+        "name": "WrappedMinted",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          { "indexed": true, "internalType": "address", "name": "owner", "type": "address" },
+          { "indexed": false, "internalType": "uint256", "name": "wrappedTokenId", "type": "uint256" },
+          { "indexed": false, "internalType": "uint32", "name": "destEid", "type": "uint32" },
+          { "indexed": false, "internalType": "address", "name": "destContract", "type": "address" },
+          { "indexed": false, "internalType": "uint256", "name": "originTokenId", "type": "uint256" }
+        ],
+        "name": "WrappedBurned",
+        "type": "event"
+      },
+      {
+        "inputs": [
+          { "internalType": "uint32", "name": "_dstEid", "type": "uint32" },
+          { "internalType": "uint256", "name": "_wrappedTokenId", "type": "uint256" },
+          { "internalType": "address", "name": "_recipient", "type": "address" },
+          { "internalType": "bytes", "name": "_options", "type": "bytes" }
+        ],
+        "name": "bridgeBack",
+        "outputs": [
+          {
+            "components": [
+              { "internalType": "bytes32", "name": "guid", "type": "bytes32" },
+              { "internalType": "uint64", "name": "nonce", "type": "uint64" },
+              {
+                "components": [
+                  { "internalType": "uint256", "name": "nativeFee", "type": "uint256" },
+                  { "internalType": "uint256", "name": "lzTokenFee", "type": "uint256" }
+                ],
+                "internalType": "struct MessagingFee",
+                "name": "fee",
+                "type": "tuple"
+              }
+            ],
+            "internalType": "struct MessagingReceipt",
+            "name": "receipt",
+            "type": "tuple"
+          }
+        ],
+        "stateMutability": "payable",
+        "type": "function"
+      },
+      {
+        "inputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+        "name": "bridgedToWrapped",
+        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          { "internalType": "uint32", "name": "_eid", "type": "uint32" },
+          { "internalType": "bytes32", "name": "_peer", "type": "bytes32" }
+        ],
+        "name": "isPeer",
+        "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "nextTokenId",
+        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          { "internalType": "uint32", "name": "", "type": "uint32" }
+        ],
+        "name": "peers",
+        "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          { "internalType": "uint32", "name": "_dstEid", "type": "uint32" },
+          { "internalType": "uint256", "name": "_wrappedTokenId", "type": "uint256" },
+          { "internalType": "address", "name": "_recipient", "type": "address" },
+          { "internalType": "bytes", "name": "_options", "type": "bytes" }
+        ],
+        "name": "quoteBridgeBack",
+        "outputs": [
+          {
+            "components": [
+              { "internalType": "uint256", "name": "nativeFee", "type": "uint256" },
+              { "internalType": "uint256", "name": "lzTokenFee", "type": "uint256" }
+            ],
+            "internalType": "struct MessagingFee",
+            "name": "fee",
+            "type": "tuple"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          { "internalType": "uint32", "name": "_eid", "type": "uint32" },
+          { "internalType": "bytes32", "name": "_peer", "type": "bytes32" }
+        ],
+        "name": "setPeer",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+        "name": "wrappedOriginInfo",
+        "outputs": [
+          { "internalType": "uint32", "name": "originEid", "type": "uint32" },
+          { "internalType": "address", "name": "originContract", "type": "address" },
+          { "internalType": "uint256", "name": "originTokenId", "type": "uint256" }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+        "name": "wrappedToOriginKey",
+        "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [{ "internalType": "uint256", "name": "tokenId", "type": "uint256" }],
+        "name": "ownerOf",
+        "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+        "stateMutability": "view",
+        "type": "function"
+      }
+    ]
+  }
