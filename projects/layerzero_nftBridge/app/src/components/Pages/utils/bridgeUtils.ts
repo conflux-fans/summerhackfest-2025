@@ -1,5 +1,5 @@
 import { WalletClient, PublicClient, Address, encodePacked } from 'viem';
-import { encodeFunctionData, toHex } from 'viem';
+import { encodeFunctionData, pad } from 'viem';
 import {
   CONFLUX_ORIGIN_ADDRESS,
   BASE_WRAPPED_ADDRESS,
@@ -70,17 +70,17 @@ export const bridgeToBase = async (
       functionName: 'peers',
       args: [BASE_EID],
     }) as `0x${string}`;
-    const expectedPeer = encodePacked(['address'], [BASE_WRAPPED_ADDRESS]).padStart(66, '0') as `0x${string}`;
+    const expectedPeer = pad(BASE_WRAPPED_ADDRESS, { dir: 'left', size: 32 }) as `0x${string}`;
     if (peer.toLowerCase() !== expectedPeer.toLowerCase()) {
       setTxStatus(
-        `Peer not set. Call setPeer on EspaceBridge (0x${CONFLUX_ORIGIN_ADDRESS.slice(2)}) with dstEid=30184 and peer=0x${expectedPeer.slice(2)}.`
+        `Peer not set. Call setPeer on EspaceBridge (0x${CONFLUX_ORIGIN_ADDRESS.slice(2)}) with dstEid=30184 and peer=${expectedPeer}.`
       );
       return;
     }
-    // V2 options for lzReceive: type 1, gas 1,000,000, value 0
+    // V2 options for lzReceive: type 1, gas 200,000, value 0
     const adapterParams = encodePacked(
       ['uint8', 'uint16', 'uint128', 'uint128'],
-      [1, 32, 1000000n, 0n]
+      [1, 32, 200000n, 0n]
     );
     console.log('adapterParams:', adapterParams);
     // Estimate fee using contract's quote function
@@ -144,17 +144,17 @@ export const bridgeBackToConflux = async (
       functionName: 'peers',
       args: [CONFLUX_EID],
     }) as `0x${string}`;
-    const expectedPeer = encodePacked(['address'], [CONFLUX_ORIGIN_ADDRESS]).padStart(66, '0') as `0x${string}`;
+    const expectedPeer = pad(CONFLUX_ORIGIN_ADDRESS, { dir: 'left', size: 32 }) as `0x${string}`;
     if (peer.toLowerCase() !== expectedPeer.toLowerCase()) {
       setTxStatus(
-        `Peer not set. Call setPeer on BaseWrappedBridge (0x${BASE_WRAPPED_ADDRESS.slice(2)}) with dstEid=30212 and peer=0x${expectedPeer.slice(2)}.`
+        `Peer not set. Call setPeer on BaseWrappedBridge (0x${BASE_WRAPPED_ADDRESS.slice(2)}) with dstEid=30212 and peer=${expectedPeer}.`
       );
       return;
     }
-    // V2 options
+    // V2 options for lzReceive: type 1, gas 200,000, value 0
     const adapterParams = encodePacked(
       ['uint8', 'uint16', 'uint128', 'uint128'],
-      [1, 32, 1000000n, 0n]
+      [1, 32, 200000n, 0n]
     );
     console.log('adapterParams:', adapterParams);
     // Estimate fee using contract's quote function
