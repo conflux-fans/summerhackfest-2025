@@ -202,6 +202,7 @@ export const ESPACE_BRIDGE_ABI = [
   {
     "type": "function",
     "name": "token",
+    "inputs": [],
     "outputs": [{ "name": "", "type": "address" }],
     "stateMutability": "pure"
   },
@@ -339,6 +340,7 @@ export const BASE_WRAPPED_ABI = [
   {
     "type": "function",
     "name": "token",
+    "inputs": [],
     "outputs": [{ "name": "", "type": "address" }],
     "stateMutability": "pure"
   },
@@ -360,6 +362,17 @@ export const BASE_WRAPPED_ABI = [
     "name": "TokenUnregistered",
     "inputs": [{ "name": "token", "type": "address", "indexed": true }],
     "anonymous": false
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "", "type": "uint256" }
+    ],
+    "name": "wrappedToOriginalToken",
+    "outputs": [
+      { "internalType": "address", "name": "", "type": "address" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   }
 ];
 

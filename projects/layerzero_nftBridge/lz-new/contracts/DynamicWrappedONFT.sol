@@ -27,6 +27,7 @@ contract DynamicWrappedONFT is ONFT721Core, ERC721, IERC721Receiver {
     mapping(address => bool) public supportedTokens;
     mapping(uint256 => address) public wrappedToOriginalToken;
     mapping(uint256 => uint256) public wrappedToOriginalId;
+
     event TokenRegistered(address indexed token);
     event TokenUnregistered(address indexed token);
     event WrappedMinted(address indexed originalToken, uint256 originalId, uint256 wrappedId, address to);
@@ -104,11 +105,9 @@ contract DynamicWrappedONFT is ONFT721Core, ERC721, IERC721Receiver {
             supportedTokens[_originalToken] = true;
             emit TokenRegistered(_originalToken);
         }
-
         for (uint256 i = 0; i < _wrappedIds.length; i++) {
             _dynamicDebit(_originalToken, msg.sender, _wrappedIds[i], _dstEid);
         }
-
         bytes memory payload = abi.encode(_to, _wrappedIds, _originalToken);
         _lzSend(_dstEid, payload, _options, _fee, _refundAddress);
     }
@@ -159,7 +158,10 @@ contract DynamicWrappedONFT is ONFT721Core, ERC721, IERC721Receiver {
         bytes calldata _extraData
     ) internal virtual override {
         (address toAddress, uint256[] memory tokenIds, address originalToken) = abi.decode(_message, (address, uint256[], address));
-
+        if (!supportedTokens[originalToken]) {
+            supportedTokens[originalToken] = true;
+            emit TokenRegistered(originalToken);
+        }
         for (uint256 i = 0; i < tokenIds.length; i++) {
             _dynamicCredit(originalToken, toAddress, tokenIds[i], _origin.srcEid);
         }

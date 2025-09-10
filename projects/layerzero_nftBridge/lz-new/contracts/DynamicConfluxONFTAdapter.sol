@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.22;
+
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {ONFT721Core} from "@layerzerolabs/onft-evm/contracts/onft721/ONFT721Core.sol";
 import {MessagingFee} from "@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/OAppSender.sol";
@@ -22,6 +23,7 @@ interface IERC721Receiver {
  */
 contract DynamicConfluxONFTAdapter is ONFT721Core, IERC721Receiver {
     mapping(address => bool) public supportedTokens;
+
     event TokenRegistered(address indexed token);
     event TokenUnregistered(address indexed token);
 
@@ -97,11 +99,9 @@ contract DynamicConfluxONFTAdapter is ONFT721Core, IERC721Receiver {
             supportedTokens[_originalToken] = true;
             emit TokenRegistered(_originalToken);
         }
-
         for (uint256 i = 0; i < _tokenIds.length; i++) {
             _dynamicDebit(_originalToken, msg.sender, _tokenIds[i], _dstEid);
         }
-
         bytes memory payload = abi.encode(_to, _tokenIds, _originalToken);
         _lzSend(_dstEid, payload, _options, _fee, _refundAddress);
     }
@@ -146,7 +146,10 @@ contract DynamicConfluxONFTAdapter is ONFT721Core, IERC721Receiver {
         bytes calldata _extraData
     ) internal virtual override {
         (address toAddress, uint256[] memory tokenIds, address originalToken) = abi.decode(_message, (address, uint256[], address));
-
+        if (!supportedTokens[originalToken]) {
+            supportedTokens[originalToken] = true;
+            emit TokenRegistered(originalToken);
+        }
         for (uint256 i = 0; i < tokenIds.length; i++) {
             _dynamicCredit(originalToken, toAddress, tokenIds[i], _origin.srcEid);
         }

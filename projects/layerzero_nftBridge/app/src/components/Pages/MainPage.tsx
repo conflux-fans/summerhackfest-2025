@@ -43,10 +43,10 @@ export function MainPage() {
         } else {
           setTxStatus('');
         }
-        if (tokenContractAddress) {
+        if (tokenContractAddress && chainId === CONFLUX_CHAIN_ID) {
           try {
-            const bridgeAddress = chainId === CONFLUX_CHAIN_ID ? CONFLUX_ORIGIN_ADDRESS : BASE_BRIDGE_ADDRESS;
-            const bridgeAbi = chainId === CONFLUX_CHAIN_ID ? ESPACE_BRIDGE_ABI : BASE_WRAPPED_ABI;
+            const bridgeAddress = CONFLUX_ORIGIN_ADDRESS;
+            const bridgeAbi = ESPACE_BRIDGE_ABI;
             const supported = await publicClient.readContract({
               address: bridgeAddress as `0x${string}`,
               abi: bridgeAbi,
@@ -117,9 +117,8 @@ export function MainPage() {
     console.log('[MainPage] Calling registerCollection with:', {
       walletClient,
       publicClient,
+      tokenId,
       tokenContractAddress,
-      bridgeAddress: chainId === CONFLUX_CHAIN_ID ? CONFLUX_ORIGIN_ADDRESS : BASE_BRIDGE_ADDRESS,
-      bridgeAbi: chainId === CONFLUX_CHAIN_ID ? 'ESPACE_BRIDGE_ABI' : 'BASE_WRAPPED_ABI',
       setTxStatus: typeof setTxStatus,
       setIsSupported: typeof setIsSupported,
       setIsWhitelisting: typeof setIsWhitelisting,
@@ -128,9 +127,8 @@ export function MainPage() {
       await registerCollection(
         walletClient,
         publicClient,
+        tokenId,
         tokenContractAddress,
-        chainId === CONFLUX_CHAIN_ID ? CONFLUX_ORIGIN_ADDRESS : BASE_BRIDGE_ADDRESS,
-        chainId === CONFLUX_CHAIN_ID ? ESPACE_BRIDGE_ABI : BASE_WRAPPED_ABI,
         setTxStatus,
         setIsSupported,
         setIsWhitelisting

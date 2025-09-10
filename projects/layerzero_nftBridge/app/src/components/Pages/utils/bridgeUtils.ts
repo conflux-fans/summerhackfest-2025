@@ -4,13 +4,11 @@ import {
   BASE_WRAPPED_ABI,
   ESPACE_BRIDGE_ABI,
 } from "./abis";
-
-const BRIDGE_CONTRACT_ADDRESS = "0x2e1ffF1Ac811c5936899B4CD61769A783539d392" as Address; // DynamicWrappedONFT on Base
-const CONFLUX_BRIDGE_ADDRESS = "0x98D539a04ECB719D016031649A919f95B440e4D4" as Address; // DynamicConfluxONFTAdapter on Conflux
+const BRIDGE_CONTRACT_ADDRESS = "0xcF394722e8fF94579eC98BA0D11309F7E888a029" as Address; // DynamicWrappedONFT on Base
+const CONFLUX_BRIDGE_ADDRESS = "0x890C3dEc7d958bBCd5D4fcd308F6b04946f30ada" as Address; // DynamicConfluxONFTAdapter on Conflux
 const CONFLUX_CHAIN_ID = 1030;
 const CONFLUX_EID = 30212;
 const BASE_EID = 30184;
-
 // --- Helpers ---
 const isHex = (s: string): boolean => /^0x[0-9a-fA-F]{40}$/.test(s);
 
@@ -206,7 +204,7 @@ export async function approveWrappedNFT(
     // Verify ownership
     const owner = await publicClient.readContract({
       address: tokenAddress,
-      abi: BASE_WRAPPED_ABI,
+      abi: ERC721_ABI,
       functionName: 'ownerOf',
       args: [BigInt(tokenId)],
     }) as Address;
@@ -218,7 +216,7 @@ export async function approveWrappedNFT(
     // Check approval status
     const approvedAddress = await publicClient.readContract({
       address: tokenAddress,
-      abi: BASE_WRAPPED_ABI,
+      abi: ERC721_ABI,
       functionName: 'getApproved',
       args: [BigInt(tokenId)],
     }) as Address;
@@ -233,7 +231,7 @@ export async function approveWrappedNFT(
     // Estimate gas
     const gasEstimate = await estimateGasWithBuffer(publicClient, {
       address: tokenAddress,
-      abi: BASE_WRAPPED_ABI,
+      abi: ERC721_ABI,
       functionName: 'approve',
       args: [BRIDGE_CONTRACT_ADDRESS, BigInt(tokenId)],
       account: walletClient.account.address,
@@ -242,7 +240,7 @@ export async function approveWrappedNFT(
     console.log(`[approveWrappedNFT] Approving token ${tokenId} to ${BRIDGE_CONTRACT_ADDRESS} with gas: ${gasEstimate}`);
     const txHash = await walletClient.writeContract({
       address: tokenAddress,
-      abi: BASE_WRAPPED_ABI,
+      abi: ERC721_ABI,
       functionName: 'approve',
       args: [BRIDGE_CONTRACT_ADDRESS, BigInt(tokenId)],
       gas: gasEstimate,
@@ -260,7 +258,7 @@ export async function approveWrappedNFT(
     return { status: receipt.status === "success" ? "success" : "reverted", txHash };
   } catch (error) {
     console.error(`[approveWrappedNFT] Error:`, error);
-    const reason = extractRevertReason(error, BASE_WRAPPED_ABI);
+    const reason = extractRevertReason(error, ERC721_ABI);
     setTxStatus(`Failed to approve wrapped NFT: ${reason || 'Unknown error'}`);
     setIsApproving(false);
     return { status: "failed", txHash: null };
@@ -488,7 +486,7 @@ export async function bridgeBackToConflux(
     // Verify ownership
     const owner = await publicClient.readContract({
       address: tokenAddress,
-      abi: BASE_WRAPPED_ABI,
+      abi: ERC721_ABI,
       functionName: 'ownerOf',
       args: [BigInt(tokenId)],
     }) as Address;
@@ -497,10 +495,22 @@ export async function bridgeBackToConflux(
       setTxStatus('You do not own this wrapped token');
       return { status: "failed", txHash: null };
     }
+    // Retrieve the original token address from Conflux
+    const originalToken = await publicClient.readContract({
+      address: BRIDGE_CONTRACT_ADDRESS,
+      abi: BASE_WRAPPED_ABI,
+      functionName: 'wrappedToOriginalToken',
+      args: [BigInt(tokenId)],
+    }) as Address;
+    console.log(`[bridgeBackToConflux] Original token for wrapped ${tokenId}: ${originalToken}`);
+    if (originalToken.toLowerCase() === '0x0000000000000000000000000000000000000000') {
+      setTxStatus('Invalid wrapped NFT - no original token mapped');
+      return { status: "failed", txHash: null };
+    }
     // Verify approval
     const approved = await publicClient.readContract({
       address: tokenAddress,
-      abi: BASE_WRAPPED_ABI,
+      abi: ERC721_ABI,
       functionName: 'getApproved',
       args: [BigInt(tokenId)],
     }) as Address;
@@ -537,7 +547,7 @@ export async function bridgeBackToConflux(
         address: BRIDGE_CONTRACT_ADDRESS,
         abi: BASE_WRAPPED_ABI,
         functionName: 'quoteBridgeSend',
-        args: [tokenAddress, CONFLUX_EID, recipient, [BigInt(tokenId)], options, false],
+        args: [originalToken, CONFLUX_EID, recipient, [BigInt(tokenId)], options, false],
       }) as { nativeFee: bigint; lzTokenFee: bigint };
       console.log(`[bridgeBackToConflux] Fee quote: nativeFee=${fee.nativeFee}, lzTokenFee=${fee.lzTokenFee}`);
     } catch (error) {
@@ -567,7 +577,7 @@ export async function bridgeBackToConflux(
       address: BRIDGE_CONTRACT_ADDRESS,
       abi: BASE_WRAPPED_ABI,
       functionName: 'bridgeSend',
-      args: [tokenAddress, CONFLUX_EID, recipient, [BigInt(tokenId)], options, fee, recipient],
+      args: [originalToken, CONFLUX_EID, recipient, [BigInt(tokenId)], options, fee, recipient],
       account: walletClient.account.address,
       value: fee.nativeFee,
     }, 20, 500000n);
@@ -579,7 +589,7 @@ export async function bridgeBackToConflux(
         address: BRIDGE_CONTRACT_ADDRESS,
         abi: BASE_WRAPPED_ABI,
         functionName: 'bridgeSend',
-        args: [tokenAddress, CONFLUX_EID, recipient, [BigInt(tokenId)], options, fee, recipient],
+        args: [originalToken, CONFLUX_EID, recipient, [BigInt(tokenId)], options, fee, recipient],
         value: fee.nativeFee,
         account: walletClient.account.address,
       });
@@ -595,7 +605,7 @@ export async function bridgeBackToConflux(
       address: BRIDGE_CONTRACT_ADDRESS,
       abi: BASE_WRAPPED_ABI,
       functionName: 'bridgeSend',
-      args: [tokenAddress, CONFLUX_EID, recipient, [BigInt(tokenId)], options, fee, recipient],
+      args: [originalToken, CONFLUX_EID, recipient, [BigInt(tokenId)], options, fee, recipient],
       value: fee.nativeFee,
       gas: gasEstimate,
     });
