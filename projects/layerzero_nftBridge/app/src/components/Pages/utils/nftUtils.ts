@@ -23,9 +23,9 @@ export const fetchNFTs = async (
 
     if (chainId === 8453) {
       // Base: Use Basescan API
-      const basescanApiKey = "GGTR68G4AATA131GA2W7R7RNKZJARZ5IZN";
+      const basescanApiKey = import.meta.env.VITE_BASESCAN_API_KEY;
       if (!basescanApiKey) {
-        setTxStatus('Basescan API key missing. Please configure VITE_BASESCAN_API_KEY.');
+        setTxStatus('Basescan API key missing. Please configure VITE_BASESCAN_API_KEY in your .env file.');
         return;
       }
       let page = 1;
@@ -48,32 +48,34 @@ export const fetchNFTs = async (
         }
 
         // Process transactions to find owned NFTs
-        const contractTokenMap = new Map<string, Map<string, boolean>>();
+        const contractTokenMap = new Map<string, Map<string, { isOwned: boolean; tokenName?: string; tokenSymbol?: string }>>();
         for (const tx of data.result) {
           const contractAddress = tx.contractAddress.toLowerCase();
           const tokenId = tx.tokenID;
           const from = tx.from.toLowerCase();
           const to = tx.to.toLowerCase();
+          const tokenName = tx.tokenName || `Token #${tokenId}`;
+          const tokenSymbol = tx.tokenSymbol || '';
 
           if (!contractTokenMap.has(contractAddress)) {
-            contractTokenMap.set(contractAddress, new Map<string, boolean>());
+            contractTokenMap.set(contractAddress, new Map());
           }
           const tokenOwners = contractTokenMap.get(contractAddress)!;
 
           if (to === address.toLowerCase()) {
-            tokenOwners.set(tokenId, true);
+            tokenOwners.set(tokenId, { isOwned: true, tokenName, tokenSymbol });
           }
           if (from === address.toLowerCase() && to !== address.toLowerCase()) {
-            tokenOwners.set(tokenId, false);
+            tokenOwners.set(tokenId, { isOwned: false, tokenName, tokenSymbol });
           }
         }
 
         for (const [contractAddress, tokenOwners] of contractTokenMap) {
-          for (const [tokenIdStr, isOwned] of tokenOwners) {
+          for (const [tokenIdStr, { isOwned, tokenName, tokenSymbol }] of tokenOwners) {
             if (!isOwned) continue;
 
             let tokenURI = '';
-            let name = '';
+            let name = tokenName;
             let image = '';
             try {
               // Verify ownership
@@ -118,7 +120,7 @@ export const fetchNFTs = async (
                   const metadataResponse = await fetch(tokenURI, { signal: AbortSignal.timeout(5000) });
                   if (metadataResponse.ok) {
                     const metadataJson = await metadataResponse.json();
-                    name = metadataJson.name || `Token #${tokenIdStr}`;
+                    name = metadataJson.name || name || `Token #${tokenIdStr}`;
                     image = metadataJson.image || '';
                     if (image.startsWith('ipfs://')) {
                       image = image.replace('ipfs://', 'https://ipfs.io/ipfs/');
@@ -136,7 +138,7 @@ export const fetchNFTs = async (
                 name = `Token #${tokenIdStr}`;
               }
 
-              nftList.push({ tokenId: tokenIdStr, tokenURI, name, image, contractAddress });
+              nftList.push({ tokenId: tokenIdStr, tokenURI, name: `${name} (${tokenSymbol})`, image, contractAddress });
             } catch (err) {
               console.warn(`Failed to fetch data for token ${tokenIdStr} on contract ${contractAddress}:`, err);
             }
@@ -154,7 +156,7 @@ export const fetchNFTs = async (
       let skip = 0;
       const limit = 100;
       let total = Infinity;
-      const contractTokenMap = new Map<string, Map<string, boolean>>();
+      const contractTokenMap = new Map<string, Map<string, { isOwned: boolean; name?: string; symbol?: string }>>();
 
       // Fetch NFT contracts owned by the address
       while (skip < total) {
@@ -175,7 +177,7 @@ export const fetchNFTs = async (
             continue;
           }
           if (!contractTokenMap.has(contractAddress)) {
-            contractTokenMap.set(contractAddress, new Map<string, boolean>());
+            contractTokenMap.set(contractAddress, new Map());
           }
         }
 
@@ -209,12 +211,14 @@ export const fetchNFTs = async (
             const tokenId = tx.tokenID;
             const from = tx.from.toLowerCase();
             const to = tx.to.toLowerCase();
+            const tokenName = tx.tokenName || `Token #${tokenId}`;
+            const tokenSymbol = tx.tokenSymbol || '';
 
             if (to === address.toLowerCase()) {
-              tokenOwners.set(tokenId, true);
+              tokenOwners.set(tokenId, { isOwned: true, name: tokenName, symbol: tokenSymbol });
             }
             if (from === address.toLowerCase() && to !== address.toLowerCase()) {
-              tokenOwners.set(tokenId, false);
+              tokenOwners.set(tokenId, { isOwned: false, name: tokenName, symbol: tokenSymbol });
             }
           }
 
@@ -226,11 +230,11 @@ export const fetchNFTs = async (
 
       // Fetch NFT details
       for (const [contractAddress, tokenOwners] of contractTokenMap) {
-        for (const [tokenIdStr, isOwned] of tokenOwners) {
+        for (const [tokenIdStr, { isOwned, name: tokenName, symbol: tokenSymbol }] of tokenOwners) {
           if (!isOwned) continue;
 
           let tokenURI = '';
-          let name = '';
+          let name = tokenName || `Token #${tokenIdStr}`;
           let image = '';
           try {
             // Verify ownership
@@ -274,7 +278,7 @@ export const fetchNFTs = async (
                 functionName: 'tokenMetadata',
                 args: [BigInt(tokenIdStr)],
               }) as [string, string];
-              name = metadata[0] || `Token #${tokenIdStr}`;
+              name = metadata[0] || name;
               const ipfsHash = metadata[1];
               if (ipfsHash && !image) {
                 let metadataUrl = `https://ipfs.io/ipfs/${ipfsHash}`;
@@ -303,7 +307,7 @@ export const fetchNFTs = async (
             }
 
             // Fallback to tokenURI metadata
-            if (!name && tokenURI) {
+            if (tokenURI) {
               if (tokenURI.startsWith('ipfs://')) {
                 tokenURI = tokenURI.replace('ipfs://', 'https://ipfs.io/ipfs/');
               }
@@ -311,7 +315,7 @@ export const fetchNFTs = async (
                 const metadataResponse = await fetch(tokenURI, { signal: AbortSignal.timeout(5000) });
                 if (metadataResponse.ok) {
                   const metadataJson = await metadataResponse.json();
-                  name = metadataJson.name || `Token #${tokenIdStr}`;
+                  name = metadataJson.name || name;
                   image = metadataJson.image || image;
                   if (image.startsWith('ipfs://')) {
                     image = image.replace('ipfs://', 'https://ipfs.io/ipfs/');
@@ -329,7 +333,7 @@ export const fetchNFTs = async (
               name = `Token #${tokenIdStr}`;
             }
 
-            nftList.push({ tokenId: tokenIdStr, tokenURI, name, image, contractAddress });
+            nftList.push({ tokenId: tokenIdStr, tokenURI, name: `${name} (${tokenSymbol})`, image, contractAddress });
           } catch (err) {
             console.warn(`Failed to fetch data for token ${tokenIdStr} on contract ${contractAddress}:`, err);
           }

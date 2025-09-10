@@ -131,11 +131,6 @@ export function MintNFT() {
           <p className="text-gray-300 text-lg md:text-xl max-w-2xl mx-auto">
             Create unique digital assets on Conflux eSpace with your custom artwork and metadata
           </p>
-          {!isConnected && (
-            <div className="mt-8">
-              <WalletConnectButton />
-            </div>
-          )}
         </div>
         <div className="grid lg:grid-cols-2 gap-8 items-start">
           {/* Left Panel - Minting Form */}

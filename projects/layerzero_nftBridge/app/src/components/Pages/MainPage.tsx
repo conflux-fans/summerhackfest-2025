@@ -128,11 +128,6 @@ export function MainPage() {
           <p className="text-gray-300 text-lg md:text-xl max-w-2xl mx-auto">
             Bridge any ERC-721 NFT between Conflux eSpace and Base using LayerZero technology
           </p>
-          {!isConnected && (
-            <div className="mt-8">
-              <WalletConnectButton />
-            </div>
-          )}
         </div>
         <div className="grid lg:grid-cols-2 gap-8 items-start">
           {/* Left Panel - Bridge Controls */}

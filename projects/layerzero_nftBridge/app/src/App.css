@@ -3,7 +3,9 @@
 body {
   @apply font-sans;
 }
-
+w3m-modal.open {
+  z-index: 9999;
+}
 /* Base button */
 button.local-no-balance {
   display: flex !important;
