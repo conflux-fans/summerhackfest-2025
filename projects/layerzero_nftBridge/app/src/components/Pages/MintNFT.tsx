@@ -43,7 +43,7 @@ export function MintNFT() {
         }
       } else {
         setReady(false);
-        setTxStatus('Please connect wallet');
+        setTxStatus('Please connect wallet to proceed');
       }
     };
     initialize();
@@ -58,6 +58,10 @@ export function MintNFT() {
   }, [ipfsCid]);
 
   const switchToConflux = async () => {
+    if (!isConnected) {
+      setTxStatus('Please connect wallet to switch networks');
+      return;
+    }
     setIsSwitching(true);
     try {
       await switchChainAsync({ chainId: CONFLUX_CHAIN_ID });
@@ -70,6 +74,10 @@ export function MintNFT() {
   };
 
   const mintNFT = async () => {
+    if (!isConnected) {
+      setTxStatus('Please connect wallet to mint NFT');
+      return;
+    }
     if (!walletClient || !publicClient || !nftName || !ipfsCid) {
       setTxStatus('Please fill in all fields');
       return;
@@ -101,25 +109,6 @@ export function MintNFT() {
     setIsMinting(false);
   };
 
-  if (!isConnected) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
-        <div className="text-center">
-          <div className="mb-8">
-            <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-2xl flex items-center justify-center">
-              <span className="text-3xl">🎨</span>
-            </div>
-            <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-emerald-400 to-teal-500 bg-clip-text text-transparent mb-4">
-              NFT Mint Studio
-            </h1>
-            <p className="text-gray-300 text-xl mb-8">Connect your wallet to start creating</p>
-          </div>
-          <WalletConnectButton />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen p-4">
       {/* Animated background elements */}
@@ -128,7 +117,6 @@ export function MintNFT() {
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
         <div className="absolute top-3/4 left-1/2 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
       </div>
-
       <div className="relative z-10 max-w-6xl mx-auto pt-8">
         {/* Header */}
         <div className="text-center mb-12">
@@ -143,8 +131,12 @@ export function MintNFT() {
           <p className="text-gray-300 text-lg md:text-xl max-w-2xl mx-auto">
             Create unique digital assets on Conflux eSpace with your custom artwork and metadata
           </p>
+          {!isConnected && (
+            <div className="mt-8">
+              <WalletConnectButton />
+            </div>
+          )}
         </div>
-
         <div className="grid lg:grid-cols-2 gap-8 items-start">
           {/* Left Panel - Minting Form */}
           <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl">
@@ -166,33 +158,34 @@ export function MintNFT() {
                     </div>
                   </div>
                 </div>
-                {chainId !== CONFLUX_CHAIN_ID && (
-                  <button
-                    onClick={switchToConflux}
-                    disabled={isSwitching}
-                    className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-semibold py-2 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center text-sm"
-                  >
-                    {isSwitching ? (
-                      <>
-                        <svg className="animate-spin h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Switching...
-                      </>
-                    ) : (
-                      <>
-                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
-                        </svg>
-                        Switch Network
-                      </>
-                    )}
-                  </button>
-                )}
               </div>
+              {chainId !== CONFLUX_CHAIN_ID && (
+                <button
+                  onClick={switchToConflux}
+                  disabled={isSwitching || !isConnected}
+                  className={`bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-semibold py-2 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center text-sm ${
+                    isSwitching || !isConnected ? 'opacity-50 cursor-not-allowed hover:scale-100' : ''
+                  }`}
+                >
+                  {isSwitching ? (
+                    <>
+                      <svg className="animate-spin h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Switching...
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                      </svg>
+                      Switch Network
+                    </>
+                  )}
+                </button>
+              )}
             </div>
-
             {/* NFT Details Form */}
             <div className="space-y-6">
               <div>
@@ -205,7 +198,10 @@ export function MintNFT() {
                   placeholder="Enter your NFT name..."
                   value={nftName}
                   onChange={(e) => setNftName(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                  disabled={!isConnected}
+                  className={`w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all ${
+                    !isConnected ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
                 />
               </div>
               <div>
@@ -218,7 +214,10 @@ export function MintNFT() {
                   placeholder="Qm... (IPFS Content Identifier)"
                   value={ipfsCid}
                   onChange={(e) => setIpfsCid(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all font-mono text-sm"
+                  disabled={!isConnected}
+                  className={`w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all font-mono text-sm ${
+                    !isConnected ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
                 />
                 <p className="text-gray-400 text-xs mt-2 flex items-center">
                   <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -227,7 +226,6 @@ export function MintNFT() {
                   Upload your image to IPFS and paste the CID here
                 </p>
               </div>
-
               {/* Mint Button */}
               <button
                 onClick={mintNFT}
@@ -255,7 +253,6 @@ export function MintNFT() {
                   </>
                 )}
               </button>
-
               {/* Status Message */}
               {txStatus && (
                 <div className={`p-4 rounded-2xl border ${
@@ -270,7 +267,6 @@ export function MintNFT() {
               )}
             </div>
           </div>
-
           {/* Right Panel - Preview */}
           <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl">
             <h3 className="text-white text-lg font-semibold mb-6 flex items-center">
@@ -298,7 +294,7 @@ export function MintNFT() {
                       }}
                     />
                   ) : null}
-                  <div 
+                  <div
                     className={`w-full h-full flex items-center justify-center rounded-2xl bg-gradient-to-br from-gray-700 to-gray-800 ${previewUrl ? 'hidden' : 'flex'}`}
                     style={{ display: previewUrl ? 'none' : 'flex' }}
                   >
@@ -317,7 +313,6 @@ export function MintNFT() {
                   </div>
                 )}
               </div>
-
               {/* NFT Info */}
               <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
                 <h4 className="text-white text-xl font-bold mb-4">
@@ -343,18 +338,17 @@ export function MintNFT() {
                   <div className="flex justify-between">
                     <span>Status:</span>
                     <span className={`${
-                      chainId === CONFLUX_CHAIN_ID && nftName && ipfsCid
+                      chainId === CONFLUX_CHAIN_ID && nftName && ipfsCid && isConnected
                         ? 'text-green-300'
                         : 'text-yellow-300'
                     }`}>
-                      {chainId === CONFLUX_CHAIN_ID && nftName && ipfsCid
+                      {chainId === CONFLUX_CHAIN_ID && nftName && ipfsCid && isConnected
                         ? 'Ready to Mint'
                         : 'Incomplete'}
                     </span>
                   </div>
                 </div>
               </div>
-
               {/* Tips */}
               <div className="mt-6 bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-2xl p-4">
                 <div className="flex items-start">

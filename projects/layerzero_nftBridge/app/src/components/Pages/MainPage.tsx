@@ -8,6 +8,7 @@ import { NetworkDropdown } from '../Common/NetworkDropdown';
 import { approveNFT, bridgeToBase, bridgeBackToConflux, registerCollection } from './utils/bridgeUtils';
 import { CONFLUX_CHAIN_ID, IMAGE_MINT_NFT_ADDRESS, CONFLUX_ORIGIN_ADDRESS } from './utils/constants';
 import { ESPACE_BRIDGE_ABI } from './utils/abis';
+
 export function MainPage() {
   const { address, isConnected } = useAppKitAccount();
   const { chainId } = useAppKitNetwork();
@@ -28,6 +29,7 @@ export function MainPage() {
   const [selectedNFT, setSelectedNFT] = useState<NFT | null>(null);
   const [isSupported, setIsSupported] = useState(true);
   const [isWhitelisting, setIsWhitelisting] = useState(false);
+
   useEffect(() => {
     const initialize = async () => {
       if (isConnected && address && walletClient && publicClient) {
@@ -56,28 +58,36 @@ export function MainPage() {
       } else {
         setReady(false);
         setRecipient('');
-        setTxStatus('Please connect wallet');
+        setTxStatus('Please connect wallet to proceed');
       }
     };
     initialize();
   }, [isConnected, address, walletClient, publicClient, chainId]);
+
   const handleFetchNFTs = () => {
+    if (!isConnected) {
+      setTxStatus('Please connect wallet to browse NFTs');
+      return;
+    }
     fetchNFTs(publicClient, address, chainId, setNfts, setTxStatus, setIsLoadingNfts).then(() =>
       setShowNFTModal(true)
     );
   };
+
   const selectNFT = (nft: NFT) => {
     setTokenId(nft.tokenId);
     setSelectedNFT(nft);
     setShowNFTModal(false);
     setIsApproved(false);
   };
+
   const toggleCustomRecipient = () => {
     setUseCustomRecipient(!useCustomRecipient);
     setRecipient(!useCustomRecipient ? '' : address || '');
   };
+
   const getChainInfo = (id: number) => {
-    switch(id) {
+    switch (id) {
       case CONFLUX_CHAIN_ID:
         return { name: 'Conflux', color: 'from-emerald-400 to-teal-500', logo: 'CFX' };
       case 8453: // Base
@@ -86,26 +96,10 @@ export function MainPage() {
         return { name: 'Unknown', color: 'from-gray-400 to-gray-500', logo: '?' };
     }
   };
+
   const currentChain = getChainInfo(chainId || 0);
   const targetChain = getChainInfo(chainId === CONFLUX_CHAIN_ID ? 8453 : CONFLUX_CHAIN_ID);
-  if (!isConnected) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
-        <div className="text-center">
-          <div className="mb-8">
-            <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-purple-400 to-pink-600 rounded-2xl flex items-center justify-center">
-              <span className="text-3xl">🌉</span>
-            </div>
-            <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent mb-4">
-              NFT Bridge
-            </h1>
-            <p className="text-gray-300 text-xl mb-8">Connect your wallet to start bridging</p>
-          </div>
-          <WalletConnectButton />
-        </div>
-      </div>
-    );
-  }
+
   return (
     <div className="min-h-screen p-4">
       {/* Animated background elements */}
@@ -128,6 +122,11 @@ export function MainPage() {
           <p className="text-gray-300 text-lg md:text-xl max-w-2xl mx-auto">
             Bridge your NFTs seamlessly between Conflux eSpace and Base using LayerZero technology
           </p>
+          {!isConnected && (
+            <div className="mt-8">
+              <WalletConnectButton />
+            </div>
+          )}
         </div>
         <div className="grid lg:grid-cols-2 gap-8 items-start">
           {/* Left Panel - Bridge Controls */}
@@ -219,8 +218,9 @@ export function MainPage() {
                     checked={useCustomRecipient}
                     onChange={toggleCustomRecipient}
                     className="sr-only"
+                    disabled={!isConnected}
                   />
-                  <div className={`w-6 h-6 rounded-lg border-2 mr-3 flex items-center justify-center transition-all ${useCustomRecipient ? 'bg-purple-500 border-purple-500' : 'border-gray-500'}`}>
+                  <div className={`w-6 h-6 rounded-lg border-2 mr-3 flex items-center justify-center transition-all ${useCustomRecipient ? 'bg-purple-500 border-purple-500' : 'border-gray-500'} ${!isConnected ? 'opacity-50 cursor-not-allowed' : ''}`}>
                     {useCustomRecipient && (
                       <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
@@ -235,9 +235,9 @@ export function MainPage() {
                 placeholder="Recipient Address (0x...)"
                 value={recipient}
                 onChange={(e) => setRecipient(e.target.value)}
-                disabled={!useCustomRecipient}
+                disabled={!useCustomRecipient || !isConnected}
                 className={`w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all font-mono text-sm ${
-                  !useCustomRecipient ? 'opacity-50 cursor-not-allowed' : ''
+                  !useCustomRecipient || !isConnected ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
               />
             </div>
