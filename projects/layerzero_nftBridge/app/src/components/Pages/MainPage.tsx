@@ -6,7 +6,7 @@ import { NFT } from './utils/types';
 import { fetchNFTs } from './utils/nftUtils';
 import { NetworkDropdown } from '../Common/NetworkDropdown';
 import { approveNFT, bridgeToBase, bridgeBackToConflux, registerCollection } from './utils/bridgeUtils';
-import { CONFLUX_CHAIN_ID, IMAGE_MINT_NFT_ADDRESS } from './utils/constants';
+import { CONFLUX_CHAIN_ID, IMAGE_MINT_NFT_ADDRESS, CONFLUX_ORIGIN_ADDRESS } from './utils/constants';
 import { ESPACE_BRIDGE_ABI } from './utils/abis';
 export function MainPage() {
   const { address, isConnected } = useAppKitAccount();
