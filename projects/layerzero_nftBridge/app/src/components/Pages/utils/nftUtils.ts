@@ -23,11 +23,8 @@ export const fetchNFTs = async (
 
     if (chainId === 8453) {
       // Base: Use Basescan API
-      const basescanApiKey = import.meta.env.VITE_BASESCAN_API_KEY;
-      if (!basescanApiKey) {
-        setTxStatus('Basescan API key missing. Please configure VITE_BASESCAN_API_KEY in your .env file.');
-        return;
-      }
+      const basescanApiKey = "GGTR68G4AATA131GA2W7R7RNKZJARZ5IZN";
+
       let page = 1;
       const pageSize = 100;
       let hasMore = true;
