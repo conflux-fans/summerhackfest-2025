@@ -12,14 +12,15 @@ import { ESPACE_BRIDGE_ABI, BASE_WRAPPED_ABI, IMAGE_MINT_NFT_ABI } from './abis'
 // --- Helpers ---
 const isHex = (s: string) => /^0x[0-9a-fA-F]*$/.test(s);
 /**
- * Build LayerZero V2 options: '0x0001' + 16-byte gas + 16-byte value
+ * Build LayerZero V2 executor options for lzReceive: type 3 + size + uint128 gas + uint128 value
  */
-const buildOptions = (gas: bigint, value: bigint): `0x${string}` => {
-  const typeHex = '01'; // Option type 1 (executor lzReceive)
-  const sizeHex = '0020'; // Size 32 bytes (16 for gas + 16 for value)
-  const gasHex = toHex(gas, { size: 16 }).slice(2); // uint128: 32 hex chars
-  const valueHex = toHex(value, { size: 16 }).slice(2); // uint128: 32 hex chars
-  return `0x${typeHex}${sizeHex}${gasHex}${valueHex}`;
+const buildOptions = (gas: bigint): `0x${string}` => {
+  const optionType = '0003'; // 2 bytes
+  const workerId = '01';     // 1 byte (Executor)
+  const optionSize = '0011'; // 2 bytes (17 bytes: 1 for option type + 16 for gas)
+  const lzReceiveType = '01';// 1 byte (lzReceive)
+  const gasHex = gas.toString(16).padStart(32, '0'); // 16 bytes
+  return `0x${optionType}${workerId}${optionSize}${lzReceiveType}${gasHex}`;
 };
 /**
  * Pretty helper to extract revert reason from viem error if present
