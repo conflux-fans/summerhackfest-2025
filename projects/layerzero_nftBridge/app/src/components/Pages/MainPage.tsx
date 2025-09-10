@@ -5,7 +5,7 @@ import { WalletConnectButton } from '../Buttons/WalletConnect';
 import { NFT } from './utils/types';
 import { fetchNFTs } from './utils/nftUtils';
 import { NetworkDropdown } from '../Common/NetworkDropdown';
-import { approveNFT, bridgeToBase, bridgeBackToConflux, registerCollection } from './utils/bridgeUtils';
+import { approveNFT, approveWrappedNFT, bridgeToBase, bridgeBackToConflux, registerCollection } from './utils/bridgeUtils';
 import { CONFLUX_CHAIN_ID, CONFLUX_ORIGIN_ADDRESS } from './utils/constants';
 import { ESPACE_BRIDGE_ABI } from './utils/abis';
 
@@ -38,6 +38,7 @@ export function MainPage() {
         setRecipient(address);
         if (chainId !== CONFLUX_CHAIN_ID && chainId !== 8453) {
           setTxStatus('Please switch to Conflux eSpace or Base');
+          setIsApproved(false); // Reset approval on invalid network
         } else {
           setTxStatus('');
         }
@@ -59,11 +60,14 @@ export function MainPage() {
             setIsSupported(false);
             setTxStatus('Failed to verify token contract status. Please whitelist the collection.');
           }
+        } else {
+          setIsSupported(true); // No whitelisting needed on Base
         }
       } else {
         setReady(false);
         setRecipient('');
         setTxStatus('Please connect wallet to proceed');
+        setIsApproved(false);
       }
     };
     initialize();
@@ -81,10 +85,11 @@ export function MainPage() {
 
   const selectNFT = (nft: NFT) => {
     setTokenId(nft.tokenId);
-    setTokenContractAddress(nft.contractAddress || ''); // Auto-set contract address
+    setTokenContractAddress(nft.contractAddress || '');
     setSelectedNFT(nft);
     setShowNFTModal(false);
-    setIsApproved(false);
+    setIsApproved(false); // Reset approval on new NFT selection
+    setTxStatus('');
   };
 
   const toggleCustomRecipient = () => {
@@ -270,12 +275,16 @@ export function MainPage() {
                   )}
                 </button>
               )}
-              {chainId === CONFLUX_CHAIN_ID && isSupported && (
+              {(chainId === CONFLUX_CHAIN_ID || chainId === 8453) && (
                 <button
-                  onClick={() => approveNFT(walletClient, publicClient, tokenId, tokenContractAddress, setTxStatus, setIsApproved, setIsApproving)}
-                  disabled={!ready || !tokenId || !tokenContractAddress || isApproved || isApproving || !isSupported}
+                  onClick={() =>
+                    chainId === CONFLUX_CHAIN_ID
+                      ? approveNFT(walletClient, publicClient, tokenId, tokenContractAddress, setTxStatus, setIsApproved, setIsApproving)
+                      : approveWrappedNFT(walletClient, publicClient, tokenId, setTxStatus, setIsApproved, setIsApproving)
+                  }
+                  disabled={!ready || !tokenId || (chainId === CONFLUX_CHAIN_ID && (!isSupported || !tokenContractAddress)) || isApproved || isApproving}
                   className={`w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center justify-center ${
-                    !ready || !tokenId || !tokenContractAddress || isApproved || isApproving || !isSupported ? 'opacity-50 cursor-not-allowed hover:scale-100' : ''
+                    !ready || !tokenId || (chainId === CONFLUX_CHAIN_ID && (!isSupported || !tokenContractAddress)) || isApproved || isApproving ? 'opacity-50 cursor-not-allowed hover:scale-100' : ''
                   }`}
                 >
                   {isApproving ? (
@@ -307,11 +316,11 @@ export function MainPage() {
                 onClick={() =>
                   chainId === CONFLUX_CHAIN_ID
                     ? bridgeToBase(walletClient, publicClient, tokenId, tokenContractAddress, recipient, isApproved, setTxStatus, setIsApproved, setTokenId, setIsBridging)
-                    : bridgeBackToConflux(walletClient, publicClient, tokenId, recipient, address, setTxStatus, setTokenId, setIsBridging)
+                    : bridgeBackToConflux(walletClient, publicClient, tokenId, recipient, address, isApproved, setTxStatus, setTokenId, setIsBridging)
                 }
-                disabled={!ready || !tokenId || !recipient || (chainId === CONFLUX_CHAIN_ID && (!isSupported || !isApproved || !tokenContractAddress)) || isBridging}
+                disabled={!ready || !tokenId || !recipient || !isApproved || (chainId === CONFLUX_CHAIN_ID && (!isSupported || !tokenContractAddress)) || isBridging}
                 className={`w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center justify-center ${
-                  !ready || !tokenId || !recipient || (chainId === CONFLUX_CHAIN_ID && (!isSupported || !isApproved || !tokenContractAddress)) || isBridging
+                  !ready || !tokenId || !recipient || !isApproved || (chainId === CONFLUX_CHAIN_ID && (!isSupported || !tokenContractAddress)) || isBridging
                     ? 'opacity-50 cursor-not-allowed hover:scale-100'
                     : ''
                 }`}
@@ -335,7 +344,7 @@ export function MainPage() {
             {/* Status Message */}
             {txStatus && (
               <div className={`mt-6 p-4 rounded-2xl border ${
-                txStatus.includes('Failed') || txStatus.includes('Please')
+                txStatus.includes('Failed') || txStatus.includes('Please') || txStatus.includes('Invalid')
                   ? 'bg-red-500/10 border-red-500/20 text-red-300'
                   : 'bg-green-500/10 border-green-500/20 text-green-300'
               }`}>
