@@ -3,13 +3,12 @@ import { createAppKit } from '@reown/appkit/react'
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 import { WagmiProvider } from 'wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { http } from 'viem'
 
 // 0. Setup queryClient
 export const queryClient = new QueryClient()
-
 // 1. Get projectId
 const projectId = import.meta.env.VITE_PROJECT_ID as string
-
 // 2. Create metadata
 const metadata = {
   name: 'My React App',
@@ -17,7 +16,6 @@ const metadata = {
   url: 'http://localhost:5173',
   icons: ['https://avatars.githubusercontent.com/u/37784886'],
 }
-
 // 3. Define Conflux networks
 const confluxESpaceMainnet = {
   id: 1030,
@@ -36,7 +34,6 @@ const confluxESpaceMainnet = {
     default: { name: 'ConfluxScan', url: 'https://evm.confluxscan.net' },
   },
 }
-
 const confluxESpaceTestnet = {
   id: 71,
   name: 'Conflux eSpace Testnet',
@@ -55,7 +52,6 @@ const confluxESpaceTestnet = {
   },
   testnet: true,
 }
-
 // 4. Define Ethereum Sepolia
 const ethereumSepolia = {
   id: 11155111,
@@ -75,7 +71,6 @@ const ethereumSepolia = {
   },
   testnet: true,
 }
-
 // 5. Define Base network
 const baseMainnet = {
   id: 8453,
@@ -94,17 +89,20 @@ const baseMainnet = {
     default: { name: 'Base Explorer', url: 'https://basescan.org' },
   },
 }
-
 // 6. Set the networks
 const networks = [confluxESpaceMainnet, confluxESpaceTestnet, ethereumSepolia, baseMainnet]
-
 // 7. Create Wagmi Adapter
 export const wagmiAdapter = new WagmiAdapter({
   networks,
   projectId,
   ssr: true,
+  transports: {
+    [confluxESpaceMainnet.id]: http(confluxESpaceMainnet.rpcUrls.default.http[0]),
+    [confluxESpaceTestnet.id]: http(confluxESpaceTestnet.rpcUrls.default.http[0]),
+    [ethereumSepolia.id]: http(ethereumSepolia.rpcUrls.default.http[0]),
+    [baseMainnet.id]: http(baseMainnet.rpcUrls.default.http[0]),
+  }
 })
-
 // 8. Create modal (note the added `chainImages` mapping)
 createAppKit({
   adapters: [wagmiAdapter],
@@ -115,8 +113,6 @@ createAppKit({
   chainImages: {
     1030: 'https://cdn.jsdelivr.net/gh/Conflux-Chain/helios@dev/packages/built-in-network-icons/Conflux.svg',
     71: 'https://cdn.jsdelivr.net/gh/Conflux-Chain/helios@dev/packages/built-in-network-icons/Conflux.svg',
-    // optionally add sepolia icon as well:
-    // 11155111: 'https://path.to/sepolia-icon.svg',
   },
   themeMode: 'light',
   themeVariables: {
@@ -127,7 +123,6 @@ createAppKit({
     analytics: true // Optional - defaults to your Cloud configuration
   }
 })
-
 // 9. Export AppKitProvider
 export function AppKitProvider({ children }: { children: ReactNode }) {
   return (

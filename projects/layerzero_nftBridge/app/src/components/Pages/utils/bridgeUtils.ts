@@ -1,34 +1,28 @@
-// bridgeUtils.ts
 import { WalletClient, PublicClient, Address, toHex, pad } from 'viem';
-import {
-  CONFLUX_ORIGIN_ADDRESS,
-  BASE_WRAPPED_ADDRESS,
-  IMAGE_MINT_NFT_ADDRESS,
-  CONFLUX_EID,
-  BASE_EID,
-  CONFLUX_CHAIN_ID
-} from './constants';
-import { ESPACE_BRIDGE_ABI, BASE_WRAPPED_ABI, IMAGE_MINT_NFT_ABI } from './abis';
+import { CONFLUX_ORIGIN_ADDRESS, BASE_WRAPPED_ADDRESS, CONFLUX_EID, BASE_EID, CONFLUX_CHAIN_ID } from './constants';
+import { ESPACE_BRIDGE_ABI, BASE_WRAPPED_ABI, ERC721_ABI } from './abis';
+
 // --- Helpers ---
-const isHex = (s: string) => /^0x[0-9a-fA-F]*$/.test(s);
+const isHex = (s: string) => /^0x[0-9a-fA-F]{40}$/.test(s);
+
 /**
  * Build LayerZero V2 executor options for lzReceive: type 3 + size + uint128 gas + uint128 value
  */
 const buildOptions = (gas: bigint): `0x${string}` => {
   const optionType = '0003'; // 2 bytes
-  const workerId = '01';     // 1 byte (Executor)
+  const workerId = '01'; // 1 byte (Executor)
   const optionSize = '0011'; // 2 bytes (17 bytes: 1 for option type + 16 for gas)
-  const lzReceiveType = '01';// 1 byte (lzReceive)
+  const lzReceiveType = '01'; // 1 byte (lzReceive)
   const gasHex = gas.toString(16).padStart(32, '0'); // 16 bytes
   return `0x${optionType}${workerId}${optionSize}${lzReceiveType}${gasHex}`;
 };
+
 /**
  * Pretty helper to extract revert reason from viem error if present
  */
 const extractRevertReason = (err: any): string | null => {
   try {
     if (!err) return null;
-    // viem often embeds the RPC error string in message
     if (typeof err === 'string') return err;
     if (err?.shortMessage) return err.shortMessage;
     if (err?.cause?.message) return err.cause.message;
@@ -38,10 +32,12 @@ const extractRevertReason = (err: any): string | null => {
     return null;
   }
 };
+
 // ---------------- registerCollection ----------------
 export const registerCollection = async (
   walletClient: WalletClient | undefined,
   publicClient: PublicClient | undefined,
+  tokenContractAddress: string,
   setTxStatus: (status: string) => void,
   setIsSupported: (supported: boolean) => void,
   setIsWhitelisting: (whitelisting: boolean) => void
@@ -50,42 +46,85 @@ export const registerCollection = async (
     setTxStatus('Missing wallet');
     return;
   }
+  if (!isHex(tokenContractAddress)) {
+    setTxStatus('Invalid token contract address');
+    return;
+  }
   setIsWhitelisting(true);
   try {
+    // Verify contract is ERC-721
+    const isERC721 = await publicClient.readContract({
+      address: CONFLUX_ORIGIN_ADDRESS,
+      abi: ESPACE_BRIDGE_ABI,
+      functionName: 'isERC721',
+      args: [tokenContractAddress as Address],
+    });
+    if (!isERC721) {
+      setTxStatus('Contract is not a valid ERC-721 token');
+      return;
+    }
     const hash = await walletClient.writeContract({
       address: CONFLUX_ORIGIN_ADDRESS,
       abi: ESPACE_BRIDGE_ABI,
       functionName: 'registerToken',
-      args: [IMAGE_MINT_NFT_ADDRESS],
+      args: [tokenContractAddress as Address],
     });
     await publicClient.waitForTransactionReceipt({ hash });
     setIsSupported(true);
     setTxStatus('Collection whitelisted successfully');
   } catch (err) {
     console.error('Whitelist error:', err);
-    setTxStatus('Failed to whitelist collection');
+    setTxStatus('Failed to whitelist collection: ' + (extractRevertReason(err) || 'Unknown error'));
   } finally {
     setIsWhitelisting(false);
   }
 };
+
 // ---------------- approveNFT ----------------
 export const approveNFT = async (
   walletClient: WalletClient | undefined,
   publicClient: PublicClient | undefined,
   tokenId: string,
+  tokenContractAddress: string,
   setTxStatus: (status: string) => void,
   setIsApproved: (approved: boolean) => void,
   setIsApproving: (approving: boolean) => void
 ) => {
-  if (!walletClient || !publicClient || !tokenId) {
-    setTxStatus('Missing wallet or token ID');
+  if (!walletClient || !publicClient || !tokenId || !tokenContractAddress) {
+    setTxStatus('Missing wallet, token ID, or contract address');
+    return;
+  }
+  if (!isHex(tokenContractAddress)) {
+    setTxStatus('Invalid token contract address');
     return;
   }
   setIsApproving(true);
   try {
+    // Verify token ownership
+    const owner = await publicClient.readContract({
+      address: tokenContractAddress as Address,
+      abi: ERC721_ABI,
+      functionName: 'ownerOf',
+      args: [BigInt(tokenId)],
+    });
+    if (owner.toLowerCase() !== (walletClient.account?.address || '').toLowerCase()) {
+      setTxStatus('You do not own this token');
+      return;
+    }
+    // Check if contract is ERC-721
+    const isERC721 = await publicClient.readContract({
+      address: CONFLUX_ORIGIN_ADDRESS,
+      abi: ESPACE_BRIDGE_ABI,
+      functionName: 'isERC721',
+      args: [tokenContractAddress as Address],
+    });
+    if (!isERC721) {
+      setTxStatus('Contract is not a valid ERC-721 token');
+      return;
+    }
     const hash = await walletClient.writeContract({
-      address: IMAGE_MINT_NFT_ADDRESS,
-      abi: IMAGE_MINT_NFT_ABI,
+      address: tokenContractAddress as Address,
+      abi: ERC721_ABI,
       functionName: 'approve',
       args: [CONFLUX_ORIGIN_ADDRESS, BigInt(tokenId)],
     });
@@ -94,16 +133,18 @@ export const approveNFT = async (
     setTxStatus('NFT approved for bridging');
   } catch (err) {
     console.error('Approval error:', err);
-    setTxStatus('Failed to approve NFT');
+    setTxStatus('Failed to approve NFT: ' + (extractRevertReason(err) || 'Unknown error'));
   } finally {
     setIsApproving(false);
   }
 };
+
 // ---------------- bridgeToBase ----------------
 export const bridgeToBase = async (
   walletClient: WalletClient | undefined,
   publicClient: PublicClient | undefined,
   tokenId: string,
+  tokenContractAddress: string,
   recipient: string,
   isApproved: boolean,
   setTxStatus: (status: string) => void,
@@ -111,8 +152,12 @@ export const bridgeToBase = async (
   setTokenId: (tokenId: string) => void,
   setIsBridging: (bridging: boolean) => void
 ) => {
-  if (!walletClient || !publicClient || !recipient || !tokenId) {
-    setTxStatus('Missing wallet, recipient, or token ID');
+  if (!walletClient || !publicClient || !recipient || !tokenId || !tokenContractAddress) {
+    setTxStatus('Missing wallet, recipient, token ID, or contract address');
+    return;
+  }
+  if (!isHex(tokenContractAddress)) {
+    setTxStatus('Invalid token contract address');
     return;
   }
   if (!isApproved) {
@@ -121,7 +166,7 @@ export const bridgeToBase = async (
   }
   setIsBridging(true);
   try {
-    // Verify peer mapping on the contract (that peers[BASE_EID] is set)
+    // Verify peer mapping on the contract
     const peer = await publicClient.readContract({
       address: CONFLUX_ORIGIN_ADDRESS,
       abi: ESPACE_BRIDGE_ABI,
@@ -139,11 +184,11 @@ export const bridgeToBase = async (
       );
       return;
     }
-    // Sanity check: token exists on origin contract => call ownerOf
+    // Verify token exists and is owned by user
     try {
       const owner = await publicClient.readContract({
-        address: IMAGE_MINT_NFT_ADDRESS,
-        abi: IMAGE_MINT_NFT_ABI,
+        address: tokenContractAddress as Address,
+        abi: ERC721_ABI,
         functionName: 'ownerOf',
         args: [BigInt(tokenId)],
       });
@@ -151,29 +196,52 @@ export const bridgeToBase = async (
         setTxStatus('Token owner is zero address or token does not exist.');
         return;
       }
+      if (owner.toLowerCase() !== (walletClient.account?.address || '').toLowerCase()) {
+        setTxStatus('You do not own this token');
+        return;
+      }
     } catch (ownerErr) {
       console.warn('ownerOf failed', ownerErr);
       setTxStatus('Token does not exist or ownerOf reverted. Check tokenId.');
       return;
     }
-    // Build options safely and log
-    const gas = BigInt(300000); // Increased from 200000 to avoid zero fee if gas was too low
-    const value = BigInt(0);
-    const options = buildOptions(gas, value);
+    // Check if contract is ERC-721 and registered
+    const isERC721 = await publicClient.readContract({
+      address: CONFLUX_ORIGIN_ADDRESS,
+      abi: ESPACE_BRIDGE_ABI,
+      functionName: 'isERC721',
+      args: [tokenContractAddress as Address],
+    });
+    if (!isERC721) {
+      setTxStatus('Contract is not a valid ERC-721 token');
+      return;
+    }
+    const isSupported = await publicClient.readContract({
+      address: CONFLUX_ORIGIN_ADDRESS,
+      abi: ESPACE_BRIDGE_ABI,
+      functionName: 'supportedTokens',
+      args: [tokenContractAddress as Address],
+    });
+    if (!isSupported) {
+      setTxStatus('Token contract not registered. Please whitelist the collection.');
+      return;
+    }
+    // Build options
+    const gas = BigInt(300000);
+    const options = buildOptions(gas);
     console.log('options (bridgeToBase):', options);
-    // Attempt to quote.
+    // Estimate fee
     let fee: { nativeFee: bigint; lzTokenFee: bigint } | null = null;
     try {
       fee = await publicClient.readContract({
         address: CONFLUX_ORIGIN_ADDRESS,
         abi: ESPACE_BRIDGE_ABI,
         functionName: 'quoteBridgeSend',
-        args: [IMAGE_MINT_NFT_ADDRESS, BASE_EID, recipient as Address, [BigInt(tokenId)], options, false],
+        args: [tokenContractAddress as Address, BASE_EID, recipient as Address, [BigInt(tokenId)], options, false],
       }) as { nativeFee: bigint; lzTokenFee: bigint };
     } catch (quoteErr: any) {
       const reason = extractRevertReason(quoteErr) || 'unknown';
       console.error('quoteBridgeSend reverted:', quoteErr);
-      // Provide actionable messages for common causes
       const lowerReason = String(reason).toLowerCase();
       if (lowerReason.includes('sender not peer') || lowerReason.includes('peer')) {
         setTxStatus('quoteBridgeSend reverted: peer mismatch. Ensure peers mapping on both bridges is set.');
@@ -186,7 +254,6 @@ export const bridgeToBase = async (
       } else if (lowerReason.includes('no dvn configured')) {
         setTxStatus('quoteBridgeSend reverted: No DVN configured for this lane. Set DVNs on app.layerzero.network.');
       } else {
-        // Generic, give the raw reason for debugging
         setTxStatus(`quoteBridgeSend reverted: ${reason}`);
       }
       return;
@@ -200,12 +267,12 @@ export const bridgeToBase = async (
       setTxStatus('Zero fee estimated – check endpoint config, increase gas parameter, or ensure DVNs/executors are set.');
       return;
     }
-    // Bridge: submit transaction
+    // Bridge
     const hash = await walletClient.writeContract({
       address: CONFLUX_ORIGIN_ADDRESS,
       abi: ESPACE_BRIDGE_ABI,
       functionName: 'bridgeSend',
-      args: [IMAGE_MINT_NFT_ADDRESS, BASE_EID, recipient as Address, [BigInt(tokenId)], options, fee, recipient as Address],
+      args: [tokenContractAddress as Address, BASE_EID, recipient as Address, [BigInt(tokenId)], options, fee, recipient as Address],
       value: fee.nativeFee,
     });
     await publicClient.waitForTransactionReceipt({ hash });
@@ -220,6 +287,7 @@ export const bridgeToBase = async (
     setIsBridging(false);
   }
 };
+
 // ---------------- bridgeBackToConflux ----------------
 export const bridgeBackToConflux = async (
   walletClient: WalletClient | undefined,
@@ -261,12 +329,11 @@ export const bridgeBackToConflux = async (
       );
       return;
     }
-    // Build options safely
-    const gas = BigInt(300000); // Increased from 200000 to avoid zero fee if gas was too low
-    const value = BigInt(0);
-    const options = buildOptions(gas, value);
+    // Build options
+    const gas = BigInt(300000);
+    const options = buildOptions(gas);
     console.log('options (bridgeBackToConflux):', options);
-    // Estimate fee using contract's quote function
+    // Estimate fee
     let fee: { nativeFee: bigint; lzTokenFee: bigint } | null = null;
     try {
       fee = await publicClient.readContract({

@@ -6,7 +6,7 @@ import { NFT } from './utils/types';
 import { fetchNFTs } from './utils/nftUtils';
 import { NetworkDropdown } from '../Common/NetworkDropdown';
 import { approveNFT, bridgeToBase, bridgeBackToConflux, registerCollection } from './utils/bridgeUtils';
-import { CONFLUX_CHAIN_ID, IMAGE_MINT_NFT_ADDRESS, CONFLUX_ORIGIN_ADDRESS } from './utils/constants';
+import { CONFLUX_CHAIN_ID, CONFLUX_ORIGIN_ADDRESS } from './utils/constants';
 import { ESPACE_BRIDGE_ABI } from './utils/abis';
 
 export function MainPage() {
@@ -29,6 +29,7 @@ export function MainPage() {
   const [selectedNFT, setSelectedNFT] = useState<NFT | null>(null);
   const [isSupported, setIsSupported] = useState(true);
   const [isWhitelisting, setIsWhitelisting] = useState(false);
+  const [tokenContractAddress, setTokenContractAddress] = useState('');
 
   useEffect(() => {
     const initialize = async () => {
@@ -40,19 +41,23 @@ export function MainPage() {
         } else {
           setTxStatus('');
         }
-        // Check if collection is supported on Conflux
-        if (chainId === CONFLUX_CHAIN_ID) {
+        // Check if token contract is supported on Conflux
+        if (chainId === CONFLUX_CHAIN_ID && tokenContractAddress) {
           try {
             const supported = await publicClient.readContract({
               address: CONFLUX_ORIGIN_ADDRESS,
               abi: ESPACE_BRIDGE_ABI,
               functionName: 'supportedTokens',
-              args: [IMAGE_MINT_NFT_ADDRESS],
+              args: [tokenContractAddress as `0x${string}`],
             });
             setIsSupported(!!supported);
+            if (!supported) {
+              setTxStatus('Token contract not registered. Please whitelist the collection to proceed.');
+            }
           } catch (err) {
             console.error('Failed to check supportedTokens', err);
             setIsSupported(false);
+            setTxStatus('Failed to verify token contract status. Please whitelist the collection.');
           }
         }
       } else {
@@ -62,7 +67,7 @@ export function MainPage() {
       }
     };
     initialize();
-  }, [isConnected, address, walletClient, publicClient, chainId]);
+  }, [isConnected, address, walletClient, publicClient, chainId, tokenContractAddress]);
 
   const handleFetchNFTs = () => {
     if (!isConnected) {
@@ -76,6 +81,7 @@ export function MainPage() {
 
   const selectNFT = (nft: NFT) => {
     setTokenId(nft.tokenId);
+    setTokenContractAddress(nft.contractAddress || ''); // Auto-set contract address
     setSelectedNFT(nft);
     setShowNFTModal(false);
     setIsApproved(false);
@@ -120,7 +126,7 @@ export function MainPage() {
             </h1>
           </div>
           <p className="text-gray-300 text-lg md:text-xl max-w-2xl mx-auto">
-            Bridge your NFTs seamlessly between Conflux eSpace and Base using LayerZero technology
+            Bridge any ERC-721 NFT between Conflux eSpace and Base using LayerZero technology
           </p>
           {!isConnected && (
             <div className="mt-8">
@@ -245,10 +251,10 @@ export function MainPage() {
             <div className="space-y-4">
               {chainId === CONFLUX_CHAIN_ID && !isSupported && (
                 <button
-                  onClick={() => registerCollection(walletClient, publicClient, setTxStatus, setIsSupported, setIsWhitelisting)}
-                  disabled={!ready || isWhitelisting}
+                  onClick={() => registerCollection(walletClient, publicClient, tokenContractAddress, setTxStatus, setIsSupported, setIsWhitelisting)}
+                  disabled={!ready || !tokenContractAddress || isWhitelisting}
                   className={`w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center justify-center ${
-                    !ready || isWhitelisting ? 'opacity-50 cursor-not-allowed hover:scale-100' : ''
+                    !ready || !tokenContractAddress || isWhitelisting ? 'opacity-50 cursor-not-allowed hover:scale-100' : ''
                   }`}
                 >
                   {isWhitelisting ? (
@@ -271,10 +277,10 @@ export function MainPage() {
               )}
               {chainId === CONFLUX_CHAIN_ID && isSupported && (
                 <button
-                  onClick={() => approveNFT(walletClient, publicClient, tokenId, setTxStatus, setIsApproved, setIsApproving)}
-                  disabled={!ready || !tokenId || isApproved || isApproving}
+                  onClick={() => approveNFT(walletClient, publicClient, tokenId, tokenContractAddress, setTxStatus, setIsApproved, setIsApproving)}
+                  disabled={!ready || !tokenId || !tokenContractAddress || isApproved || isApproving || !isSupported}
                   className={`w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center justify-center ${
-                    !ready || !tokenId || isApproved || isApproving ? 'opacity-50 cursor-not-allowed hover:scale-100' : ''
+                    !ready || !tokenId || !tokenContractAddress || isApproved || isApproving || !isSupported ? 'opacity-50 cursor-not-allowed hover:scale-100' : ''
                   }`}
                 >
                   {isApproving ? (
@@ -305,12 +311,12 @@ export function MainPage() {
               <button
                 onClick={() =>
                   chainId === CONFLUX_CHAIN_ID
-                    ? bridgeToBase(walletClient, publicClient, tokenId, recipient, isApproved, setTxStatus, setIsApproved, setTokenId, setIsBridging)
+                    ? bridgeToBase(walletClient, publicClient, tokenId, tokenContractAddress, recipient, isApproved, setTxStatus, setIsApproved, setTokenId, setIsBridging)
                     : bridgeBackToConflux(walletClient, publicClient, tokenId, recipient, address, setTxStatus, setTokenId, setIsBridging)
                 }
-                disabled={!ready || !tokenId || !recipient || (chainId === CONFLUX_CHAIN_ID && (!isSupported || !isApproved)) || isBridging}
+                disabled={!ready || !tokenId || !recipient || (chainId === CONFLUX_CHAIN_ID && (!isSupported || !isApproved || !tokenContractAddress)) || isBridging}
                 className={`w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center justify-center ${
-                  !ready || !tokenId || !recipient || (chainId === CONFLUX_CHAIN_ID && (!isSupported || !isApproved)) || isBridging
+                  !ready || !tokenId || !recipient || (chainId === CONFLUX_CHAIN_ID && (!isSupported || !isApproved || !tokenContractAddress)) || isBridging
                     ? 'opacity-50 cursor-not-allowed hover:scale-100'
                     : ''
                 }`}
@@ -390,6 +396,12 @@ export function MainPage() {
                       <span className="text-emerald-300">{currentChain.name}</span>
                     </div>
                     <div className="flex justify-between">
+                      <span>Contract:</span>
+                      <span className="font-mono text-xs text-cyan-300">
+                        {selectedNFT.contractAddress ? `${selectedNFT.contractAddress.slice(0, 6)}...${selectedNFT.contractAddress.slice(-4)}` : 'Not set'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
                       <span>Status:</span>
                       <span className={`${isApproved ? 'text-green-300' : 'text-yellow-300'}`}>
                         {isApproved ? 'Approved' : 'Pending Approval'}
@@ -441,7 +453,7 @@ export function MainPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {nfts.map((nft) => (
                     <div
-                      key={nft.tokenId}
+                      key={`${nft.contractAddress}-${nft.tokenId}`}
                       className="bg-white/5 border border-white/10 rounded-2xl p-4 hover:bg-white/10 hover:border-purple-500/50 cursor-pointer transition-all duration-300 transform hover:scale-105 group"
                       onClick={() => selectNFT(nft)}
                     >
@@ -467,6 +479,9 @@ export function MainPage() {
                           {nft.name || `Token #${nft.tokenId}`}
                         </h4>
                         <p className="text-gray-400 text-sm font-mono">ID: {nft.tokenId}</p>
+                        <p className="text-gray-400 text-sm font-mono">
+                          Contract: {nft.contractAddress ? `${nft.contractAddress.slice(0, 6)}...${nft.contractAddress.slice(-4)}` : 'Unknown'}
+                        </p>
                       </div>
                       <div className="mt-4 bg-purple-500/20 rounded-lg p-2 text-center opacity-0 group-hover:opacity-100 transition-opacity">
                         <span className="text-purple-300 text-sm font-medium">Click to Select</span>
