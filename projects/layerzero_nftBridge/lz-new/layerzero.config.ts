@@ -24,7 +24,7 @@ const pathways: TwoWayConfig[] = [
     confluxOApp,
     baseOApp,
     [
-      ['LayerZero Labs', 'Nethermind'], // DVNs for Conflux -> Base
+      ['LayerZero Labs'], // DVNs for Conflux -> Base
       [], // Executors (none specified)
     ],
     [15, 200], // Confirmations: Conflux (15), Base (200)
@@ -35,7 +35,7 @@ const pathways: TwoWayConfig[] = [
     baseOApp,
     confluxOApp,
     [
-      ['LayerZero Labs', 'Nethermind'], // DVNs for Base -> Conflux
+      ['LayerZero Labs'], // DVNs for Base -> Conflux
       [], // Executors (none specified)
     ],
     [200, 15], // Confirmations: Base (200), Conflux (15)

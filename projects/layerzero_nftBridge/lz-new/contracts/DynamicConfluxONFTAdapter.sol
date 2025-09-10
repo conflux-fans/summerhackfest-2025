@@ -4,17 +4,42 @@ import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {ONFT721Core} from "@layerzerolabs/onft-evm/contracts/onft721/ONFT721Core.sol";
 import {MessagingFee} from "@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/OAppSender.sol";
 import {Origin} from "@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/OApp.sol";
+
+interface IERC721Receiver {
+    function onERC721Received(
+        address operator,
+        address from,
+        uint256 tokenId,
+        bytes calldata data
+    ) external returns (bytes4);
+}
+
 /**
  * @title DynamicConfluxONFTAdapter
  * @dev Fully dynamic adapter for bridging multiple ERC721 NFTs from Conflux eSpace.
  * Anyone can register ERC721 tokens (with interface check); bridging specifies the token address.
  * Payload includes token address for round-trip bridging.
  */
-contract DynamicConfluxONFTAdapter is ONFT721Core {
+contract DynamicConfluxONFTAdapter is ONFT721Core, IERC721Receiver {
     mapping(address => bool) public supportedTokens;
     event TokenRegistered(address indexed token);
     event TokenUnregistered(address indexed token);
+
     constructor(address _lzEndpoint, address _delegate) ONFT721Core(_lzEndpoint, _delegate) {}
+
+    /**
+     * @notice Implements IERC721Receiver to handle safe ERC721 transfers.
+     * @return bytes4 The IERC721Receiver interface selector.
+     */
+    function onERC721Received(
+        address /* operator */,
+        address /* from */,
+        uint256 /* tokenId */,
+        bytes calldata /* data */
+    ) external pure returns (bytes4) {
+        return this.onERC721Received.selector;
+    }
+
     /**
      * @notice Permissionless registration of ERC721 tokens (auto-whitelist if valid ERC721).
      * @param _token The ERC721 token address to register.
@@ -26,6 +51,7 @@ contract DynamicConfluxONFTAdapter is ONFT721Core {
         supportedTokens[_token] = true;
         emit TokenRegistered(_token);
     }
+
     /**
      * @notice Owner can unregister tokens.
      * @param _token The ERC721 token address to unregister.
@@ -34,6 +60,7 @@ contract DynamicConfluxONFTAdapter is ONFT721Core {
         supportedTokens[_token] = false;
         emit TokenUnregistered(_token);
     }
+
     /**
      * @notice Check if a contract supports ERC721 interface.
      * @param _token The token address to check.
@@ -46,12 +73,15 @@ contract DynamicConfluxONFTAdapter is ONFT721Core {
             return false;
         }
     }
+
     function token() external pure returns (address) {
         return address(0);
     }
+
     function approvalRequired() external pure virtual returns (bool) {
         return true;
     }
+
     function bridgeSend(
         address _originalToken,
         uint32 _dstEid,
@@ -67,14 +97,15 @@ contract DynamicConfluxONFTAdapter is ONFT721Core {
             supportedTokens[_originalToken] = true;
             emit TokenRegistered(_originalToken);
         }
-       
+
         for (uint256 i = 0; i < _tokenIds.length; i++) {
             _dynamicDebit(_originalToken, msg.sender, _tokenIds[i], _dstEid);
         }
-       
+
         bytes memory payload = abi.encode(_to, _tokenIds, _originalToken);
         _lzSend(_dstEid, payload, _options, _fee, _refundAddress);
     }
+
     function quoteBridgeSend(
         address _originalToken,
         uint32 _dstEid,
@@ -83,26 +114,30 @@ contract DynamicConfluxONFTAdapter is ONFT721Core {
         bytes calldata _options,
         bool _payInLzToken
     ) external view returns (MessagingFee memory fee) {
-        // For quote, assume it will be registered if not already
         bytes memory payload = abi.encode(_to, _tokenIds, _originalToken);
         fee = _quote(_dstEid, payload, _options, _payInLzToken);
     }
+
     // Custom dynamic debit (not override)
     function _dynamicDebit(address _originalToken, address _from, uint256 _tokenId, uint32 _dstEid) internal virtual {
-        IERC721(_originalToken).transferFrom(_from, address(this), _tokenId);
+        IERC721(_originalToken).safeTransferFrom(_from, address(this), _tokenId);
     }
+
     // Custom dynamic credit (not override)
     function _dynamicCredit(address _originalToken, address _toAddress, uint256 _tokenId, uint32 _srcEid) internal virtual {
-        IERC721(_originalToken).transferFrom(address(this), _toAddress, _tokenId);
+        IERC721(_originalToken).safeTransferFrom(address(this), _toAddress, _tokenId);
     }
+
     // Required override for abstract _debit (revert since we use custom entrypoint)
     function _debit(address _from, uint256 _tokenId, uint32 _dstEid) internal virtual override {
         revert("Use bridgeSend for dynamic bridging");
     }
+
     // Required override for abstract _credit (revert since we use custom _lzReceive)
     function _credit(address _to, uint256 _tokenId, uint32 _srcEid) internal virtual override {
         revert("Use bridgeSend for dynamic bridging");
     }
+
     function _lzReceive(
         Origin calldata _origin,
         bytes32 _guid,
@@ -111,7 +146,7 @@ contract DynamicConfluxONFTAdapter is ONFT721Core {
         bytes calldata _extraData
     ) internal virtual override {
         (address toAddress, uint256[] memory tokenIds, address originalToken) = abi.decode(_message, (address, uint256[], address));
-       
+
         for (uint256 i = 0; i < tokenIds.length; i++) {
             _dynamicCredit(originalToken, toAddress, tokenIds[i], _origin.srcEid);
         }

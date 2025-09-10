@@ -6,8 +6,9 @@ import { NFT } from './utils/types';
 import { fetchNFTs } from './utils/nftUtils';
 import { NetworkDropdown } from '../Common/NetworkDropdown';
 import { approveNFT, approveWrappedNFT, bridgeToBase, bridgeBackToConflux, registerCollection } from './utils/bridgeUtils';
-import { CONFLUX_CHAIN_ID, CONFLUX_ORIGIN_ADDRESS } from './utils/constants';
-import { ESPACE_BRIDGE_ABI } from './utils/abis';
+import { CONFLUX_CHAIN_ID, CONFLUX_ORIGIN_ADDRESS, BASE_BRIDGE_ADDRESS } from './utils/constants';
+import { ESPACE_BRIDGE_ABI, BASE_WRAPPED_ABI } from './utils/abis';
+import { ethers } from 'ethers';
 
 export function MainPage() {
   const { address, isConnected } = useAppKitAccount();
@@ -38,16 +39,17 @@ export function MainPage() {
         setRecipient(address);
         if (chainId !== CONFLUX_CHAIN_ID && chainId !== 8453) {
           setTxStatus('Please switch to Conflux eSpace or Base');
-          setIsApproved(false); // Reset approval on invalid network
+          setIsApproved(false);
         } else {
           setTxStatus('');
         }
-        // Check if token contract is supported on Conflux
-        if (chainId === CONFLUX_CHAIN_ID && tokenContractAddress) {
+        if (tokenContractAddress) {
           try {
+            const bridgeAddress = chainId === CONFLUX_CHAIN_ID ? CONFLUX_ORIGIN_ADDRESS : BASE_BRIDGE_ADDRESS;
+            const bridgeAbi = chainId === CONFLUX_CHAIN_ID ? ESPACE_BRIDGE_ABI : BASE_WRAPPED_ABI;
             const supported = await publicClient.readContract({
-              address: CONFLUX_ORIGIN_ADDRESS,
-              abi: ESPACE_BRIDGE_ABI,
+              address: bridgeAddress as `0x${string}`,
+              abi: bridgeAbi,
               functionName: 'supportedTokens',
               args: [tokenContractAddress as `0x${string}`],
             });
@@ -61,7 +63,7 @@ export function MainPage() {
             setTxStatus('Failed to verify token contract status. Please whitelist the collection.');
           }
         } else {
-          setIsSupported(true); // No whitelisting needed on Base
+          setIsSupported(true);
         }
       } else {
         setReady(false);
@@ -88,7 +90,7 @@ export function MainPage() {
     setTokenContractAddress(nft.contractAddress || '');
     setSelectedNFT(nft);
     setShowNFTModal(false);
-    setIsApproved(false); // Reset approval on new NFT selection
+    setIsApproved(false);
     setTxStatus('');
   };
 
@@ -101,7 +103,7 @@ export function MainPage() {
     switch (id) {
       case CONFLUX_CHAIN_ID:
         return { name: 'Conflux', color: 'from-emerald-400 to-teal-500', logo: 'CFX' };
-      case 8453: // Base
+      case 8453:
         return { name: 'Base', color: 'from-blue-400 to-indigo-500', logo: 'BASE' };
       default:
         return { name: 'Unknown', color: 'from-gray-400 to-gray-500', logo: '?' };
@@ -111,16 +113,42 @@ export function MainPage() {
   const currentChain = getChainInfo(chainId || 0);
   const targetChain = getChainInfo(chainId === CONFLUX_CHAIN_ID ? 8453 : CONFLUX_CHAIN_ID);
 
+  const handleWhitelistClick = async () => {
+    console.log('[MainPage] Calling registerCollection with:', {
+      walletClient,
+      publicClient,
+      tokenContractAddress,
+      bridgeAddress: chainId === CONFLUX_CHAIN_ID ? CONFLUX_ORIGIN_ADDRESS : BASE_BRIDGE_ADDRESS,
+      bridgeAbi: chainId === CONFLUX_CHAIN_ID ? 'ESPACE_BRIDGE_ABI' : 'BASE_WRAPPED_ABI',
+      setTxStatus: typeof setTxStatus,
+      setIsSupported: typeof setIsSupported,
+      setIsWhitelisting: typeof setIsWhitelisting,
+    });
+    try {
+      await registerCollection(
+        walletClient,
+        publicClient,
+        tokenContractAddress,
+        chainId === CONFLUX_CHAIN_ID ? CONFLUX_ORIGIN_ADDRESS : BASE_BRIDGE_ADDRESS,
+        chainId === CONFLUX_CHAIN_ID ? ESPACE_BRIDGE_ABI : BASE_WRAPPED_ABI,
+        setTxStatus,
+        setIsSupported,
+        setIsWhitelisting
+      );
+    } catch (error) {
+      console.error('[MainPage] Whitelisting error:', error);
+      setTxStatus(`Failed to whitelist collection: ${error.message || 'Unknown error'}`);
+    }
+  };
+
   return (
     <div className="min-h-screen p-4">
-      {/* Animated background elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
         <div className="absolute top-3/4 left-1/2 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
       </div>
       <div className="relative z-10 max-w-6xl mx-auto pt-8">
-        {/* Header */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-6">
             <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-600 rounded-2xl flex items-center justify-center mr-4">
@@ -135,9 +163,7 @@ export function MainPage() {
           </p>
         </div>
         <div className="grid lg:grid-cols-2 gap-8 items-start">
-          {/* Left Panel - Bridge Controls */}
           <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl">
-            {/* Chain Selector */}
             <div className="mb-8">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-white text-lg font-semibold flex items-center gap-3">
@@ -180,7 +206,6 @@ export function MainPage() {
                 </div>
               </div>
             </div>
-            {/* NFT Selection */}
             <div className="mb-8">
               <h3 className="text-white text-lg font-semibold mb-6 flex items-center">
                 <span className="w-2 h-2 bg-blue-400 rounded-full mr-3 animate-pulse"></span>
@@ -211,7 +236,6 @@ export function MainPage() {
                 )}
               </button>
             </div>
-            {/* Recipient Address */}
             <div className="mb-8">
               <h3 className="text-white text-lg font-semibold mb-6 flex items-center">
                 <span className="w-2 h-2 bg-yellow-400 rounded-full mr-3 animate-pulse"></span>
@@ -247,11 +271,10 @@ export function MainPage() {
                 }`}
               />
             </div>
-            {/* Action Buttons */}
             <div className="space-y-4">
-              {chainId === CONFLUX_CHAIN_ID && !isSupported && (
+              {(chainId === CONFLUX_CHAIN_ID || chainId === 8453) && !isSupported && (
                 <button
-                  onClick={() => registerCollection(walletClient, publicClient, tokenContractAddress, setTxStatus, setIsSupported, setIsWhitelisting)}
+                  onClick={handleWhitelistClick}
                   disabled={!ready || !tokenContractAddress || isWhitelisting}
                   className={`w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center justify-center ${
                     !ready || !tokenContractAddress || isWhitelisting ? 'opacity-50 cursor-not-allowed hover:scale-100' : ''
@@ -268,7 +291,7 @@ export function MainPage() {
                   ) : (
                     <>
                       <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 0 0 0118 0z"/>
                       </svg>
                       Whitelist Collection
                     </>
@@ -280,7 +303,7 @@ export function MainPage() {
                   onClick={() =>
                     chainId === CONFLUX_CHAIN_ID
                       ? approveNFT(walletClient, publicClient, tokenId, tokenContractAddress, setTxStatus, setIsApproved, setIsApproving)
-                      : approveWrappedNFT(walletClient, publicClient, tokenId, setTxStatus, setIsApproved, setIsApproving)
+                      : approveWrappedNFT(walletClient, publicClient, tokenId, tokenContractAddress, setTxStatus, setIsApproved, setIsApproving)
                   }
                   disabled={!ready || !tokenId || (chainId === CONFLUX_CHAIN_ID && (!isSupported || !tokenContractAddress)) || isApproved || isApproving}
                   className={`w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center justify-center ${
@@ -316,7 +339,7 @@ export function MainPage() {
                 onClick={() =>
                   chainId === CONFLUX_CHAIN_ID
                     ? bridgeToBase(walletClient, publicClient, tokenId, tokenContractAddress, recipient, isApproved, setTxStatus, setIsApproved, setTokenId, setIsBridging)
-                    : bridgeBackToConflux(walletClient, publicClient, tokenId, recipient, address, isApproved, setTxStatus, setTokenId, setIsBridging)
+                    : bridgeBackToConflux(walletClient, publicClient, tokenId, recipient, tokenContractAddress, isApproved, setTxStatus, setTokenId, setIsBridging)
                 }
                 disabled={!ready || !tokenId || !recipient || !isApproved || (chainId === CONFLUX_CHAIN_ID && (!isSupported || !tokenContractAddress)) || isBridging}
                 className={`w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center justify-center ${
@@ -341,7 +364,6 @@ export function MainPage() {
                 )}
               </button>
             </div>
-            {/* Status Message */}
             {txStatus && (
               <div className={`mt-6 p-4 rounded-2xl border ${
                 txStatus.includes('Failed') || txStatus.includes('Please') || txStatus.includes('Invalid')
@@ -352,7 +374,6 @@ export function MainPage() {
               </div>
             )}
           </div>
-          {/* Right Panel - Selected NFT Display */}
           <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl">
             <h3 className="text-white text-lg font-semibold mb-6 flex items-center">
               <span className="w-2 h-2 bg-pink-400 rounded-full mr-3 animate-pulse"></span>
@@ -381,7 +402,6 @@ export function MainPage() {
                       </div>
                     )}
                   </div>
-                  {/* Floating badge */}
                   <div className="absolute -top-2 -right-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold px-3 py-1 rounded-full">
                     #{selectedNFT.tokenId}
                   </div>
@@ -426,7 +446,6 @@ export function MainPage() {
           </div>
         </div>
       </div>
-      {/* Enhanced NFT Modal */}
       {showNFTModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 w-full max-w-4xl max-h-[90vh] overflow-hidden">
