@@ -220,6 +220,8 @@ L0 NftBridge provides a **permissionless ERC721 cross-chain bridge**:
 DynamicConfluxONFTAdapter (Conflux original): 0x890C3dEc7d958bBCd5D4fcd308F6b04946f30ada
 
 DynamicWrappedONFT (Base): 0xcF394722e8fF94579eC98BA0D11309F7E888a029
+
+Nftminter (just for tests - broken metadata..) (COnflux): 0xD9Ed0B00Aa868Cd2E7aa4198C7D792D3aF9ec61d
 ```
 
 ---
