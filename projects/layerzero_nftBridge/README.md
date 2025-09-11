@@ -231,7 +231,7 @@ Nftminter (just for tests - broken metadata..) (COnflux): 0xD9Ed0B00Aa868Cd2E7aa
 - Node.js (>= 18)
 - npm or yarn
 - Git
-- Conflux-compatible wallet (Fluent Wallet or MetaMask for eSpace)
+- Fluent Wallet or MetaMask for eSpace - (Rabby is recommended due to native multichain support)
 
 ---
 
