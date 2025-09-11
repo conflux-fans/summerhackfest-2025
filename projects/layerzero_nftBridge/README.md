@@ -26,7 +26,7 @@ The project demonstrates how **LayerZero-powered interoperability** can unlock n
 
 - **Event**: Code Without Borders - SummerHackfest 2025  
 - **Focus Area**: Open Innovation — Build anything using Conflux features  
-- **Team**: [Team Name]  
+- **Team**: N/A 
 - **Submission Date**: September 15, 2025  
 
 ---
@@ -113,9 +113,9 @@ L0 NftBridge provides a **permissionless ERC721 cross-chain bridge**:
 - **Smart Contracts**: Solidity  
 - **Framework**: Hardhat  
 
-### Backend
-- None (frontend-only prototype)  
+### External APIs
 - Etherscan v2 API (loading NFTs by contract address)
+- Espace conflux scan API (loading NFTs by contract address)
 ---
 
 ## 🏗️ Architecture
