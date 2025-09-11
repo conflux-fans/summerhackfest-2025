@@ -33,11 +33,9 @@ The project demonstrates how **LayerZero-powered interoperability** can unlock n
 
 ## 👥 Team
 
-| Name     | Role  | GitHub | Discord |
-|----------|-------|--------|---------|
-| [Name 1] | [Role] | [@username](https://github.com/username) | username#1234 |
-| [Name 2] | [Role] | [@username](https://github.com/username) | username#1234 |
-| [Name 3] | [Role] | [@username](https://github.com/username) | username#1234 |
+| Name | Role                      | GitHub | Discord |
+|------|---------------------------|--------|---------|
+| Syv  | Full-Stack Blockchain Dev | [@0xfdbu](https://github.com/0xfdbu) | syv_dev |
 
 ---
 
