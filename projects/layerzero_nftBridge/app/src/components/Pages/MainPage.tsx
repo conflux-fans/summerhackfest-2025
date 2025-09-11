@@ -499,7 +499,7 @@ export function MainPage() {
                         <h4 className="text-white font-semibold text-lg mb-1">
                           {nft.name || `Token #${nft.tokenId}`}
                         </h4>
-                        <p className="text-gray-400 text-sm font-mono">ID: {nft.tokenId}</p>
+                        <p className="text-gray-400 text-sm font-mono  truncate max-w-[200px]">ID: {nft.tokenId}</p>
                         <p className="text-gray-400 text-sm font-mono">
                           Contract: {nft.contractAddress ? `${nft.contractAddress.slice(0, 6)}...${nft.contractAddress.slice(-4)}` : 'Unknown'}
                         </p>
