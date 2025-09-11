@@ -4,11 +4,16 @@ import {
   BASE_WRAPPED_ABI,
   ESPACE_BRIDGE_ABI,
 } from "./abis";
-const BRIDGE_CONTRACT_ADDRESS = "0xcF394722e8fF94579eC98BA0D11309F7E888a029" as Address; // DynamicWrappedONFT on Base
-const CONFLUX_BRIDGE_ADDRESS = "0x890C3dEc7d958bBCd5D4fcd308F6b04946f30ada" as Address; // DynamicConfluxONFTAdapter on Conflux
-const CONFLUX_CHAIN_ID = 1030;
-const CONFLUX_EID = 30212;
-const BASE_EID = 30184;
+import { 
+  CONFLUX_ORIGIN_ADDRESS, 
+  BASE_BRIDGE_ADDRESS, 
+  CONFLUX_CHAIN_ID, 
+  CONFLUX_EID, 
+  BASE_EID 
+} from "./constants";
+
+const BRIDGE_CONTRACT_ADDRESS = BASE_BRIDGE_ADDRESS as Address; // DynamicWrappedONFT on Base
+const CONFLUX_BRIDGE_ADDRESS = CONFLUX_ORIGIN_ADDRESS as Address; // DynamicConfluxONFTAdapter on Conflux
 // --- Helpers ---
 const isHex = (s: string): boolean => /^0x[0-9a-fA-F]{40}$/.test(s);
 
