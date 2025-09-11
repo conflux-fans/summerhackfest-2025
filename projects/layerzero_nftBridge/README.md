@@ -115,7 +115,7 @@ L0 NftBridge provides a **permissionless ERC721 cross-chain bridge**:
 
 ### Backend
 - None (frontend-only prototype)  
-
+- Etherscan v2 API (loading NFTs by contract address)
 ---
 
 ## 🏗️ Architecture
