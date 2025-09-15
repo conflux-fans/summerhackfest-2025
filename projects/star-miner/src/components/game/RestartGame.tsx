@@ -66,10 +66,15 @@ export const RestartGame: React.FC<RestartGameProps> = ({ className = '' }) => {
           disabled={isResetting || isLoading}
           variant="danger"
           size="sm"
-          className="bg-red-600 hover:bg-red-700 text-white font-medium px-3 py-2 rounded-lg transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed w-full text-sm"
+          className="group bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-all duration-300 disabled:bg-gray-600 disabled:cursor-not-allowed text-sm opacity-60 hover:opacity-100 px-2 py-2 hover:px-3 overflow-hidden whitespace-nowrap flex items-center justify-center"
           isLoading={isResetting}
         >
-          {isResetting ? 'Resetting...' : '🔄 Restart Game'}
+          <span className="flex items-center gap-0">
+            <span className="text-lg">🔄</span>
+            <span className="max-w-0 group-hover:max-w-[120px] hover:ml-1 transition-all duration-300 overflow-hidden">
+              {isResetting ? 'Resetting...' : 'Restart Game'}
+            </span>
+          </span>
         </Button>
       </div>
 
