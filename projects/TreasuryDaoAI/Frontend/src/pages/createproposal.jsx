@@ -11,6 +11,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 import { notification } from 'antd';
 import GetClub from "../getclub";
+import AIProposalSuggestions from "../components/AIProposalSuggestions";
 const web3 = new Web3(new Web3.providers.HttpProvider("https://evmtestnet.confluxrpc.com"));
 var contractPublic = null;
 var cid = null;
@@ -29,12 +30,52 @@ async function getContract(userAddress) {
 
 function CreateProposal() {
 
-
   const [Password, setPassword] = useState('');
   const [description, setDescription] = useState('');
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
   const [destination, setDestination] = useState('');
+
+  // Function to handle AI-suggested updates to proposal data
+  const handleProposalUpdate = (updates) => {
+    console.log('🔄 Updating proposal with AI suggestions:', updates);
+    
+    if (updates.title !== undefined) {
+      setTitle(updates.title);
+      // Also update the jQuery element for compatibility
+      $('#proposal_title').val(updates.title);
+    }
+    
+    if (updates.description !== undefined) {
+      setDescription(updates.description);
+      // Also update the jQuery element for compatibility
+      $('#proposal_description').val(updates.description);
+    }
+    
+    if (updates.amount !== undefined) {
+      setAmount(updates.amount);
+      // Also update the jQuery element for compatibility
+      $('#proposal_amount').val(updates.amount);
+    }
+    
+    if (updates.destination !== undefined) {
+      setDestination(updates.destination);
+      // Also update the jQuery element for compatibility
+      $('#proposal_address').val(updates.destination);
+    }
+    
+    // Show success message
+    toast.success('Proposal updated with AI suggestions!', {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+    });
+  };
 
   
   async function createProposal() {
@@ -43,10 +84,16 @@ function CreateProposal() {
     // alert(walletAddress) /// /////
     await getContract(walletAddress);
     if(contractPublic != null) {
+      var proposal_title = $('#proposal_title').val();
       var proposal_description = $('#proposal_description').val();
       var proposal_address = $('#proposal_address').val();
       var proposal_amount = $('#proposal_amount').val();
       var password = $('#trx_password').val();
+      if(proposal_title == '') {
+        $('#errorCreateProposal').css("display","block");
+        $('#errorCreateProposal').text("Title is required");
+        return;
+      }
       if(proposal_description == '') {
         $('#errorCreateProposal').css("display","block");
         $('#errorCreateProposal').text("Description is required");
@@ -193,11 +240,19 @@ function CreateProposal() {
         // } else {
         //   console.error('web3 instance is not properly initialized.');
         // }
+        // Clear form fields
+        $('#proposal_title').val('');
         $('#proposal_description').val('');
         $('#proposal_address').val('');
         $('#proposal_amount').val('');
-
         $('#trx_password').val('');
+        
+        // Clear React state
+        setTitle('');
+        setDescription('');
+        setAmount('');
+        setDestination('');
+        
         $('#errorCreateProposal').css("display","none");
         $('.loading_message_creating').css("display","none");
         $('#successCreateProposal').css("display","block");
@@ -211,7 +266,7 @@ function CreateProposal() {
           progress: undefined,
           theme: "dark",
           });
-        $('#successCreateProposal').text("Proposal created successfully with description: " + proposal_description);
+        $('#successCreateProposal').text("Proposal created successfully: " + proposal_title + " - " + proposal_description);
       } else {
         $('.valid-feedback').css('display','none');
         $('.loading_message_creating').css("display","none");
@@ -242,7 +297,8 @@ function CreateProposal() {
 
   return (
     <div id="page-top">
-  {/* Page Wrapper */}
+      <ToastContainer />
+      {/* Page Wrapper */}
   <div id="wrapper">
     {/* Sidebar */}
     <ul
@@ -387,11 +443,11 @@ function CreateProposal() {
                     Title:{" "}
                       <input
                         type="text"
-                        id="proposal_description"
+                        id="proposal_title"
                         className="form-control form-control-user"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
-                        placeholder="Give a description for this proposal"
+                        placeholder="Give a title for this proposal"
                       />{" "}
                       <br />
                       Description:{" "}
@@ -410,8 +466,8 @@ function CreateProposal() {
                         id="proposal_address"
                         className="form-control form-control-user"
                         value={destination}
-onChange={(e) => setDestination(e.target.value)}
-                        placeholder="Enter the sepolia destination address: 0x....."
+                        onChange={(e) => setDestination(e.target.value)}
+                        placeholder="Enter the destination address: 0x....."
                       />{" "}
                       <br />
                       Amount (in CFX):{" "}
@@ -462,6 +518,21 @@ onChange={(e) => setDestination(e.target.value)}
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* AI Suggestions Row */}
+          <div className="row">
+            <div className="col-xl-12 col-lg-12">
+              <AIProposalSuggestions 
+                proposalData={{
+                  title: title,
+                  description: description,
+                  amount: amount,
+                  destination: destination
+                }}
+                onUpdateProposal={handleProposalUpdate}
+              />
             </div>
           </div>
           {/* Content Row */}
