@@ -64,6 +64,7 @@ npx hardhat lz:oapp:wire --oapp-config layerzero.config.ts
 **⚠️ Note:**
 - Transactions may fail during this process due to network or configuration issues.
 - If a transaction fails, rerun the command until it succeeds (usually 4–5 attempts).
+- This is a problem with layerzero not the code itself, currently getting feedback from L0 support to address the issue in the future.
 - Upon success, you'll see:
 
 ```
