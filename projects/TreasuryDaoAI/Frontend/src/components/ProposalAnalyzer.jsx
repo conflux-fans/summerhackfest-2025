@@ -15,12 +15,11 @@ const ProposalAnalyzer = ({ proposalData, onAnalysisComplete }) => {
 
     try {
       setLoading(true);
+      console.log('🤖 Starting proposal analysis...', proposalData);
+      
       const result = await AIService.scoreProposal(proposalData);
       setAnalysis(result);
-      
-      // Get voting recommendation
-      const votingResult = await getVotingRecommendation(proposalData, result);
-      setVotingRecommendation(votingResult);
+      console.log('✅ Proposal analysis complete:', result);
       
       if (onAnalysisComplete) {
         onAnalysisComplete(result);
@@ -31,6 +30,34 @@ const ProposalAnalyzer = ({ proposalData, onAnalysisComplete }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const getVotingAdvice = async () => {
+    if (!proposalData || !analysis) {
+      alert('Please analyze the proposal first');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      console.log('🗳️ Getting voting recommendation...');
+      
+      const votingResult = await getVotingRecommendation(proposalData, analysis);
+      setVotingRecommendation(votingResult);
+      console.log('✅ Voting recommendation complete:', votingResult);
+    } catch (error) {
+      console.error('Voting recommendation error:', error);
+      alert('Failed to get voting recommendation. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resetAnalysis = () => {
+    setAnalysis(null);
+    setVotingRecommendation(null);
+    setShowDetails(false);
+    console.log('🔄 Analysis reset');
   };
 
   const getVotingRecommendation = async (proposalData, analysisResult) => {
@@ -150,11 +177,21 @@ Please provide a JSON response with:
           {analysis && !votingRecommendation && (
             <button
               className="btn btn-success btn-sm"
-              onClick={() => getVotingRecommendation(proposalData, analysis)}
+              onClick={getVotingAdvice}
               disabled={loading}
             >
               <i className="fas fa-vote-yea mr-2"></i>
               Get Voting Advice
+            </button>
+          )}
+          {analysis && (
+            <button
+              className="btn btn-outline-secondary btn-sm"
+              onClick={resetAnalysis}
+              disabled={loading}
+            >
+              <i className="fas fa-redo mr-2"></i>
+              Reset
             </button>
           )}
         </div>
@@ -448,6 +485,16 @@ Please provide a JSON response with:
             <p className="text-muted">
               Click "Analyze Proposal" to get AI-powered insights about this proposal.
             </p>
+            {proposalData && (
+              <div className="mt-3">
+                <small className="text-info">
+                  <i className="fas fa-info-circle mr-1"></i>
+                  Proposal data loaded: {proposalData.description ? 'Description ✓' : 'No description'} | 
+                  Amount: {proposalData.amount} CFX | 
+                  Destination: {proposalData.destination}
+                </small>
+              </div>
+            )}
           </div>
         )}
       </div>
