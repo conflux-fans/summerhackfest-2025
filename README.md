@@ -152,7 +152,13 @@ npm run dev:deploy
 # 5. Seed demo data
 npm run dev:seed
 
-# 6. Start frontend development server
+# 6. Configure frontend environment
+npm run frontend:config
+
+# This automatically configures for local development
+# For manual configuration: copy frontend/.env.example to frontend/.env and update values
+
+# 7. Start frontend development server
 npm run frontend:dev
 
 ## Architecture
