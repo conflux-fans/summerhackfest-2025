@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7
+    container_name: nfticket-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: nfticket
+    volumes:
+      - mongodb_data:/data/db
+      - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - nfticket-network
+
+  # Backend API Server
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: nfticket-backend
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      MONGODB_URI: mongodb://admin:password123@mongodb:27017/nfticket?authSource=admin
+      JWT_SECRET: development-jwt-secret-key
+      FRONTEND_URL: http://localhost:3000
+    depends_on:
+      - mongodb
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - nfticket-network
+
+  # Frontend Web Dashboard
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: nfticket-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      BACKEND_URL: http://backend:3001
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+      NEXT_PUBLIC_SOCKET_URL: http://localhost:3001
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - nfticket-network
+
+  # Local Hardhat Node (for development)
+  hardhat-node:
+    build:
+      context: ./smart-contracts
+      dockerfile: Dockerfile.node
+    container_name: nfticket-hardhat-node
+    restart: unless-stopped
+    ports:
+      - "8545:8545"
+    command: ["npx", "hardhat", "node", "--hostname", "0.0.0.0"]
+    networks:
+      - nfticket-network
+
+networks:
+  nfticket-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+    driver: local

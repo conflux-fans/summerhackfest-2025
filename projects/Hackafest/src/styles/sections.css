@@ -1,0 +1,361 @@
+/* Section Styles */
+
+/* Hero Section */
+.hero {
+  padding: 10rem 0 8rem 0;
+  text-align: center;
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.03) 0%, rgba(16, 22, 33, 0.8) 50%, rgba(11, 15, 20, 1) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 50% 20%, rgba(34, 211, 238, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.hero h1 {
+  font-size: 4.5rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  color: var(--text);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, var(--text) 0%, var(--accent-weak) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero p {
+  font-size: 1.375rem;
+  color: var(--muted);
+  margin-bottom: 3rem;
+  max-width: 56rem;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+}
+
+.hero-cta {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 4rem;
+}
+
+.hero-visual {
+  margin-top: 4rem;
+  max-width: 32rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Flow Diagram */
+.flow-diagram {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(8px);
+}
+
+.flow-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 5rem;
+}
+
+.flow-icon {
+  width: 4rem;
+  height: 4rem;
+  border: 2px solid;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+  margin-bottom: 0.75rem;
+  transition: all var(--transition-normal);
+}
+
+.flow-icon-primary {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(34, 211, 238, 0.1);
+}
+
+.flow-icon-secondary {
+  border-color: var(--accent-weak);
+  color: var(--accent-weak);
+  background: rgba(132, 233, 242, 0.1);
+}
+
+.flow-icon-success {
+  border-color: var(--success);
+  color: var(--success);
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.flow-connector {
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent) 0%, var(--accent-weak) 100%);
+  margin: 0 0.5rem;
+  position: relative;
+}
+
+.flow-connector::after {
+  content: '';
+  position: absolute;
+  right: -4px;
+  top: -2px;
+  width: 0;
+  height: 0;
+  border-left: 6px solid var(--accent-weak);
+  border-top: 3px solid transparent;
+  border-bottom: 3px solid transparent;
+}
+
+.flow-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text);
+  text-align: center;
+}
+
+/* Feature Sections */
+.features-section {
+  padding: 6rem 0;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.section-title {
+  text-align: center;
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin-bottom: 3rem;
+  color: var(--text);
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.feature-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  text-align: center;
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent) 0%, var(--accent-weak) 100%);
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+}
+
+.feature-card:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-4px);
+}
+
+.feature-card:hover::before {
+  opacity: 1;
+}
+
+.feature-icon {
+  width: 3rem;
+  height: 3rem;
+  background: var(--accent);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem auto;
+  font-weight: 600;
+  color: var(--bg);
+  font-size: 1rem;
+}
+
+.feature-card h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+
+.feature-card p {
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* CTA Section */
+.cta-section {
+  padding: 6rem 0;
+  text-align: center;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Why Conflux Section */
+.why-conflux-section {
+  padding: 6rem 0;
+  background: var(--bg);
+}
+
+/* Use Cases Section */
+.use-cases-section {
+  padding: 6rem 0;
+  background: var(--surface);
+}
+
+/* Trust Section */
+.trust-section {
+  padding: 6rem 0;
+  background: var(--bg);
+}
+
+.trust-content {
+  max-width: 48rem;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.trust-list {
+  text-align: left;
+  margin: 2rem 0;
+}
+
+.trust-list li {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.trust-list .bullet {
+  color: var(--success);
+  margin-right: 0.75rem;
+  margin-top: 0.25rem;
+  font-weight: bold;
+}
+
+.trust-highlight {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  margin-top: 3rem;
+}
+
+.trust-highlight p {
+  color: var(--accent);
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* Section Spacing */
+.section {
+  padding: 6rem 0;
+}
+
+.section-sm {
+  padding: 3rem 0;
+}
+
+.section-lg {
+  padding: 8rem 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hero h1 {
+    font-size: 2.5rem;
+  }
+  
+  .hero p {
+    font-size: 1.125rem;
+  }
+  
+  .hero-cta {
+    flex-direction: column;
+  }
+  
+  .section,
+  .features-section,
+  .why-conflux-section,
+  .use-cases-section,
+  .trust-section,
+  .cta-section {
+    padding: 4rem 0;
+  }
+  
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .flow-diagram {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .flow-connector {
+    width: 2px;
+    height: 2rem;
+    background: linear-gradient(180deg, var(--accent) 0%, var(--accent-weak) 100%);
+    margin: 0;
+  }
+  
+  .flow-connector::after {
+    top: auto;
+    bottom: -4px;
+    right: -2px;
+    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
+    border-top: 6px solid var(--accent-weak);
+    border-bottom: none;
+  }
+}
