@@ -9,6 +9,11 @@
 <img width="1512" height="844" alt="Screenshot 2025-09-15 at 07 48 26" src="https://github.com/user-attachments/assets/de27186e-38b3-44eb-982c-0e658202b191" />
 
 
+## Supabase database for storing the score of the players 
+
+<img width="1474" height="717" alt="Screenshot 2025-09-15 at 08 09 40" src="https://github.com/user-attachments/assets/132629a3-5f5c-402a-bb82-8ade9095ead9" />
+
+
 ## Solo Training Mode 
 
 <img width="1512" height="835" alt="Screenshot 2025-09-15 at 07 49 03" src="https://github.com/user-attachments/assets/329f375c-25aa-4a9c-aaf0-6c27e2b4eba3" />
