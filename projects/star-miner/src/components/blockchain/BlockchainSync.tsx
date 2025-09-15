@@ -70,12 +70,7 @@ export default function BlockchainSync({ className = '' }: BlockchainSyncProps) 
       
       if (blockchainState && blockchainState.isActive) {
         // Update local game state with blockchain data
-        gameState.updateFromBlockchain(blockchainState);        // Align UI stardust (Stats) with P2E available stardust after load
-        // so "Blockchain Stardust" and "Stardust" show the same value immediately after loading from chain.
-        const info = await getExchangeInfo();
-        if (info && info.playerStardust !== undefined) {
-          gameState.updateMultipleFields({ stardust: info.playerStardust });
-        }
+        gameState.updateFromBlockchain(blockchainState);
       }
       
       setSyncStatus('success');
@@ -122,12 +117,6 @@ export default function BlockchainSync({ className = '' }: BlockchainSyncProps) 
       if (syncedState && syncedState.isActive) {
         // Update game state from sync
         gameState.updateFromBlockchain(syncedState);
-
-        // Align UI stardust (Stats) with P2E available stardust after full sync
-        const info = await getExchangeInfo();
-        if (info && info.playerStardust !== undefined) {
-          gameState.updateMultipleFields({ stardust: info.playerStardust });
-        }
       }
       
       setSyncStatus('success');
