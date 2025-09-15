@@ -1,4 +1,4 @@
-# 🧠 QuizCraft AI - Conflux Hackathon Submission
+# 🧠 QuizCraft AI - Conflux Hackathon Submission 
 
 [![Conflux](https://img.shields.io/badge/Conflux-eSpace-blue)](https://confluxnetwork.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-15.2.4-black)](https://nextjs.org/)
@@ -19,6 +19,11 @@
 🎥 **Demo Video**: https://youtu.be/HkK0XixoCOc
 
 💻 **Original Repository**: https://github.com/Vikash-8090-Yadav/QuizCraft
+
+
+## I am using supabse to store the players score... May be u will find some glitch in pvp  due to rendering of contnious fetching from the server .. :)
+
+<img width="1474" height="717" alt="Screenshot 2025-09-15 at 08 09 40" src="https://github.com/user-attachments/assets/97e629d5-ea78-4f3f-950c-82a2e1aefcfd" />
 
 
 ## 🚀 Problem & Solution
