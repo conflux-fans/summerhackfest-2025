@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/Users/anicar.cabrera/Documents/Projects/summerhackfest-2025/projects/star-miner/contracts/contracts/GameStateManager.sol": {
-      "lastModificationDate": 1756251144835,
-      "contentHash": "3035b18e8b77d8d81525a6acb1426cea",
+      "lastModificationDate": 1757890996438,
+      "contentHash": "ef536e6fca8c82b008b41480bbc27d48",
       "sourceName": "contracts/GameStateManager.sol",
       "solcConfig": {
         "version": "0.8.19",

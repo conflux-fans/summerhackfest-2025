@@ -95,7 +95,8 @@ export default function BlockchainSync({ className = '' }: BlockchainSyncProps) 
     setSyncStatus('syncing');
     
     try {
-      await saveGameState(gameState.stardust, gameState.totalClicks);
+      // Pass the entire gameState object to match the new signature
+      await saveGameState(gameState);
       
       setSyncStatus('success');
       setLastSyncTime(new Date());

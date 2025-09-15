@@ -14,6 +14,7 @@ contract GameStateManager is Ownable, ReentrancyGuard {
     
     struct PlayerState {
         uint256 stardust;
+        uint256 stardustPerClick;
         uint256 stardustPerSecond;
         uint256 totalClicks;
         uint256 lastUpdateTime;
@@ -35,10 +36,15 @@ contract GameStateManager is Ownable, ReentrancyGuard {
     mapping(address => PlayerState) public playerStates;
     mapping(address => mapping(string => uint256)) public playerUpgrades;
     mapping(string => UpgradeConfig) public upgradeConfigs;
+    mapping(address => mapping(uint256 => string)) public playerAchievements;
+    mapping(address => uint256) public playerAchievementCount;
     
     // Game statistics
     mapping(address => uint256) public totalStardustEarned;
     mapping(address => uint256) public totalCreditsSpent;
+    mapping(address => uint256) public totalPlayTime;
+    mapping(address => uint256) public highestStardustPerSecond;
+    mapping(address => uint256) public prestigeCount;
     uint256 public totalPlayers;
     uint256 public totalStardustGenerated;
     
@@ -113,12 +119,52 @@ contract GameStateManager is Ownable, ReentrancyGuard {
             isActive: true
         });
         
-        upgradeConfigs["blackhole"] = UpgradeConfig({
-            name: "Black Hole",
-            baseCost: 100,
+        upgradeConfigs["spacestation"] = UpgradeConfig({
+            name: "Space Station",
+            baseCost: 50,
+            costMultiplier: 1200,
+            stardustPerClick: 100,
+            stardustPerSecond: 50,
+            costType: "credits",
+            isActive: true
+        });
+        
+        upgradeConfigs["wormhole"] = UpgradeConfig({
+            name: "Wormhole Generator",
+            baseCost: 200,
             costMultiplier: 1250, // 25% increase per level
             stardustPerClick: 500,
             stardustPerSecond: 250,
+            costType: "credits",
+            isActive: true
+        });
+        
+        upgradeConfigs["blackhole"] = UpgradeConfig({
+            name: "Black Hole",
+            baseCost: 500,
+            costMultiplier: 1250,
+            stardustPerClick: 1000,
+            stardustPerSecond: 500,
+            costType: "credits",
+            isActive: true
+        });
+        
+        upgradeConfigs["galacticnetwork"] = UpgradeConfig({
+            name: "Galactic Network",
+            baseCost: 1000,
+            costMultiplier: 1300, // 30% increase per level
+            stardustPerClick: 5000,
+            stardustPerSecond: 2500,
+            costType: "credits",
+            isActive: true
+        });
+        
+        upgradeConfigs["universeengine"] = UpgradeConfig({
+            name: "Universe Engine",
+            baseCost: 2000,
+            costMultiplier: 1500, // 50% increase per level
+            stardustPerClick: 10000,
+            stardustPerSecond: 5000,
             costType: "credits",
             isActive: true
         });
@@ -131,7 +177,8 @@ contract GameStateManager is Ownable, ReentrancyGuard {
         if (!playerStates[msg.sender].isActive) {
             playerStates[msg.sender] = PlayerState({
                 stardust: 0,
-                stardustPerSecond: 1, // Base generation
+                stardustPerClick: 1, // Base click value
+                stardustPerSecond: 0, // Base generation (starts at 0)
                 totalClicks: 0,
                 lastUpdateTime: block.timestamp,
                 prestigeLevel: 0,
@@ -147,7 +194,10 @@ contract GameStateManager is Ownable, ReentrancyGuard {
      */
     function saveGameState(
         uint256 stardust,
-        uint256 totalClicks
+        uint256 stardustPerClick,
+        uint256 stardustPerSecond,
+        uint256 totalClicks,
+        string[] memory achievements
     ) external nonReentrant {
         require(playerStates[msg.sender].isActive, "Player not registered");
         
@@ -157,14 +207,24 @@ contract GameStateManager is Ownable, ReentrancyGuard {
         uint256 timeDiff = block.timestamp - player.lastUpdateTime;
         uint256 idleRewards = (player.stardustPerSecond * timeDiff);
         
-        // Update state
+        // Update state with all localStorage values
         player.stardust = stardust + idleRewards;
+        player.stardustPerClick = stardustPerClick;
+        player.stardustPerSecond = stardustPerSecond;
         player.totalClicks = totalClicks;
         player.lastUpdateTime = block.timestamp;
         
-        // Update global stats
+        // Update achievements
+        _updatePlayerAchievements(msg.sender, achievements);
+        
+        // Update statistics
         totalStardustEarned[msg.sender] += idleRewards;
         totalStardustGenerated += idleRewards;
+        
+        // Track highest stardust per second
+        if (stardustPerSecond > highestStardustPerSecond[msg.sender]) {
+            highestStardustPerSecond[msg.sender] = stardustPerSecond;
+        }
         
         // Deposit stardust for P2E rewards
         if (idleRewards > 0) {
@@ -199,6 +259,7 @@ contract GameStateManager is Ownable, ReentrancyGuard {
         
         // Apply upgrade
         playerUpgrades[msg.sender][upgradeId]++;
+        playerStates[msg.sender].stardustPerClick += config.stardustPerClick;
         playerStates[msg.sender].stardustPerSecond += config.stardustPerSecond;
         
         emit UpgradePurchased(
@@ -242,13 +303,17 @@ contract GameStateManager is Ownable, ReentrancyGuard {
      */
     function getPlayerState(address player) external view returns (
         PlayerState memory state,
-        uint256 idleRewards
+        uint256 idleRewards,
+        string[] memory achievements
     ) {
         state = playerStates[player];
         if (state.isActive) {
             uint256 timeDiff = block.timestamp - state.lastUpdateTime;
             idleRewards = state.stardustPerSecond * timeDiff;
         }
+        
+        // Get player achievements
+        achievements = _getPlayerAchievements(player);
     }
     
     /**
@@ -260,10 +325,15 @@ contract GameStateManager is Ownable, ReentrancyGuard {
         PlayerState storage player = playerStates[msg.sender];
         player.prestigeLevel++;
         player.stardust = 0;
-        player.stardustPerSecond = 1 + player.prestigeLevel; // Prestige bonus
+        player.stardustPerClick = 1; // Reset to base
+        player.stardustPerSecond = player.prestigeLevel; // Prestige bonus
+        player.totalClicks = 0; // Reset clicks
+        
+        // Update prestige count
+        prestigeCount[msg.sender]++;
         
         // Reset upgrades
-        string[5] memory upgradeIds = ["telescope", "satellite", "observatory", "starship", "blackhole"];
+        string[9] memory upgradeIds = ["telescope", "satellite", "observatory", "starship", "spacestation", "wormhole", "blackhole", "galacticnetwork", "universeengine"];
         for (uint256 i = 0; i < upgradeIds.length; i++) {
             playerUpgrades[msg.sender][upgradeIds[i]] = 0;
         }
@@ -294,5 +364,134 @@ contract GameStateManager is Ownable, ReentrancyGuard {
     
     function toggleUpgrade(string memory upgradeId) external onlyOwner {
         upgradeConfigs[upgradeId].isActive = !upgradeConfigs[upgradeId].isActive;
+    }
+    
+    /**
+     * @dev Internal function to update player achievements
+     */
+    function _updatePlayerAchievements(address player, string[] memory achievements) private {
+        // Clear existing achievements
+        playerAchievementCount[player] = 0;
+        
+        // Add new achievements
+        for (uint256 i = 0; i < achievements.length; i++) {
+            playerAchievements[player][i] = achievements[i];
+            playerAchievementCount[player]++;
+        }
+    }
+    
+    /**
+     * @dev Internal function to get player achievements
+     */
+    function _getPlayerAchievements(address player) private view returns (string[] memory) {
+        uint256 count = playerAchievementCount[player];
+        string[] memory achievements = new string[](count);
+        
+        for (uint256 i = 0; i < count; i++) {
+            achievements[i] = playerAchievements[player][i];
+        }
+        
+        return achievements;
+    }
+    
+    /**
+     * @dev Get comprehensive player statistics
+     */
+    function getPlayerStats(address player) external view returns (
+        uint256 totalStardustEarnedAmount,
+        uint256 totalCreditsSpentAmount,
+        uint256 totalClicksAmount,
+        uint256 totalPlayTimeAmount,
+        uint256 highestStardustPerSecondAmount,
+        uint256 prestigeCountAmount,
+        uint256 achievementsUnlocked
+    ) {
+        totalStardustEarnedAmount = totalStardustEarned[player];
+        totalCreditsSpentAmount = totalCreditsSpent[player];
+        totalClicksAmount = playerStates[player].totalClicks;
+        totalPlayTimeAmount = totalPlayTime[player];
+        highestStardustPerSecondAmount = highestStardustPerSecond[player];
+        prestigeCountAmount = prestigeCount[player];
+        achievementsUnlocked = playerAchievementCount[player];
+    }
+    
+    /**
+     * @dev Update player play time (called periodically by frontend)
+     */
+    function updatePlayTime(uint256 sessionTime) external {
+        require(playerStates[msg.sender].isActive, "Player not registered");
+        totalPlayTime[msg.sender] += sessionTime;
+    }
+    
+    /**
+     * @dev Get all upgrade levels for a player
+     */
+    function getPlayerUpgrades(address player) external view returns (
+        string[] memory upgradeIds,
+        uint256[] memory levels
+    ) {
+        string[9] memory allUpgradeIds = ["telescope", "satellite", "observatory", "starship", "spacestation", "wormhole", "blackhole", "galacticnetwork", "universeengine"];
+        
+        upgradeIds = new string[](9);
+        levels = new uint256[](9);
+        
+        for (uint256 i = 0; i < 9; i++) {
+            upgradeIds[i] = allUpgradeIds[i];
+            levels[i] = playerUpgrades[player][allUpgradeIds[i]];
+        }
+    }
+    
+    /**
+     * @dev Batch save complete game state (matches localStorage structure)
+     */
+    function saveCompleteGameState(
+        uint256 stardust,
+        uint256 stardustPerClick,
+        uint256 stardustPerSecond,
+        uint256 totalClicks,
+        string[] memory upgradeIds,
+        uint256[] memory upgradeLevels,
+        uint256 prestigeLevel,
+        string[] memory achievements
+    ) external nonReentrant {
+        require(playerStates[msg.sender].isActive, "Player not registered");
+        require(upgradeIds.length == upgradeLevels.length, "Mismatched upgrade arrays");
+        
+        PlayerState storage player = playerStates[msg.sender];
+        
+        // Calculate idle rewards
+        uint256 timeDiff = block.timestamp - player.lastUpdateTime;
+        uint256 idleRewards = (player.stardustPerSecond * timeDiff);
+        
+        // Update complete state
+        player.stardust = stardust + idleRewards;
+        player.stardustPerClick = stardustPerClick;
+        player.stardustPerSecond = stardustPerSecond;
+        player.totalClicks = totalClicks;
+        player.prestigeLevel = prestigeLevel;
+        player.lastUpdateTime = block.timestamp;
+        
+        // Update all upgrades
+        for (uint256 i = 0; i < upgradeIds.length; i++) {
+            playerUpgrades[msg.sender][upgradeIds[i]] = upgradeLevels[i];
+        }
+        
+        // Update achievements
+        _updatePlayerAchievements(msg.sender, achievements);
+        
+        // Update statistics
+        totalStardustEarned[msg.sender] += idleRewards;
+        totalStardustGenerated += idleRewards;
+        
+        if (stardustPerSecond > highestStardustPerSecond[msg.sender]) {
+            highestStardustPerSecond[msg.sender] = stardustPerSecond;
+        }
+        
+        // Deposit stardust for P2E rewards
+        if (idleRewards > 0) {
+            creditsContract.depositStardust(msg.sender, idleRewards);
+        }
+        
+        emit GameStateSaved(msg.sender, player.stardust, player.stardustPerSecond, block.timestamp);
     }
 }

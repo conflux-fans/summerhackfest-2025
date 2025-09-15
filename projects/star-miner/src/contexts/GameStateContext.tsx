@@ -281,11 +281,23 @@ export const GameStateProvider: React.FC<GameStateProviderProps> = ({ children }
       const newState = {
         ...prev,
         stardust: blockchainState.stardust,
+        stardustPerClick: blockchainState.stardustPerClick,
+        stardustPerSecond: blockchainState.stardustPerSecond,
         totalClicks: blockchainState.totalClicks,
-        // Only update prestigeLevel from blockchain if it's higher than local
-        prestigeLevel: Math.max(prev.prestigeLevel, blockchainState.prestigeLevel || 0),
+        prestigeLevel: blockchainState.prestigeLevel || 0,
         lastSaveTime: blockchainState.lastUpdateTime * 1000, // Convert to milliseconds
+        // Update upgrades from blockchain
+        upgrades: blockchainState.upgrades || prev.upgrades,
+        // Update achievements from blockchain
+        achievements: blockchainState.achievements || prev.achievements,
       };
+      
+      console.log('🔄 Updating from blockchain:', {
+        stardust: newState.stardust.toString(),
+        upgrades: Object.keys(newState.upgrades).length,
+        upgradeDetails: newState.upgrades
+      });
+      
       saveToStorage(newState);
       return newState;
     });

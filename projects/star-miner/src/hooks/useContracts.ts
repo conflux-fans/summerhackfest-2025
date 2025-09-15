@@ -18,9 +18,11 @@ const CREDITS_ABI = [
 
 const GAMESTATE_ABI = [
   "function registerPlayer() external",
-  "function saveGameState(uint256 stardust, uint256 totalClicks) external",
+  "function saveGameState(uint256 stardust, uint256 stardustPerClick, uint256 stardustPerSecond, uint256 totalClicks, string[] memory achievements) external",
+  "function saveCompleteGameState(uint256 stardust, uint256 stardustPerClick, uint256 stardustPerSecond, uint256 totalClicks, string[] memory upgradeIds, uint256[] memory upgradeLevels, uint256 prestigeLevel, string[] memory achievements) external",
   "function purchaseUpgrade(string memory upgradeId) external",
-  "function getPlayerState(address player) external view returns (tuple(uint256 stardust, uint256 stardustPerSecond, uint256 totalClicks, uint256 lastUpdateTime, uint256 prestigeLevel, bool isActive), uint256 idleRewards)",
+  "function getPlayerState(address player) external view returns (tuple(uint256 stardust, uint256 stardustPerClick, uint256 stardustPerSecond, uint256 totalClicks, uint256 lastUpdateTime, uint256 prestigeLevel, bool isActive), uint256 idleRewards, string[] memory achievements)",
+  "function getPlayerUpgrades(address player) external view returns (string[] memory upgradeIds, uint256[] memory levels)",
   "function getUpgradeCost(string memory upgradeId, address player) external view returns (uint256)",
   "function activatePrestige() external",
   "event GameStateSaved(address indexed player, uint256 stardust, uint256 stardustPerSecond, uint256 timestamp)",
@@ -278,17 +280,53 @@ export const useContracts = () => {
   }, [isConnected, address, getContract]);
 
   // Save game state to blockchain
-  const saveGameState = useCallback(async (stardust: bigint, totalClicks: number) => {
+  const saveGameState = useCallback(async (gameState: any) => {
     if (!isConnected || !isCorrectNetwork || !contractState.playerRegistered) return;
 
     try {
       const contract = await getContract('gamestate');
-      const tx = await contract.saveGameState(stardust, totalClicks);
+      
+      // Convert BigInt values to strings for contract call
+      const stardust = gameState.stardust.toString();
+      const stardustPerClick = gameState.stardustPerClick.toString();
+      const stardustPerSecond = gameState.stardustPerSecond.toString();
+      const totalClicks = gameState.totalClicks;
+      const achievements = gameState.achievements || [];
+      
+      // Prepare upgrade data
+      const upgradeIds = Object.keys(gameState.upgrades || {});
+      const upgradeLevels = upgradeIds.map(id => gameState.upgrades[id]?.level || 0);
+      const prestigeLevel = gameState.prestigeLevel || 0;
+      
+      console.log('Saving complete game state to blockchain:', {
+        stardust,
+        stardustPerClick,
+        stardustPerSecond,
+        totalClicks,
+        upgradeIds,
+        upgradeLevels,
+        prestigeLevel,
+        achievements
+      });
+      
+      // Use saveCompleteGameState to save everything including upgrades
+      const tx = await contract.saveCompleteGameState(
+        stardust,
+        stardustPerClick,
+        stardustPerSecond,
+        totalClicks,
+        upgradeIds,
+        upgradeLevels,
+        prestigeLevel,
+        achievements
+      );
+      
       await tx.wait();
       
       return tx.hash;
     } catch (error) {
       console.error('Failed to save game state:', error);
+      throw error;
     }
   }, [isConnected, isCorrectNetwork, contractState.playerRegistered, getContract]);
 
@@ -298,16 +336,38 @@ export const useContracts = () => {
 
     try {
       const contract = await getContract('gamestate');
-      const [playerState, idleRewards] = await contract.getPlayerState(address);
+      const [playerState, idleRewards, achievements] = await contract.getPlayerState(address);
+      
+      // Also load upgrades
+      const [upgradeIds, upgradeLevels] = await contract.getPlayerUpgrades(address);
+      
+      // Convert upgrades to the format expected by the frontend
+      const upgrades: any = {};
+      for (let i = 0; i < upgradeIds.length; i++) {
+        const upgradeId = upgradeIds[i];
+        const level = Number(upgradeLevels[i].toString());
+        if (level > 0) {
+          upgrades[upgradeId] = {
+            level,
+            cost: BigInt(0), // Will be recalculated
+            costType: 'stardust' // Will be set by game mechanics
+          };
+        }
+      }
+      
+      console.log('Loaded upgrades from blockchain:', upgrades);
       
       return {
         stardust: BigInt(playerState.stardust.toString()),
+        stardustPerClick: BigInt(playerState.stardustPerClick.toString()),
         stardustPerSecond: BigInt(playerState.stardustPerSecond.toString()),
         totalClicks: Number(playerState.totalClicks.toString()),
         lastUpdateTime: Number(playerState.lastUpdateTime.toString()),
         prestigeLevel: Number(playerState.prestigeLevel.toString()),
         isActive: playerState.isActive,
         idleRewards: BigInt(idleRewards.toString()),
+        achievements: achievements || [],
+        upgrades: upgrades,
       };
     } catch (error) {
       console.error('Failed to load game state:', error);
@@ -321,7 +381,7 @@ export const useContracts = () => {
 
     try {
       // Save current local state to blockchain
-      await saveGameState(localGameState.stardust, localGameState.totalClicks);
+      await saveGameState(localGameState);
       
       // Load updated state from blockchain
       const blockchainState = await loadGameState();
