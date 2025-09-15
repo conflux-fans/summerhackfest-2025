@@ -13,6 +13,18 @@ export const metadata: Metadata = {
   keywords: ['blockchain', 'game', 'play-to-earn', 'idle clicker', 'conflux', 'web3'],
   authors: [{ name: 'StarMiner Team' }],
   viewport: 'width=device-width, initial-scale=1',
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico', sizes: '32x32' }
+    ],
+    apple: [
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' }
+    ],
+    other: [
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' }
+    ]
+  }
 }
 
 export default function RootLayout({
