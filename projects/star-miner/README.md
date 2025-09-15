@@ -331,7 +331,7 @@ interface IStarMinerCredits {
 ## 🚧 Known Issues & Limitations
 
 ### Current Limitations
-- **Daily Reward Limit**: Maximum 1 CFX claimable per day per user
+- **Daily Reward Limit**: Maximum 25 CFX claimable per day per user
 - **Testnet Only**: Currently deployed on testnet for development
 
 ### Known Issues
