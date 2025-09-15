@@ -20,6 +20,8 @@ export default function P2ERewards({ className = '' }: P2ERewardsProps) {
   const [exchangeInfo, setExchangeInfo] = useState<any>(null);
   const [stardustToExchange, setStardustToExchange] = useState('');
   const [isExchanging, setIsExchanging] = useState(false);
+  const [showInfoModal, setShowInfoModal] = useState(false);
+  const [blockchainStardust, setBlockchainStardust] = useState<bigint>(BigInt(0));
 
   // Load exchange info
   useEffect(() => {
@@ -29,12 +31,21 @@ export default function P2ERewards({ className = '' }: P2ERewardsProps) {
       try {
         const info = await getExchangeInfo();
         setExchangeInfo(info);
+        
+        // Also get blockchain stardust balance
+        if (info && info.playerStardust !== undefined) {
+          setBlockchainStardust(BigInt(info.playerStardust.toString()));
+        }
       } catch (error) {
         console.error('Error loading exchange info:', error);
       }
     };
 
     loadExchangeInfo();
+    
+    // Set up interval to refresh blockchain stardust every 10 seconds
+    const interval = setInterval(loadExchangeInfo, 10000);
+    return () => clearInterval(interval);
   }, [isConnected, address, getExchangeInfo]);
 
   // Calculate CFX reward for given Stardust amount
@@ -42,6 +53,11 @@ export default function P2ERewards({ className = '' }: P2ERewardsProps) {
     if (!stardustAmount || isNaN(Number(stardustAmount)) || !exchangeInfo) return '0';
     const cfxAmount = Number(stardustAmount) / Number(exchangeInfo.rate);
     return cfxAmount.toFixed(6);
+  };
+
+  // Show info modal before exchange
+  const handleExchangeClick = () => {
+    setShowInfoModal(true);
   };
 
   // Handle Stardust to CFX exchange
@@ -56,8 +72,9 @@ export default function P2ERewards({ className = '' }: P2ERewardsProps) {
       return;
     }
 
-    if (BigInt(stardustAmount) > stardust) {
-      showToast('error', 'Insufficient Balance', 'You don\'t have enough ✨ Stardust');
+    // Check blockchain stardust balance instead of local
+    if (BigInt(stardustAmount) > blockchainStardust) {
+      showToast('error', 'Insufficient Blockchain Balance', 'You need to save your game state to blockchain first!');
       return;
     }
 
@@ -76,15 +93,23 @@ export default function P2ERewards({ className = '' }: P2ERewardsProps) {
     }
 
     setIsExchanging(true);
+    setShowInfoModal(false);
+    
     try {
       const txHash = await exchangeStardustForCFX(stardustAmount.toString());
       
       // Update local game state by reducing stardust
       incrementStardust(-BigInt(stardustAmount));
       
+      // Immediately update blockchain stardust to reflect the exchange
+      setBlockchainStardust(prev => prev - BigInt(stardustAmount));
+      
       // Refresh exchange info
       const info = await getExchangeInfo();
       setExchangeInfo(info);
+      if (info && info.playerStardust !== undefined) {
+        setBlockchainStardust(BigInt(info.playerStardust.toString()));
+      }
       setStardustToExchange('');
 
       showToast('success', 'Exchange Successful!', `Exchanged ${stardustAmount.toLocaleString()} ✨ for ${cfxReward} CFX`);
@@ -197,6 +222,19 @@ export default function P2ERewards({ className = '' }: P2ERewardsProps) {
             '🎁 Exchange for CFX Rewards'
           )}
         </button>
+
+        {/* Blockchain Stardust Info */}
+        <div className="bg-blue-900/30 border border-blue-500/50 rounded-lg p-3">
+          {/* <div className="flex items-center justify-between">
+            <span className="text-sm text-blue-400">Blockchain Stardust:</span>
+            <span className="text-sm font-bold text-blue-300">
+              {blockchainStardust.toLocaleString()} ✨
+            </span>
+          </div> */}
+          <div className="text-xs text-gray-400 mt-1">
+            Only blockchain stardust can be exchanged for CFX, make sure to save your game state to blockchain before exchanging.
+          </div>
+        </div>
 
         <div className="text-xs text-slate-500 text-center">
           Daily limit resets every 24 hours. Rewards are paid instantly to your wallet.
