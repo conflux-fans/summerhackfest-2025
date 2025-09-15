@@ -2,6 +2,20 @@
 
 A decentralized autonomous organization (DAO) platform with integrated AI capabilities for intelligent governance, proposal analysis, and investment decision-making. Built on Conflux eSpace testnet with advanced AI features powered by OpenAI.
 
+## 🎯 Live Demo
+
+🌐 **Live Application**: [https://quiz-craft-sepia.vercel.app/](https://quiz-craft-sepia.vercel.app/)
+
+📱 **Testnet**: Conflux eSpace Testnet  
+🔗 **Contract**: [View on ConfluxScan](https://evmtestnet.confluxscan.org/address/0x45E1E9ED173E47B4894ccCd3bCc9271522e6cfd2)
+
+🎥 **Demo Video**:  https://youtu.be/TERyY8ot5uM
+
+💻 **Original Repository**: 
+
+
+
+
 ## 🌟 Features
 
 ### 🏛️ **Core DAO Functionality**
@@ -11,14 +25,29 @@ A decentralized autonomous organization (DAO) platform with integrated AI capabi
 - **Treasury Management**: Secure fund allocation and tracking
 - **Member Management**: Role-based access and permissions
 
-### 🤖 **AI-Powered Features** (New In this hackathon )
+### 🤖 **AI-Powered Features** ---> (New In this hackathon )
 
-- **Smart Proposal Analysis**: AI evaluates proposals on 6 key criteria
-- **Voting Recommendations**: AI suggests YES/NO/ABSTAIN with reasoning
-- **Market Analysis**: Real-time market insights and trends
-- **AI Chat Assistant**: Interactive support for DAO operations
-- **Investment Analysis**: Risk assessment and investment recommendations
-- **Predictive Analytics**: Success probability predictions
+- **Smart Proposal Analysis**  
+  AI evaluates proposals on six key criteria such as clarity, feasibility, funding validity, ROI potential, and risk.  
+
+- **Proposal Suggestions**  
+  Automatically detects missing details and provides improvement recommendations with one-click integration into the proposal description.  
+
+- **Voting Recommendations**  
+  AI suggests **YES / NO / ABSTAIN** votes with clear reasoning based on proposal quality and risk analysis.  
+
+- **Market Analysis**  
+  Real-time insights into market conditions, token performance, and trends, powered by AI.  
+
+- **Investment Analysis**  
+  Comprehensive risk assessment and tailored investment recommendations for DAO members.  
+
+- **Predictive Analytics**  
+  AI-driven success probability predictions to help members make informed decisions.  
+
+- **AI Chat Assistant**  
+  Interactive assistant to guide members on DAO operations, including creating proposals, joining clubs, and understanding the voting process.  
+
 
 ### 🔗 **Blockchain Integration**
 - **Conflux eSpace Testnet**: Fast, secure, and energy-efficient
