@@ -2,7 +2,7 @@
 
 ## Overview
 
-DeepFamily implements a privacy-preserving genealogy system using Zero-Knowledge (ZK) proofs based on the Groth16 proving system. This allows users to verify the integrity of genealogical data while keeping sensitive personal information private on-chain.
+DeepFamily implements a privacy-preserving family tree system using Zero-Knowledge (ZK) proofs based on the Groth16 proving system. This allows users to verify the integrity of family tree data while keeping sensitive personal information private on-chain.
 
 ## Architecture
 

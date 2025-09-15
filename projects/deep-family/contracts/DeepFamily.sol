@@ -28,7 +28,7 @@ interface IPersonHashVerifier {
 
 /**
  * @title DeepFamily - Decentralized Global On-Chain Family Tree Protocol
- * @dev Multi-version genealogy with endorsements, ZK proofs, NFTs, and token incentives.
+ * @dev Multi-version family tree with endorsements, ZK proofs, NFTs, and token incentives.
  * Features: Multi-version persons with parent references | Endorsement mechanism with fee distribution
  * ZK addition via Groth16 proofs | NFT minting with on-chain metadata | Token rewards for complete families
  * Name indexing & paginated queries | Story sharding system | Security & gas optimization

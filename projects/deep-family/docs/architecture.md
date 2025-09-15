@@ -2,18 +2,18 @@
 
 ## 🏗️ Architectural Overview
 
-DeepFamily implements a sophisticated **dual-layer blockchain architecture** that enables privacy-preserving genealogy with economic incentives. The system combines immutable relationship storage with value-driven community governance to create a self-sustaining genealogical data ecosystem.
+DeepFamily implements a sophisticated **dual-layer blockchain architecture** that enables privacy-preserving family tree with economic incentives. The system combines immutable relationship storage with value-driven community governance to create a self-sustaining family tree data ecosystem.
 
 ### Core Components
 ```
 DeepFamily System Architecture (1,795 lines of code)
 ├── 📄 Smart Contracts Layer (Solidity ^0.8.20)
-│   ├── DeepFamily.sol (1,384 lines) - Core genealogy protocol
+│   ├── DeepFamily.sol (1,384 lines) - Core family tree protocol
 │   ├── DeepFamilyToken.sol (201 lines) - DEEP ERC20 mining token
 │   └── PersonHashVerifier.sol (210 lines) - Groth16 ZK verifier
 ├── 🎨 Frontend Application (React 18 + TypeScript)
 │   ├── 33 UI Components - Tree visualization & data management
-│   ├── 9 Pages - Full genealogy application interface
+│   ├── 9 Pages - Full family tree application interface
 │   ├── 8 React Hooks - Blockchain interaction utilities
 │   └── 7 Context Providers - State management system
 └── 🔧 Development Infrastructure
@@ -26,11 +26,11 @@ DeepFamily System Architecture (1,795 lines of code)
 
 ### **Layer 1: Privacy Protection Layer (Hash-Based Relationships)**
 
-**Purpose**: Enable safe genealogical data sharing without privacy compromise
+**Purpose**: Enable safe family tree data sharing without privacy compromise
 
 **Core Mechanisms**:
 - **Hash-Only Storage**: Personal identities stored as `keccak256(fullName + birthData + gender)` hashes
-- **Relationship Networks**: Genealogical connections via `personHash` → `fatherHash` + `motherHash` references
+- **Relationship Networks**: Family tree connections via `personHash` → `fatherHash` + `motherHash` references
 - **Multi-Version Support**: Each person can have multiple verified data versions with provenance tracking
 - **Zero-Knowledge Integration**: Groth16 proof system for privacy-preserving data submission
 
@@ -131,7 +131,7 @@ struct StoryMetadata {
 
 **Key Storage Mappings**:
 ```solidity
-// Core genealogy data
+// Core family tree data
 mapping(bytes32 => PersonVersion[]) public personVersions;
 mapping(bytes32 => mapping(bytes32 => bool)) public versionExists;
 mapping(bytes32 => mapping(address => uint256)) public endorsedVersionIndex;
@@ -276,7 +276,7 @@ uint256 public constant FIXED_LENGTH = 100_000_000;
 - **Layer 2 Integration**: Planned deployment to Polygon, Arbitrum, Optimism
 - **IPFS Integration**: Decentralized storage for rich biographical content
 - **Graph Protocol**: Advanced indexing for complex genealogical queries
-- **Mobile Application**: React Native app for mobile-first genealogy experience
+- **Mobile Application**: React Native app for mobile-first family tree experience
 
 ## 🔧 Development Infrastructure
 
@@ -305,7 +305,7 @@ uint256 public constant FIXED_LENGTH = 100_000_000;
 ### **Technical Advantages**
 - **Privacy by Design**: Hash-based storage with optional ZK proof integration
 - **Economic Sustainability**: Self-reinforcing incentive loops drive quality and participation
-- **Scalable Data Model**: Multi-version system supports diverse cultural genealogy practices
+- **Scalable Data Model**: Multi-version system supports diverse cultural family tree practices
 - **Immutable Heritage**: Blockchain guarantees permanent data preservation
 
 ### **User Experience**

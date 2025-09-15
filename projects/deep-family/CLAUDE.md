@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-DeepFamily is a blockchain-based decentralized global digital genealogy protocol. Leveraging blockchain technology, NFTs, ERC20 token economics, and community governance, it creates a collaborative, verifiable, perpetual, and globally shared family history recording system.
+DeepFamily is a blockchain-based decentralized global digital family tree protocol. Leveraging blockchain technology, NFTs, ERC20 token economics, and community governance, it creates a collaborative, verifiable, perpetual, and globally shared family history recording system.
 
 
 ## Dual-Layer Architecture Design
@@ -11,8 +11,8 @@ The system adopts a dual-layer architecture that balances privacy protection wit
 
 #### Layer 1: Privacy Protection Layer (Relational Data)
 - **Hash Storage Mechanism**: Only hash values of personal information are stored on-chain, with original sensitive data kept off-chain
-- **Relationship Establishment**: Build genealogical relationship networks through `personHash`, `fatherHash`, and `motherHash`
-- **Low-Barrier Participation**: Anyone can safely contribute genealogical data without privacy leakage risks
+- **Relationship Establishment**: Build family tree relationship networks through `personHash`, `fatherHash`, and `motherHash`
+- **Low-Barrier Participation**: Anyone can safely contribute family tree data without privacy leakage risks
 - **Token Incentives**: Receive DEEP tokens for each `addPerson()` operation, encouraging data contribution
 
 #### Layer 2: Value Confirmation Layer (NFT Assets)
@@ -45,7 +45,7 @@ The system adopts a dual-layer architecture that balances privacy protection wit
 
 #### Data Management
 - **Multi-Version System**: Each person supports multiple data versions (indexed from 1) with duplicate prevention
-- **Family Relationships**: Complete genealogical networks through personHash/fatherHash/motherHash with version references
+- **Family Relationships**: Complete family tree networks through personHash/fatherHash/motherHash with version references
 - **Name Indexing**: Hash-based reverse indexing for rapid person discovery
 
 #### Privacy & Security

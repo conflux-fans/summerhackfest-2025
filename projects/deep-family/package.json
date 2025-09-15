@@ -1,7 +1,7 @@
 {
   "name": "deepfamily",
   "version": "1.0.0",
-  "description": "DeepFamily - Decentralized Global Genealogy Protocol",
+  "description": "DeepFamily - Decentralized Global Family Tree Protocol",
   "main": "index.js",
   "scripts": {
     "setup": "npm install && npm --prefix frontend install",

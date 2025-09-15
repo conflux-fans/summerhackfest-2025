@@ -196,7 +196,7 @@ function endorseVersion(bytes32 personHash, uint256 versionIndex) external {
 - **Attack Resistance**: Multiple economic barriers prevent abuse and gaming
 
 ### **Global Impact Potential**
-- **Democratized Genealogy**: Economic incentives make global family history accessible
+- **Democratized Family tree**: Economic incentives make global family history accessible
 - **Cultural Preservation**: Token rewards encourage documentation of family stories
-- **Community Building**: Shared economic interests unite global genealogy community
+- **Community Building**: Shared economic interests unite global family tree community
 - **Historical Legacy**: Blockchain permanence ensures intergenerational knowledge transfer

@@ -2,7 +2,7 @@
 
 ## 🏛️ DeepFamily.sol (1,384 lines) - Core Protocol Contract
 
-**Description**: The main genealogy protocol contract implementing multi-version person management, community endorsement system, NFT minting, and story sharding functionality.
+**Description**: The main family tree protocol contract implementing multi-version person management, community endorsement system, NFT minting, and story sharding functionality.
 
 ### 🔧 Critical Constants
 
@@ -130,7 +130,7 @@ struct StoryMetadata {
 
 ## 🪙 DeepFamilyToken.sol (201 lines) - DEEP ERC20 Mining Token
 
-**Description**: Standard ERC20 token with progressive halving mining mechanics, designed for genealogy protocol incentives.
+**Description**: Standard ERC20 token with progressive halving mining mechanics, designed for family tree protocol incentives.
 
 ### 🔢 Economic Constants
 

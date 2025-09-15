@@ -8,7 +8,7 @@
 [![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react)](https://reactjs.org/)
 [![Node](https://img.shields.io/badge/Node.js-18+-green?style=for-the-badge&logo=node.js)](https://nodejs.org/)
 
-**A blockchain-based decentralized global digital genealogy protocol**
+**A blockchain-based decentralized global digital family tree protocol**
 *Leveraging NFTs, ERC20 tokenomics, and community governance for collaborative family history*
 
 [🚀 Quick Start](#-quick-start) • [📖 Documentation](#-documentation) • [🎯 Core Features](#-core-features) • [🏗️ Architecture](#️-architecture) • [🚀 Deployment](#-deployment) • [🤝 Contributing](#-contributing)
@@ -19,7 +19,7 @@
 
 ## 🌟 Vision & Mission
 
-DeepFamily creates the world's first decentralized genealogy infrastructure, combining blockchain immutability with privacy-preserving technology to build a collaborative, verifiable, and perpetual family history recording system.
+DeepFamily creates the world's first decentralized family tree infrastructure, combining blockchain immutability with privacy-preserving technology to build a collaborative, verifiable, and perpetual family history recording system.
 
 ### 🎯 Core Principles
 - 🔐 **Privacy-Preserving**: Dual-layer architecture with hash-based storage and zero-knowledge proofs
@@ -27,7 +27,7 @@ DeepFamily creates the world's first decentralized genealogy infrastructure, com
 - 💎 **Immutable Heritage**: Permanent on-chain storage ensures data preservation across generations
 - 💰 **Incentivized Participation**: DEEP token rewards encourage quality contributions and family completeness
 - 🤝 **Community-Driven**: Endorsement-based governance validates information quality and builds trust
-- 🏗️ **Scalable Design**: Multi-version data model supports diverse cultural genealogy traditions
+- 🏗️ **Scalable Design**: Multi-version data model supports diverse cultural family tree traditions
 
 ## 🎯 Core Features
 
@@ -73,7 +73,7 @@ The system implements a sophisticated dual-layer architecture that balances priv
 
 #### **Layer 1: Privacy Protection (Hash-Based Relationships)**
 - **Hash Storage**: Only keccak256 hashes of personal information stored on-chain
-- **Relationship Networks**: Build genealogical connections through `personHash`, `fatherHash`, `motherHash`
+- **Relationship Networks**: Build family tree connections through `personHash`, `fatherHash`, `motherHash`
 - **Low-Barrier Entry**: Safe participation without privacy risks
 - **Token Incentives**: DEEP rewards for complete family data contributions
 
@@ -116,7 +116,7 @@ DeepFamily Contract Ecosystem
 ```
 DeepFamily/
 ├── contracts/              # Smart Contracts (Solidity)
-│   ├── DeepFamily.sol         # Main genealogy contract
+│   ├── DeepFamily.sol         # Main family tree contract
 │   ├── DeepFamilyToken.sol    # DEEP ERC20 token
 │   └── PersonHashVerifier.sol # ZK proof verifier
 ├── frontend/               # React dApp

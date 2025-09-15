@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @title DeepFamily Token (DEEP)
- * @dev Genealogy mining token contract - Standard ERC20 token
+ * @dev Family tree mining token contract - Standard ERC20 token
  *
  * Core Features:
  * - Standard ERC20 compatible, supports wallets and DEX
