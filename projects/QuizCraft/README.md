@@ -183,11 +183,19 @@ sequenceDiagram
    ```
 
 3. **Environment setup**
-   ```bash
-   cp .env.example .env.local
+  
+    create  .env.local and copy all these 
    # Add your OpenAI API key
+
+   ```
+
+    NEXT_PUBLIC_SUPABASE_UR = "your-api-key-here"
+
+   NEXT_PUBLIC_SUPABASE_ANON_KEY= "your-api-key-here"
+
    OPENAI_API_KEY="your-api-key-here"
    ```
+   
 
 4. **Run development server**
    ```bash
