@@ -77,14 +77,29 @@ graph TB
 - **Treasury Management**: Secure fund allocation and tracking
 - **Member Management**: Role-based access and permissions
 
-### 🤖 **AI-Powered Features** ---->(New In this hackathon )
+### 🤖 **AI-Powered Features** ---> (New In this hackathon )
 
-- **Smart Proposal Analysis**: AI evaluates proposals on 6 key criteria
-- **Voting Recommendations**: AI suggests YES/NO/ABSTAIN with reasoning
-- **Market Analysis**: Real-time market insights and trends
-- **AI Chat Assistant**: Interactive support for DAO operations
-- **Investment Analysis**: Risk assessment and investment recommendations
-- **Predictive Analytics**: Success probability predictions
+- **Smart Proposal Analysis**  
+  AI evaluates proposals on six key criteria such as clarity, feasibility, funding validity, ROI potential, and risk.  
+
+- **Proposal Suggestions**  
+  Automatically detects missing details and provides improvement recommendations with one-click integration into the proposal description.  
+
+- **Voting Recommendations**  
+  AI suggests **YES / NO / ABSTAIN** votes with clear reasoning based on proposal quality and risk analysis.  
+
+- **Market Analysis**  
+  Real-time insights into market conditions, token performance, and trends, powered by AI.  
+
+- **Investment Analysis**  
+  Comprehensive risk assessment and tailored investment recommendations for DAO members.  
+
+- **Predictive Analytics**  
+  AI-driven success probability predictions to help members make informed decisions.  
+
+- **AI Chat Assistant**  
+  Interactive assistant to guide members on DAO operations, including creating proposals, joining clubs, and understanding the voting process.  
+
 
 ### 🔗 **Blockchain Integration**
 - **Conflux eSpace Testnet**: Fast, secure, and energy-efficient
@@ -187,38 +202,8 @@ npx hardhat verify --network confluxTestnet YOUR_CONTRACT_ADDRESS
 npx hardhat test
 ```
 
-## 🔧 Troubleshooting
 
-### Common Issues
 
-#### Smart Contract Deployment Issues
-```bash
-# If you get "insufficient funds" error
-# Make sure you have enough CFX tokens in your wallet
-
-# If you get "network not found" error
-# Check your hardhat.config.js network configuration
-
-# If deployment fails, try:
-npx hardhat clean
-npx hardhat compile
-npx hardhat run scripts/deploy.js --network confluxTestnet
-```
-
-#### Frontend Issues
-```bash
-# If you get "AIProposalSuggestions is not defined" error
-# Restart the development server:
-npm start
-
-# If AI features don't work
-# Check your .env file has the correct OpenAI API key:
-REACT_APP_OPENAI_API_KEY=your-actual-api-key-here
-
-# Clear cache if needed:
-rm -rf node_modules/.cache
-npm start
-```
 
 #### Wallet Connection Issues
 - Ensure MetaMask is installed and unlocked
@@ -287,32 +272,7 @@ npm start
 - **Custom AI Service** - Proposal analysis and recommendations
 - **RESTful API** - AI service communication
 
-### Database & Storage
-- **IPFS** - Decentralized file storage for proposal documents
-- **Blockchain** - On-chain data storage for proposals and votes
-- **Local Storage** - Client-side data persistence
 
-## 🔧 Smart Contract Details
-
-### InvestmentClub Contract
-- **Club Management**: Create, join, and manage investment clubs
-- **Proposal System**: Submit, vote on, and execute proposals
-- **Treasury Management**: Secure fund allocation and tracking
-- **Governance**: Decentralized decision-making mechanisms
-
-### Key Functions
-```solidity
-// Core Club Functions
-function createClub(string memory name) external
-function joinClub(uint256 clubId) external payable
-function leaveClub(uint256 clubId) external
-
-// Proposal Functions
-function createProposal(uint256 clubId, uint256 amount, address destination, string memory description, string memory cid) external
-function voteOnProposal(uint256 clubId, uint256 proposalId, bool inSupport) external
-function executeProposal(uint256 clubId, uint256 proposalId) external
-function closeProposal(uint256 clubId, uint256 proposalId) external
-```
 
 
 ## 🤖 AI Features
