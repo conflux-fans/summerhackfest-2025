@@ -15,7 +15,6 @@ It enables NFT projects on Conflux to access the **$15.54B TVL liquidity on Base
 
 The project demonstrates how **LayerZero-powered interoperability** can unlock new opportunities for NFT projects.  
 
-**Note :** The NFT mint was not showcased in demo video because it is not considered a reliable feature and was only created to test bridging NFTs that have no value to avoid loss.
 
 ⚠️ This is **not production-ready**:
 - Metadata is not yet passed between chains  
