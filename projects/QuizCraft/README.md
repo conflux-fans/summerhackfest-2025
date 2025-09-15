@@ -11,10 +11,15 @@
 
 ## 🎯 Live Demo
 
-🌐 **Live Application**: [https://quiz-craft-vjl5.vercel.app/](https://quiz-craft-sepia.vercel.app/)
+🌐 **Live Application**: [https://quiz-craft-sepia.vercel.app/](https://quiz-craft-sepia.vercel.app/)
 
 📱 **Testnet**: Conflux eSpace Testnet  
-🔗 **Contract**: [View on ConfluxScan](https://evmtestnet.confluxscan.org/)
+🔗 **Contract**: [View on ConfluxScan](https://evmtestnet.confluxscan.org/address/0x265d173c6f715cd0c6d36b29724420d0fa85252b)
+
+🎥 **Demo Video**: https://youtu.be/HkK0XixoCOc
+
+💻 **Original Repository**: https://github.com/Vikash-8090-Yadav/QuizCraft
+
 
 ## 🚀 Problem & Solution
 
