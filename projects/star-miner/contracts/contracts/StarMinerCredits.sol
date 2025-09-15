@@ -72,11 +72,11 @@ contract StarMinerCredits is ERC20, Ownable, ReentrancyGuard, Pausable {
     }
     
     /**
-     * @dev Deposit Stardust for P2E rewards calculation
+     * @dev Set Stardust balance for P2E rewards calculation
      * Called by GameStateManager contract
      */
     function depositStardust(address user, uint256 amount) external onlyAuthorized {
-        stardustBalance[user] += amount;
+        stardustBalance[user] = amount;
         emit StardustDeposited(user, amount, block.timestamp);
     }
     

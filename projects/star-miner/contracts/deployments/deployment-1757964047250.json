@@ -1,0 +1,15 @@
+{
+  "network": "testnet",
+  "timestamp": "2025-09-15T19:20:47.250Z",
+  "deployer": "0xC3686C35a5E2E7c4c0960f92Acc0cDE9CbD59DFA",
+  "contracts": {
+    "StarMinerCredits": "0x7e77dbDe1c53453FD493aC05E7bcA703E1b96ce2",
+    "GameStateManager": "0x68AF8f0Ba0359dca0690F16Fe8F481Fc620b6884",
+    "P2ERewards": "0x36c0028112fC9786b13d81B8a6Be8eA021d584Ba"
+  },
+  "transactionHashes": {
+    "StarMinerCredits": "0x379dbe36cfaf699594d8e99fb531655758c878324849c709b9974366f91e6463",
+    "GameStateManager": "0x912a6da2ffac3d2c2297843d4a03042377db39b2967405c5a87f1dafba0f6668",
+    "P2ERewards": "0x93008e4a45b39e16a7e9f33742ad9ff99aa46572d129fe640e57721dc9238578"
+  }
+}

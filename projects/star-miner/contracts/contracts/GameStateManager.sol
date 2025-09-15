@@ -226,9 +226,9 @@ contract GameStateManager is Ownable, ReentrancyGuard {
             highestStardustPerSecond[msg.sender] = stardustPerSecond;
         }
         
-        // Deposit stardust for P2E rewards
-        if (idleRewards > 0) {
-            creditsContract.depositStardust(msg.sender, idleRewards);
+        // Deposit total stardust for P2E rewards (not just idle rewards)
+        if (player.stardust > 0) {
+            creditsContract.depositStardust(msg.sender, player.stardust);
         }
         
         emit GameStateSaved(msg.sender, player.stardust, player.stardustPerSecond, block.timestamp);
@@ -522,9 +522,9 @@ contract GameStateManager is Ownable, ReentrancyGuard {
             highestStardustPerSecond[msg.sender] = stardustPerSecond;
         }
         
-        // Deposit stardust for P2E rewards
-        if (idleRewards > 0) {
-            creditsContract.depositStardust(msg.sender, idleRewards);
+        // Deposit total stardust for P2E rewards (not just idle rewards)
+        if (player.stardust > 0) {
+            creditsContract.depositStardust(msg.sender, player.stardust);
         }
         
         emit GameStateSaved(msg.sender, player.stardust, player.stardustPerSecond, block.timestamp);
