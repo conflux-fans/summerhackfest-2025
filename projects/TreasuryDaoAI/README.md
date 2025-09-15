@@ -4,14 +4,14 @@ A decentralized autonomous organization (DAO) platform with integrated AI capabi
 
 ## 🎯 Live Demo
 
-🌐 **Live Application**: [https://quiz-craft-sepia.vercel.app/](https://quiz-craft-sepia.vercel.app/)
+🌐 **Live Application**: https://treasury-dao-ai.vercel.app/
 
 📱 **Testnet**: Conflux eSpace Testnet  
 🔗 **Contract**: [View on ConfluxScan](https://evmtestnet.confluxscan.org/address/0x45E1E9ED173E47B4894ccCd3bCc9271522e6cfd2)
 
 🎥 **Demo Video**:  https://youtu.be/TERyY8ot5uM
 
-💻 **Original Repository**: 
+💻 **Original Repository**:  https://github.com/Vikash-8090-Yadav/TreasuryDaoAI
 
 
 
