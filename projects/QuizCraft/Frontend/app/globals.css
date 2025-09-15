@@ -1,0 +1,276 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Custom Toast Animations */
+@keyframes slide-in-from-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-out-to-right {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Toast specific animations */
+[data-state="open"][data-swipe="move"] {
+  animation: slide-in-from-right 0.3s ease-out;
+}
+
+[data-state="closed"][data-swipe="end"] {
+  animation: slide-out-to-right 0.2s ease-in;
+}
+
+[data-state="open"] {
+  animation: slide-in-from-right 0.3s ease-out;
+}
+
+[data-state="closed"] {
+  animation: slide-out-to-right 0.2s ease-in;
+}
+
+:root {
+  /* Updated color palette for hackathon design - modern gray/indigo theme */
+  --background: oklch(1 0 0); /* #ffffff */
+  --foreground: oklch(0.205 0.014 285.82); /* #1f2937 */
+  --card: oklch(0.985 0.002 247.86); /* #f8fafc */
+  --card-foreground: oklch(0.278 0.015 252.37); /* #374151 */
+  --popover: oklch(1 0 0); /* #ffffff */
+  --popover-foreground: oklch(0.205 0.014 285.82); /* #1f2937 */
+  --primary: oklch(0.278 0.015 252.37); /* #374151 */
+  --primary-foreground: oklch(1 0 0); /* #ffffff */
+  --secondary: oklch(0.627 0.194 271.75); /* #6366f1 */
+  --secondary-foreground: oklch(1 0 0); /* #ffffff */
+  --muted: oklch(0.985 0.002 247.86); /* #f8fafc */
+  --muted-foreground: oklch(0.205 0.014 285.82); /* #1f2937 */
+  --accent: oklch(0.627 0.194 271.75); /* #6366f1 */
+  --accent-foreground: oklch(1 0 0); /* #ffffff */
+  --destructive: oklch(0.577 0.245 27.325); /* #be123c */
+  --destructive-foreground: oklch(1 0 0); /* #ffffff */
+  --border: oklch(0.922 0.013 253.29); /* #e5e7eb */
+  --input: oklch(0.985 0.002 247.86); /* #f8fafc */
+  --ring: oklch(0.627 0.194 271.75); /* #6366f1 */
+  --chart-1: oklch(0.646 0.222 41.116); /* #d97706 */
+  --chart-2: oklch(0.577 0.245 27.325); /* #be123c */
+  --chart-3: oklch(0.627 0.194 271.75); /* #6366f1 */
+  --chart-4: oklch(0.646 0.222 41.116); /* #d97706 */
+  --chart-5: oklch(0.205 0.014 285.82); /* #1f2937 */
+  --radius: 0.5rem;
+  --sidebar: oklch(0.985 0.002 247.86); /* #f8fafc */
+  --sidebar-foreground: oklch(0.205 0.014 285.82); /* #1f2937 */
+  --sidebar-primary: oklch(0.278 0.015 252.37); /* #374151 */
+  --sidebar-primary-foreground: oklch(1 0 0); /* #ffffff */
+  --sidebar-accent: oklch(0.627 0.194 271.75); /* #6366f1 */
+  --sidebar-accent-foreground: oklch(1 0 0); /* #ffffff */
+  --sidebar-border: oklch(0.922 0.013 253.29); /* #e5e7eb */
+  --sidebar-ring: oklch(0.627 0.194 271.75); /* #6366f1 */
+}
+
+.dark {
+  /* Enhanced dark mode colors for better contrast and modern look */
+  --background: oklch(0.145 0.007 285.82); /* #0f172a */
+  --foreground: oklch(0.985 0.002 247.86); /* #f8fafc */
+  --card: oklch(0.205 0.014 285.82); /* #1e293b */
+  --card-foreground: oklch(0.985 0.002 247.86); /* #f8fafc */
+  --popover: oklch(0.205 0.014 285.82); /* #1e293b */
+  --popover-foreground: oklch(0.985 0.002 247.86); /* #f8fafc */
+  --primary: oklch(0.627 0.194 271.75); /* #6366f1 */
+  --primary-foreground: oklch(1 0 0); /* #ffffff */
+  --secondary: oklch(0.334 0.018 252.37); /* #475569 */
+  --secondary-foreground: oklch(0.985 0.002 247.86); /* #f8fafc */
+  --muted: oklch(0.269 0.015 285.82); /* #334155 */
+  --muted-foreground: oklch(0.708 0.013 253.29); /* #94a3b8 */
+  --accent: oklch(0.627 0.194 271.75); /* #6366f1 */
+  --accent-foreground: oklch(1 0 0); /* #ffffff */
+  --destructive: oklch(0.577 0.245 27.325); /* #be123c */
+  --destructive-foreground: oklch(1 0 0); /* #ffffff */
+  --border: oklch(0.334 0.018 252.37); /* #475569 */
+  --input: oklch(0.269 0.015 285.82); /* #334155 */
+  --ring: oklch(0.627 0.194 271.75); /* #6366f1 */
+  --chart-1: oklch(0.646 0.222 41.116); /* #d97706 */
+  --chart-2: oklch(0.577 0.245 27.325); /* #be123c */
+  --chart-3: oklch(0.627 0.194 271.75); /* #6366f1 */
+  --chart-4: oklch(0.646 0.222 41.116); /* #d97706 */
+  --chart-5: oklch(0.985 0.002 247.86); /* #f8fafc */
+  --sidebar: oklch(0.145 0.007 285.82); /* #0f172a */
+  --sidebar-foreground: oklch(0.985 0.002 247.86); /* #f8fafc */
+  --sidebar-primary: oklch(0.627 0.194 271.75); /* #6366f1 */
+  --sidebar-primary-foreground: oklch(1 0 0); /* #ffffff */
+  --sidebar-accent: oklch(0.334 0.018 252.37); /* #475569 */
+  --sidebar-accent-foreground: oklch(0.985 0.002 247.86); /* #f8fafc */
+  --sidebar-border: oklch(0.334 0.018 252.37); /* #475569 */
+  --sidebar-ring: oklch(0.627 0.194 271.75); /* #6366f1 */
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Added custom animations and effects for hackathon appeal */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(99, 102, 241, 0.6);
+  }
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease infinite;
+}
+
+.glass-effect {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dark .glass-effect {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Winner text styling for better contrast and visibility */
+.winner-text {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  font-weight: 700;
+}
+
+.winner-address {
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.05em;
+  background: linear-gradient(135deg, #1f2937, #374151);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.winner-prize {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.dark .winner-address {
+  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark .winner-prize {
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
