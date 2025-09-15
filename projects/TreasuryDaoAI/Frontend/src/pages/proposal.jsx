@@ -358,10 +358,18 @@ function Proposal() {
   
   // Function to extract proposal data for AI analysis
   const getProposalDataForAI = () => {
-    const description = $('.proposal_description').text();
-    const amount = $('#proposal_amount').text();
-    const destination = $('#proposal_destination').text();
+    const description = $('.proposal_description').text().trim();
+    const amount = $('#proposal_amount').text().trim();
+    const destination = $('#proposal_destination').text().trim();
     const clubId = localStorage.getItem('clubId');
+    
+    // Log extracted data for debugging
+    console.log('📋 Extracted proposal data:', {
+      description: description || 'No description available',
+      amount: amount || '0',
+      destination: destination || 'Unknown',
+      clubId: clubId || '1'
+    });
     
     return {
       description: description || 'No description available',
