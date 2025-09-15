@@ -1,0 +1,58 @@
+version: 2
+updates:
+  # Update npm dependencies for all packages
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    versioning-strategy: "increase"
+    groups:
+      dependencies:
+        patterns:
+          - "*"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  # Update npm dependencies for each package in the monorepo
+  - package-ecosystem: "npm"
+    directory: "/packages/cli"
+    schedule:
+      interval: "weekly"
+    versioning-strategy: "increase"
+
+  - package-ecosystem: "npm"
+    directory: "/packages/common"
+    schedule:
+      interval: "weekly"
+    versioning-strategy: "increase"
+
+  - package-ecosystem: "npm"
+    directory: "/packages/contract"
+    schedule:
+      interval: "weekly"
+    versioning-strategy: "increase"
+
+  - package-ecosystem: "npm"
+    directory: "/packages/sdk"
+    schedule:
+      interval: "weekly"
+    versioning-strategy: "increase"
+
+  - package-ecosystem: "npm"
+    directory: "/packages/web"
+    schedule:
+      interval: "weekly"
+    versioning-strategy: "increase"
+
+  - package-ecosystem: "npm"
+    directory: "/packages/web-minimal"
+    schedule:
+      interval: "weekly"
+    versioning-strategy: "increase"
+
+  # Update GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"

@@ -1,0 +1,41 @@
+{
+  "name": "@chainbrawler/core",
+  "version": "0.1.0",
+  "description": "Core business logic for ChainBrawler - environment agnostic",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "test": "vitest --run",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage --run",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
+    "check": "biome check .",
+    "check:fix": "biome check --write .",
+    "generate": "wagmi generate",
+    "generate:addresses": "tsx scripts/generate-addresses.ts",
+    "generate:errors": "tsx scripts/generate-error-codes.ts",
+    "generate:all": "npm run generate && npm run generate:addresses && npm run generate:errors"
+  },
+  "dependencies": {
+    "viem": "^2.37.5",
+    "zustand": "^4.4.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4",
+    "@wagmi/cli": "^2.0.0",
+    "wagmi": "^2.0.0",
+    "tsx": "^4.7.0",
+    "@types/node": "^20.19.14"
+  },
+  "peerDependencies": {
+    "viem": "^2.37.5"
+  },
+  "license": "Apache-2.0"
+}

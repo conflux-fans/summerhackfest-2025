@@ -1,0 +1,24 @@
+{
+  "extends": "solhint:recommended",
+  "rules": {
+    "avoid-suicide": "error",
+    "avoid-sha3": "warn",
+    "avoid-tx-origin": "warn",
+    "check-send-result": "error",
+    "compiler-version": ["error", "^0.8.0"],
+    "constructor-syntax": "error",
+    "func-visibility": "warn",
+    "max-line-length": ["warn", 150],
+    "no-console": "warn",
+    "no-empty-blocks": "warn",
+    "no-inline-assembly": "warn",
+    "no-unused-vars": "error",
+    "payable-fallback": "warn",
+    "reason-string": "warn",
+    "visibility-modifier-order": "error"
+  },
+  "excludedFiles": [
+    "contracts/test/**/*.sol",
+    "contracts/testHelpers/**/*.sol"
+  ]
+}

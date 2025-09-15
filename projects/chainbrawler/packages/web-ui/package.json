@@ -1,0 +1,44 @@
+{
+  "name": "@chainbrawler/web-ui",
+  "version": "1.0.0",
+  "description": "ChainBrawler Web UI Application",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev-simple": "vite --config vite.config-simple.ts",
+    "build": "tsc && vite build",
+    "clean": "rm -rf dist",
+    "preview": "vite preview",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
+    "check": "biome check .",
+    "check:fix": "biome check --write .",
+    "check-module": "node scripts/check-module.cjs"
+  },
+  "dependencies": {
+    "@chainbrawler/core": "workspace:*",
+    "@chainbrawler/react": "workspace:*",
+    "@mantine/core": "^7.5.0",
+    "@mantine/hooks": "^7.5.0",
+    "@mantine/modals": "^7.5.0",
+    "@mantine/notifications": "^7.5.0",
+    "@tabler/icons-react": "^2.47.0",
+    "@tanstack/react-query": "^5.87.4",
+    "connectkit": "^1.9.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.0.0",
+    "viem": "^2.0.0",
+    "wagmi": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.37",
+    "@types/react-dom": "^18.2.15",
+    "@vitejs/plugin-react": "^4.1.1",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.0"
+  },
+  "license": "Apache-2.0"
+}

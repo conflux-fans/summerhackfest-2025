@@ -1,0 +1,45 @@
+{
+  "name": "@chainbrawler/react",
+  "version": "0.1.0",
+  "description": "React adapter for ChainBrawler - hooks, context, and components",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "test": "vitest --run",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage --run",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
+    "check": "biome check .",
+    "check:fix": "biome check --write ."
+  },
+  "dependencies": {
+    "@chainbrawler/core": "workspace:*",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.28.0",
+    "@wagmi/core": "^2.12.2"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "viem": "^2.37.5"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4",
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.1",
+    "@testing-library/react": "^14.1.2",
+    "@testing-library/jest-dom": "^6.1.5",
+    "@testing-library/user-event": "^14.5.1",
+    "jsdom": "^23.0.1",
+    "@vitejs/plugin-react": "^4.2.1"
+  },
+  "license": "Apache-2.0"
+}
