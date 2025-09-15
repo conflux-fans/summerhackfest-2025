@@ -1,4 +1,4 @@
-# 🧠 QuizCraft AI - Conflux Hackathon Submission
+# 🧠 QuizCraft AI - Conflux Hackathon Submission 
 
 [![Conflux](https://img.shields.io/badge/Conflux-eSpace-blue)](https://confluxnetwork.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-15.2.4-black)](https://nextjs.org/)
@@ -19,6 +19,11 @@
 🎥 **Demo Video**: https://youtu.be/HkK0XixoCOc
 
 💻 **Original Repository**: https://github.com/Vikash-8090-Yadav/QuizCraft
+
+
+## I am using supabse to store the players score... May be u will find some glitch in pvp  due to rendering of contnious fetching from the server .. :)
+
+<img width="1474" height="717" alt="Screenshot 2025-09-15 at 08 09 40" src="https://github.com/user-attachments/assets/97e629d5-ea78-4f3f-950c-82a2e1aefcfd" />
 
 
 ## 🚀 Problem & Solution
@@ -178,11 +183,19 @@ sequenceDiagram
    ```
 
 3. **Environment setup**
-   ```bash
-   cp .env.example .env.local
+  
+    create  .env.local and copy all these 
    # Add your OpenAI API key
+
+   ```
+
+    NEXT_PUBLIC_SUPABASE_UR = "your-api-key-here"
+
+   NEXT_PUBLIC_SUPABASE_ANON_KEY= "your-api-key-here"
+
    OPENAI_API_KEY="your-api-key-here"
    ```
+   
 
 4. **Run development server**
    ```bash
@@ -324,11 +337,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Next.js & Vercel** for seamless deployment
 - **Hackathon Community** for inspiration and support
 
-## 📞 Contact
 
-- **GitHub**: [@Vikash-8090-Yadav](https://github.com/Vikash-8090-Yadav)
-- **Project Link**: [https://github.com/Vikash-8090-Yadav/QuizCraft](https://github.com/Vikash-8090-Yadav/QuizCraft)
-- **Live Demo**: [https://quiz-craft-vjl5.vercel.app/](https://quiz-craft-vjl5.vercel.app/)
 
 ---
 
