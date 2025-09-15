@@ -2,6 +2,72 @@
 
 A decentralized autonomous organization (DAO) platform with integrated AI capabilities for intelligent governance, proposal analysis, and investment decision-making. Built on Conflux eSpace testnet with advanced AI features powered by OpenAI.
 
+
+## 🎯 Live Demo
+
+🌐 **Live Application**: https://treasury-dao-ai.vercel.app/
+
+📱 **Testnet**: Conflux eSpace Testnet  
+🔗 **Contract**: [View on ConfluxScan](https://evmtestnet.confluxscan.org/address/0x45E1E9ED173E47B4894ccCd3bCc9271522e6cfd2)
+
+🎥 **Demo Video**:  https://youtu.be/TERyY8ot5uM
+
+💻 **Original Repository**:  https://github.com/Vikash-8090-Yadav/TreasuryDaoAI
+
+
+
+
+## 📊 Project Workflow
+
+```mermaid
+graph TB
+    A[User Connects Wallet] --> B[Access DAO Dashboard]
+    B --> C{Choose Action}
+    
+    C -->|Create Club| D[Create Investment Club]
+    C -->|Join Club| E[Browse Available Clubs]
+    C -->|Create Proposal| F[Proposal Creation Form]
+    C -->|View Proposals| G[Proposal List]
+    
+    D --> H[Club Created on Blockchain]
+    E --> I[Join Club with Membership Fee]
+    
+    F --> J[Fill Proposal Details]
+    J --> K[AI Analysis & Suggestions]
+    K --> L[Apply AI Improvements]
+    L --> M[Submit Proposal to Blockchain]
+    
+    G --> N[View Proposal Details]
+    N --> O[AI Proposal Analysis]
+    O --> P[AI Voting Recommendation]
+    P --> Q[Cast Vote on Blockchain]
+    
+    M --> R[Proposal Active for Voting]
+    Q --> S{Voting Period Ends}
+    S -->|Passed| T[Execute Proposal]
+    S -->|Failed| U[Close Proposal]
+    
+    T --> V[Funds Transferred]
+    U --> W[Proposal Rejected]
+    
+    H --> X[Club Treasury Management]
+    I --> X
+    V --> X
+    W --> X
+    
+    X --> Y[Track Performance & Analytics]
+    Y --> Z[AI Market Analysis]
+    Z --> AA[Generate Reports]
+    
+    style A fill:#e1f5fe
+    style K fill:#fff3e0
+    style O fill:#fff3e0
+    style P fill:#fff3e0
+    style Z fill:#fff3e0
+    style T fill:#e8f5e8
+    style U fill:#ffebee
+```
+
 ## 🌟 Features
 
 ### 🏛️ **Core DAO Functionality**
@@ -11,14 +77,29 @@ A decentralized autonomous organization (DAO) platform with integrated AI capabi
 - **Treasury Management**: Secure fund allocation and tracking
 - **Member Management**: Role-based access and permissions
 
-### 🤖 **AI-Powered Features** (New In this hackathon )
+### 🤖 **AI-Powered Features** ---> (New In this hackathon )
 
-- **Smart Proposal Analysis**: AI evaluates proposals on 6 key criteria
-- **Voting Recommendations**: AI suggests YES/NO/ABSTAIN with reasoning
-- **Market Analysis**: Real-time market insights and trends
-- **AI Chat Assistant**: Interactive support for DAO operations
-- **Investment Analysis**: Risk assessment and investment recommendations
-- **Predictive Analytics**: Success probability predictions
+- **Smart Proposal Analysis**  
+  AI evaluates proposals on six key criteria such as clarity, feasibility, funding validity, ROI potential, and risk.  
+
+- **Proposal Suggestions**  
+  Automatically detects missing details and provides improvement recommendations with one-click integration into the proposal description.  
+
+- **Voting Recommendations**  
+  AI suggests **YES / NO / ABSTAIN** votes with clear reasoning based on proposal quality and risk analysis.  
+
+- **Market Analysis**  
+  Real-time insights into market conditions, token performance, and trends, powered by AI.  
+
+- **Investment Analysis**  
+  Comprehensive risk assessment and tailored investment recommendations for DAO members.  
+
+- **Predictive Analytics**  
+  AI-driven success probability predictions to help members make informed decisions.  
+
+- **AI Chat Assistant**  
+  Interactive assistant to guide members on DAO operations, including creating proposals, joining clubs, and understanding the voting process.  
+
 
 ### 🔗 **Blockchain Integration**
 - **Conflux eSpace Testnet**: Fast, secure, and energy-efficient
@@ -33,6 +114,7 @@ A decentralized autonomous organization (DAO) platform with integrated AI capabi
 - npm or yarn
 - MetaMask or compatible Web3 wallet
 - Conflux testnet CFX tokens
+- Hardhat (for smart contract deployment)
 
 ### Installation
 
@@ -42,25 +124,92 @@ A decentralized autonomous organization (DAO) platform with integrated AI capabi
    cd TreasuryDaoAI
    ```
 
-2. **Install dependencies**
+2. **Install Frontend dependencies**
    ```bash
    cd Frontend
    npm install
    ```
 
-3. **Set up environment variables**
+3. **Install Smart Contract dependencies**
+   ```bash
+   cd Frontend/src/SmartContract
+   npm install
+   ```
+
+4. **Set up environment variables**
    Create a `.env` file in the Frontend directory:
    ```env
    REACT_APP_OPENAI_API_KEY=your-openai-api-key-here
    ```
 
-4. **Start the development server**
+5. **Deploy Smart Contracts** (See Smart Contract Deployment section below)
+
+6. **Start the development server**
    ```bash
+   cd Frontend
    npm start
    ```
 
-5. **Open your browser**
+7. **Open your browser**
    Navigate to `http://localhost:3000`
+
+## 🔧 Smart Contract Deployment
+
+### Prerequisites for Smart Contract
+- Node.js (v14 or higher)
+- npm or yarn
+- Conflux testnet CFX tokens for gas fees
+- Hardhat installed globally: `npm install -g hardhat`
+
+### Deployment Steps
+
+1. **Navigate to Smart Contract directory**
+   ```bash
+   cd Frontend/src/SmartContract
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Configure Hardhat**
+   The `hardhat.config.js` is already configured for Conflux eSpace testnet.
+
+4. **Compile the contracts**
+   ```bash
+   npx hardhat compile
+   ```
+
+5. **Deploy to Conflux eSpace Testnet**
+   ```bash
+   npx hardhat run scripts/deploy.js --network confluxTestnet
+   ```
+
+6. **Update Frontend Configuration**
+   After deployment, update the contract address in `Frontend/src/config.jsx`:
+   ```javascript
+   export const marketplaceAddress = "YOUR_DEPLOYED_CONTRACT_ADDRESS";
+   ```
+
+### Smart Contract Verification
+```bash
+npx hardhat verify --network confluxTestnet YOUR_CONTRACT_ADDRESS
+```
+
+### Testing Smart Contracts
+```bash
+npx hardhat test
+```
+
+
+
+
+#### Wallet Connection Issues
+- Ensure MetaMask is installed and unlocked
+- Switch to Conflux eSpace testnet
+- Make sure you have testnet CFX tokens
+- Try refreshing the page and reconnecting wallet
 
 
 
@@ -103,13 +252,27 @@ A decentralized autonomous organization (DAO) platform with integrated AI capabi
 - Quick question templates
 - Real-time assistance
 
-## 🔧 Smart Contract Details
+## 🏗️ Technical Architecture
 
-### InvestmentClub Contract
-- **Club Management**: Create, join, and manage investment clubs
-- **Proposal System**: Submit, vote on, and execute proposals
-- **Treasury Management**: Secure fund allocation and tracking
-- **Governance**: Decentralized decision-making mechanisms
+### Frontend Stack
+- **React.js** - User interface framework
+- **Bootstrap** - CSS framework for responsive design
+- **Web3.js** - Blockchain interaction
+- **Ethers.js** - Ethereum/Conflux wallet integration
+- **Axios** - HTTP client for API calls
+- **React Toastify** - User notifications
+
+### Smart Contract Stack
+- **Solidity** - Smart contract programming language
+- **Hardhat** - Development environment and testing framework
+- **Conflux eSpace** - EVM-compatible blockchain network
+
+### AI Integration
+- **OpenAI GPT-3.5-turbo** - Natural language processing
+- **Custom AI Service** - Proposal analysis and recommendations
+- **RESTful API** - AI service communication
+
+
 
 
 ## 🤖 AI Features
@@ -154,23 +317,39 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🎯 Roadmap
 
-### Phase 1 (Current)
+### Phase 1 (Completed) ✅
 - ✅ Basic DAO functionality
-- ✅ AI proposal analysis
-- ✅ Voting recommendations
-- ✅ Conflux integration
+- ✅ AI proposal analysis with 6-criteria scoring
+- ✅ AI voting recommendations with confidence levels
+- ✅ Conflux eSpace testnet integration
+- ✅ Smart contract deployment and verification
+- ✅ AI-powered proposal improvement suggestions
+- ✅ Real-time proposal content generation
+- ✅ Interactive AI chat assistant
+- ✅ Market analysis dashboard
 
-### Phase 2 (Planned)
-- 🔄 Advanced AI features
-- 🔄 Mobile app
-- 🔄 Multi-chain support
-- 🔄 Enhanced analytics
+### Phase 2 (In Progress) 🔄
+- 🔄 Advanced AI features (sentiment analysis, proposal similarity detection)
+- 🔄 Mobile-responsive design optimization
+- 🔄 Multi-signature wallet integration
+- 🔄 Enhanced analytics and reporting
+- 🔄 Proposal discussion threads
+- 🔄 Member reputation system
 
-### Phase 3 (Future)
+### Phase 3 (Planned) 📋
 - 📋 Governance token integration
-- 📋 Advanced DeFi features
-- 📋 Cross-chain compatibility
-- 📋 Enterprise features
+- 📋 Advanced DeFi protocol integration
+- 📋 Multi-chain support (Ethereum, Polygon, BSC)
+- 📋 Cross-chain proposal execution
+- 📋 Enterprise-grade security features
+- 📋 Advanced treasury management tools
+
+### Phase 4 (Future) 🚀
+- 🚀 Mobile app (React Native)
+- 🚀 AI-powered automated execution
+- 🚀 Advanced predictive analytics
+- 🚀 Integration with major DeFi protocols
+- 🚀 Cross-DAO collaboration features
 
 #
 
