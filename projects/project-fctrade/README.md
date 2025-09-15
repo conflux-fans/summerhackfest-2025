@@ -1,6 +1,7 @@
 # Conflux Exchange DApp
 
-一个基于Conflux eSpac网的FC代币和CFX的订单薄兑换平台。
+一个基于Conflux eSpac网的FC代币和CFX的订单薄兑换平台
+        ————已部署在Conflux eSpace上供社区用户使用
 
 ## 功能特性
 
@@ -19,7 +20,7 @@
 
 ### 前端功能
 - **钱包连接**: 支持MetaMask连接
-- **网络切换**: 自动切换到Conflux eSpace测试网
+- **网络切换**: 自动切换到Conflux eSpace网
 - **实时数据**: 显示合约信息、用户余额等
 - **兑换界面**: 直观的兑换操作界面
 - **管理员面板**: 管理员专用功能界面
@@ -61,7 +62,7 @@ cp env.example .env
 2. 编辑 `.env` 文件，添加你的私钥：
 ```
 PRIVATE_KEY=your_private_key_here
-NEXT_PUBLIC_CONFLUX_RPC_URL=https://evmtestnet.confluxrpc.com
+NEXT_PUBLIC_CONFLUX_RPC_URL=https://evm.confluxrpc.com
 ```
 
 ### 编译合约
@@ -85,7 +86,7 @@ NEXT_PUBLIC_ORDERBOOK_CONTRACT_ADDRESS=部署的OrderBook合约地址
 npm run dev
 ```
 
-访问 http://localhost:3000 查看应用。
+访问 http://fctrade.hydrasf.club 查看应用，已部署上线conflux espace，供用户使用。
 
 ## 使用说明
 
@@ -127,7 +128,7 @@ npm run dev
 ## 网络配置
 
 ### Conflux eSpace网
-- **Chain ID**: 71
+- **Chain ID**: 1030
 - **RPC URL**: https://evm.confluxrpc.com
 - **Explorer**: https://evm.confluxscan.io
 - **Currency**: CFX
