@@ -332,8 +332,22 @@ export const GameStateProvider: React.FC<GameStateProviderProps> = ({ children }
 
   // Recalculate rates when upgrades or prestige level changes
   useEffect(() => {
-    recalculateRates();
-  }, [gameState.upgrades, gameState.prestigeLevel, recalculateRates]);
+    const newStardustPerClick = calculateStardustPerClick(gameState);
+    const newStardustPerSecond = calculateStardustPerSecond(gameState);
+    
+    // Only update if rates actually changed to prevent infinite loops
+    if (newStardustPerClick !== gameState.stardustPerClick || newStardustPerSecond !== gameState.stardustPerSecond) {
+      setGameState(prev => {
+        const newState = {
+          ...prev,
+          stardustPerClick: newStardustPerClick,
+          stardustPerSecond: newStardustPerSecond,
+        };
+        saveToStorage(newState);
+        return newState;
+      });
+    }
+  }, [gameState.upgrades, gameState.prestigeLevel, saveToStorage]);
 
   // Idle game loop
   useEffect(() => {

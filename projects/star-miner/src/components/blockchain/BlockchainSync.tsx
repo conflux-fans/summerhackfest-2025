@@ -19,12 +19,13 @@ export default function BlockchainSync({ className = '' }: BlockchainSyncProps) 
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>('idle');
   const [autoSaveEnabled, setAutoSaveEnabled] = useState(false); // Default unchecked
 
-  // Auto-sync when wallet connects
-  useEffect(() => {
-    if (isConnected && playerRegistered && !isSyncing) {
-      handleLoadFromBlockchain();
-    }
-  }, [isConnected, playerRegistered]);
+  // Don't auto-sync on wallet connect to preserve localStorage state
+  // Users can manually sync when they want to load from blockchain
+  // useEffect(() => {
+  //   if (isConnected && playerRegistered && !isSyncing) {
+  //     handleLoadFromBlockchain();
+  //   }
+  // }, [isConnected, playerRegistered]);
 
   // Auto-save every 5 minutes (only if enabled)
   useEffect(() => {
