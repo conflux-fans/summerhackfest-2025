@@ -329,11 +329,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Next.js & Vercel** for seamless deployment
 - **Hackathon Community** for inspiration and support
 
-## 📞 Contact
 
-- **GitHub**: [@Vikash-8090-Yadav](https://github.com/Vikash-8090-Yadav)
-- **Project Link**: [https://github.com/Vikash-8090-Yadav/QuizCraft](https://github.com/Vikash-8090-Yadav/QuizCraft)
-- **Live Demo**: [https://quiz-craft-vjl5.vercel.app/](https://quiz-craft-vjl5.vercel.app/)
 
 ---
 
