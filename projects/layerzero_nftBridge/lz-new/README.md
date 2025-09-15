@@ -85,7 +85,7 @@ Your contracts are deployed and fully configured.
 - **Keep retrying:** Deployment and LayerZero configuration may require multiple attempts due to network congestion or gas issues.
 - **Check logs:** Always review the terminal output for errors or confirmations.
 - **Security:** Double-check your `.env` file and never expose secrets.
-
+- **MinftNFT.sol:** This contract was only created for tests not real use and does not follow metadata standards.
 ---
 
 For questions or further assistance, refer to project documentation or reach out to maintainers.
