@@ -1,0 +1,79 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# Environment variables and secrets
+.env
+.env.*
+.secret
+
+# Hardhat build artifacts
+cache/
+artifacts/
+typechain-types/
+build/
+dist/
+
+# Coverage reports and test outputs
+coverage/
+coverage.json
+coverage-final.json
+lcov.info
+lcov-report/
+gas-report.txt
+
+# Compiled contracts and deployment artifacts
+flattened/
+deployments/
+deploy-config.json
+.openzeppelin/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Documentation build outputs
+docs/build/
+docs/dist/
+
+# Temporary files
+*.tmp
+*.temp
+logs/
+*.log
+
+# Large binary files that shouldn't be indexed
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.pdf
+*.zip
+*.tar.gz
+
+# Generated documentation
+README.html
+*.md.html
+
+# Test artifacts
+test/old/

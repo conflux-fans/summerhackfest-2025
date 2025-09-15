@@ -1,0 +1,275 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* App custom styles */
+body { @apply bg-gray-50 text-gray-900 font-sans antialiased dark:bg-gray-950 dark:text-gray-100; }
+
+:root {
+  --df-surface-body: #f7f9fb;
+  --df-surface-card: #fcfdff;
+  --df-surface-alt: #f5f8fc;
+  --df-border-soft: #e6e8ec;
+}
+html.dark {
+  --df-surface-body: #0d1117;
+  --df-surface-card: #111827;
+  --df-surface-alt: #1f2937;
+  --df-border-soft: #374151;
+}
+
+input:-webkit-autofill,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #1f2937 !important;
+  caret-color: #1f2937 !important;
+  transition: background-color 9999s ease-out 0s !important;
+}
+html.dark input:-webkit-autofill,
+html.dark textarea:-webkit-autofill,
+html.dark select:-webkit-autofill {
+  box-shadow: 0 0 0 1000px var(--df-surface-alt) inset !important;
+  -webkit-text-fill-color: #f3f4f6 !important;
+  caret-color: #f3f4f6 !important;
+  border: 1px solid var(--df-border-soft) !important;
+}
+html.dark input:-webkit-autofill:focus,
+html.dark textarea:-webkit-autofill:focus,
+html.dark select:-webkit-autofill:focus {
+  box-shadow: 0 0 0 1000px var(--df-surface-alt) inset, 0 0 0 1px #2563eb inset !important;
+  -webkit-text-fill-color: #f3f4f6 !important;
+}
+
+html.dark input, html.dark textarea, html.dark select { color-scheme: dark; }
+
+body {
+  background: linear-gradient(180deg,var(--df-surface-body) 0%, #ffffff 140%);
+}
+html.dark body { background: radial-gradient(circle at 50% 20%, #111827 0%, #0d1117 70%); }
+
+.card-surface { background-color: var(--df-surface-card); backdrop-filter: saturate(120%) blur(0.5px); }
+.story-content-surface { background-color: var(--df-surface-alt); }
+html.dark .card-surface, html.dark .story-content-surface { backdrop-filter: none; }
+
+.card-surface, .story-content-surface { border-color: var(--df-border-soft) !important; }
+
+.story-content-surface { box-shadow: inset 0 0 0 1px rgba(255,255,255,0.4); }
+html.dark .story-content-surface { box-shadow: none; }
+
+/* Custom scrollbars */
+/* Firefox */
+* { scrollbar-width: thin; scrollbar-color: #9ca3af transparent; }
+html.dark * { scrollbar-color: #4b5563 transparent; }
+/* Webkit */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #f8fafc; /* light subtle track */ }
+html.dark ::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background-color: rgba(107,114,128,0.45); border-radius: 6px; border: 2px solid #f8fafc; background-clip: content-box; }
+html.dark ::-webkit-scrollbar-thumb { background-color: rgba(75,85,99,0.55); border: 2px solid transparent; }
+::-webkit-scrollbar-thumb:hover { background-color: rgba(107,114,128,0.7); }
+html.dark ::-webkit-scrollbar-thumb:hover { background-color: rgba(156,163,175,0.55); }
+
+/* Thin variant utility (used by chunk list) */
+.thin-scrollbar { scrollbar-width: thin; }
+.thin-scrollbar::-webkit-scrollbar { width: 6px; }
+.thin-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.04); border-radius: 6px; }
+html.dark .thin-scrollbar::-webkit-scrollbar-track { background: transparent; }
+/* Light mode softened thumb */
+.thin-scrollbar::-webkit-scrollbar-thumb { background-color: rgba(107,114,128,0.25); border: 1px solid rgba(0,0,0,0.05); }
+.thin-scrollbar::-webkit-scrollbar-thumb:hover { background-color: rgba(107,114,128,0.4); }
+/* Dark mode thumb */
+html.dark .thin-scrollbar::-webkit-scrollbar-thumb { background-color: rgba(75,85,99,0.5); border: 1px solid transparent; }
+html.dark .thin-scrollbar::-webkit-scrollbar-thumb:hover { background-color: rgba(156,163,175,0.45); }
+
+/* Container padding utility */
+.container-padding { padding-left: 0.75rem; padding-right: 0.75rem; }
+@media (min-width: 768px) { .container-padding { padding-left: 1rem; padding-right: 1rem; } }
+
+/* Prevent layout shift caused by scrollbar appearing/disappearing */
+html { scrollbar-gutter: stable; }
+@supports not (scrollbar-gutter: stable) {
+  html { overflow-y: scroll; }
+}
+
+/* Animation delay utilities */
+.animation-delay-100 { animation-delay: 0.1s; }
+.animation-delay-200 { animation-delay: 0.2s; }
+.animation-delay-300 { animation-delay: 0.3s; }
+.animation-delay-400 { animation-delay: 0.4s; }
+.animation-delay-500 { animation-delay: 0.5s; }
+.animation-delay-600 { animation-delay: 0.6s; }
+.delay-1000 { animation-delay: 1s; }
+
+/* Enhanced animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+@keyframes bounce-gentle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-float { animation: float 6s ease-in-out infinite; }
+.animate-pulse-soft { animation: pulse-soft 4s ease-in-out infinite; }
+.animate-bounce-gentle { animation: bounce-gentle 3s ease-in-out infinite; }
+.animate-fade-in-up { animation: fade-in-up 0.6s ease-out; }
+.animate-slide-in-right { animation: slide-in-right 0.6s ease-out; }
+.animate-scale-in { animation: scale-in 0.5s ease-out; }
+
+/* Text utilities */
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-4 {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Background patterns */
+.bg-mesh-pattern {
+  background-image: radial-gradient(circle at 25px 25px, rgba(255, 255, 255, 0.15) 2%, transparent 0%);
+  background-size: 50px 50px;
+}
+
+.bg-mesh-pattern-dark {
+  background-image: radial-gradient(circle at 25px 25px, rgba(255, 255, 255, 0.05) 2%, transparent 0%);
+  background-size: 50px 50px;
+}
+
+/* Safe area padding for devices with notches */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  nav.fixed.bottom-0 {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Fix bottom navigation stability on mobile */
+@media (max-width: 767px) {
+  body {
+    overflow-x: hidden;
+    /* Ensure consistent viewport height */
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+
+  /* Prevent bottom navigation from disappearing during scroll */
+  nav.fixed.bottom-0 {
+    position: fixed !important;
+    bottom: 0 !important;
+    z-index: 9999 !important;
+    /* Ensure it stays above familyTree content */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    /* Force hardware acceleration for better performance */
+    will-change: transform;
+    /* Prevent iOS Safari from hiding the navigation */
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+}
+
+/* Additional multilingual text support */
+.hyphens-auto {
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  -ms-hyphens: auto;
+}
+
+.break-words {
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Chinese and CJK text wrapping support */
+[lang="zh-CN"], [lang="zh-TW"], [lang="ja"], [lang="ko"] {
+  word-break: break-all;
+  line-break: auto;
+}
+
+/* Better mobile text wrapping */
+@media (max-width: 640px) {
+  * {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+    -ms-hyphens: auto;
+  }
+  
+  /* Ensure no horizontal overflow */
+  body {
+    overflow-x: hidden;
+  }
+  
+  /* Better button text wrapping on mobile */
+  button, .btn, a[class*="btn"] {
+    word-break: break-word;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+  }
+}
+
+/* Improved text rendering for all languages */
+* {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
