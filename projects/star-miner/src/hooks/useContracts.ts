@@ -25,6 +25,7 @@ const GAMESTATE_ABI = [
   "function getPlayerUpgrades(address player) external view returns (string[] memory upgradeIds, uint256[] memory levels)",
   "function getUpgradeCost(string memory upgradeId, address player) external view returns (uint256)",
   "function activatePrestige() external",
+  "function resetPlayerState() external",
   "event GameStateSaved(address indexed player, uint256 stardust, uint256 stardustPerSecond, uint256 timestamp)",
   "event UpgradePurchased(address indexed player, string upgradeId, uint256 level, uint256 cost, string costType, uint256 timestamp)"
 ];
@@ -401,6 +402,29 @@ export const useContracts = () => {
     }
   }, [isConnected, isCorrectNetwork, address, refreshBalances, checkPlayerRegistration]);
 
+  // Reset player state on blockchain
+  const resetPlayerState = useCallback(async () => {
+    if (!isConnected || !isCorrectNetwork || !contractState.playerRegistered) {
+      throw new Error('Wallet not connected or player not registered');
+    }
+
+    setContractState(prev => ({ ...prev, isLoading: true, error: null }));
+
+    try {
+      const contract = await getContract('gamestate');
+      const tx = await contract.resetPlayerState();
+      await tx.wait();
+      
+      return tx.hash;
+    } catch (error: any) {
+      const errorMessage = error.reason || error.message || 'Reset failed';
+      setContractState(prev => ({ ...prev, error: errorMessage }));
+      throw error;
+    } finally {
+      setContractState(prev => ({ ...prev, isLoading: false }));
+    }
+  }, [isConnected, isCorrectNetwork, contractState.playerRegistered, getContract]);
+
   return {
     ...contractState,
     purchaseCredits,
@@ -413,6 +437,7 @@ export const useContracts = () => {
     saveGameState,
     loadGameState,
     syncGameState,
+    resetPlayerState,
     isReady: isConnected && isCorrectNetwork,
   };
 };

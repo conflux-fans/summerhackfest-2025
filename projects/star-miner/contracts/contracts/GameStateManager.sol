@@ -367,6 +367,41 @@ contract GameStateManager is Ownable, ReentrancyGuard {
     }
     
     /**
+     * @dev Reset player's complete game state (for restart functionality)
+     */
+    function resetPlayerState() external {
+        require(playerStates[msg.sender].isActive, "Player not registered");
+        
+        PlayerState storage player = playerStates[msg.sender];
+        
+        // Reset all basic stats
+        player.stardust = 0;
+        player.stardustPerClick = 1; // Base click value
+        player.stardustPerSecond = 0; // Base generation
+        player.totalClicks = 0;
+        player.prestigeLevel = 0;
+        player.lastUpdateTime = block.timestamp;
+        
+        // Reset all upgrades
+        string[9] memory upgradeIds = ["telescope", "satellite", "observatory", "starship", "spacestation", "wormhole", "blackhole", "galacticnetwork", "universeengine"];
+        for (uint256 i = 0; i < upgradeIds.length; i++) {
+            playerUpgrades[msg.sender][upgradeIds[i]] = 0;
+        }
+        
+        // Reset achievements
+        playerAchievementCount[msg.sender] = 0;
+        
+        // Reset statistics
+        totalStardustEarned[msg.sender] = 0;
+        totalCreditsSpent[msg.sender] = 0;
+        totalPlayTime[msg.sender] = 0;
+        highestStardustPerSecond[msg.sender] = 0;
+        prestigeCount[msg.sender] = 0;
+        
+        emit GameStateSaved(msg.sender, 0, 0, block.timestamp);
+    }
+    
+    /**
      * @dev Internal function to update player achievements
      */
     function _updatePlayerAchievements(address player, string[] memory achievements) private {

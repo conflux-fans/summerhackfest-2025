@@ -7,6 +7,7 @@ import { UpgradeShop } from '@/components/game/UpgradeShop'
 import { WalletConnect } from '@/components/wallet/WalletConnect'
 import P2ERewards from '@/components/p2e/P2ERewards'
 import BlockchainSync from '@/components/blockchain/BlockchainSync'
+import { GameMenu } from '@/components/ui/GameMenu'
 import { useGameStateContext } from '@/contexts/GameStateContext'
 import { useWalletContext } from '@/contexts/WalletContext'
 import { useContracts } from '@/hooks/useContracts'
@@ -33,6 +34,11 @@ export default function Home() {
     <main className="min-h-screen relative overflow-hidden">
       {/* Animated Star Field Background */}
       <div className="absolute inset-0 stars-animation" />
+      
+      {/* Game Menu - Top Right */}
+      <div className="fixed top-4 right-4 z-50">
+        <GameMenu />
+      </div>
       
       {/* Main Content */}
       <div className="relative z-10 container mx-auto px-4 py-8">
