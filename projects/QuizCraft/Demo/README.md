@@ -5,36 +5,51 @@
 
 ##  Landing  Page 
 
-<img width="1512" height="844" alt="Screenshot 2025-09-15 at 07 48 26" src="https://github.com/user-attachments/assets/937652c9-bb6e-4886-a16e-9788dc7dfa75" />
 
-## Lobby Created 
-
-<img width="1313" height="816" alt="Screenshot 2025-09-15 at 03 36 13" src="https://github.com/user-attachments/assets/bdb8cd64-22b5-467c-bcd7-20d89e9cbe81" />
-
-## Solo Training 
-
-<img width="1512" height="835" alt="Screenshot 2025-09-15 at 07 49 03" src="https://github.com/user-attachments/assets/0fa82544-0903-49f8-897a-938b0c0b8caa" />
-
-## Solo Training Quiz 
-
-<img width="1296" height="743" alt="Screenshot 2025-09-15 at 07 50 20" src="https://github.com/user-attachments/assets/df733520-29be-413d-a101-83cfb9db6d48" />
-
-## All lobbies 
+<img width="1512" height="844" alt="Screenshot 2025-09-15 at 07 48 26" src="https://github.com/user-attachments/assets/de27186e-38b3-44eb-982c-0e658202b191" />
 
 
-<img width="1508" height="776" alt="Screenshot 2025-09-15 at 07 50 51" src="https://github.com/user-attachments/assets/2272de1c-d6cd-4f87-868e-b4ed46584bb8" />
+## Supabase database for storing the score of the players 
 
-## Live Arena Quiz 
+<img width="1474" height="717" alt="Screenshot 2025-09-15 at 08 09 40" src="https://github.com/user-attachments/assets/132629a3-5f5c-402a-bb82-8ade9095ead9" />
 
 
-<img width="1507" height="771" alt="Screenshot 2025-09-15 at 07 51 56" src="https://github.com/user-attachments/assets/eb18afe1-32b2-451e-bc38-ed49bd23551b" />
+## Solo Training Mode 
 
-## Final Result In Lobby 
+<img width="1512" height="835" alt="Screenshot 2025-09-15 at 07 49 03" src="https://github.com/user-attachments/assets/329f375c-25aa-4a9c-aaf0-6c27e2b4eba3" />
 
-<img width="1490" height="704" alt="Screenshot 2025-09-15 at 07 59 37" src="https://github.com/user-attachments/assets/47a70b9f-7310-43eb-aad7-aa0c2139a030" />
 
-## Global Leaderboard 
-<img width="1440" height="769" alt="Screenshot 2025-09-15 at 08 00 40" src="https://github.com/user-attachments/assets/2be6d607-1ed7-4b44-831c-93f81414f621" />
+## Solo Quiz 
 
-## Global Lobbies 
-<img width="1478" height="482" alt="Screenshot 2025-09-15 at 08 01 09" src="https://github.com/user-attachments/assets/263c642d-2030-455a-a9e8-d4f9109da7a0" />
+<img width="1296" height="743" alt="Screenshot 2025-09-15 at 07 50 20" src="https://github.com/user-attachments/assets/e27a32e6-f7f2-4989-82e4-8ad2ea3100d3" />
+
+
+## Lobby Page 
+
+<img width="1508" height="776" alt="Screenshot 2025-09-15 at 07 50 51" src="https://github.com/user-attachments/assets/0565c129-c35d-4fe6-bda9-5e5c019c0442" />
+
+
+## Live Arena  Page 
+
+<img width="1507" height="771" alt="Screenshot 2025-09-15 at 07 51 56" src="https://github.com/user-attachments/assets/ac6ee7dc-195f-4532-b5a5-93d8798d64a5" />
+
+
+## Winner payout 
+
+## TX LINK :
+https://evmtestnet.confluxscan.org/tx/0xe82645e8401ffd556113fa6ffe700a4484e8ef03c8d1c91ef955f5beb0e243a4?tab=internal-txns
+
+<img width="1490" height="704" alt="Screenshot 2025-09-15 at 07 59 37" src="https://github.com/user-attachments/assets/144489a9-5705-4357-bcc9-5b4df3ffb952" />
+
+
+
+#   Global leaderBoard 
+
+<img width="1440" height="769" alt="Screenshot 2025-09-15 at 08 00 40" src="https://github.com/user-attachments/assets/272d2422-42ed-4b3b-be27-cc470678e5d1" />
+
+
+# Lobbies 
+
+<img width="1478" height="482" alt="Screenshot 2025-09-15 at 08 01 09" src="https://github.com/user-attachments/assets/f41083dc-b905-45e8-9021-94c0629b1447" />
+
+
