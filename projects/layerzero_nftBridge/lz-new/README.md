@@ -49,7 +49,7 @@ After deployment, copy the deployed contract addresses into the following files:
 - `deployments/conflux/DynamicConfluxONFTAdapter.json`
 
 > **Tip:**  
-> This ensures your front-end or other integrations reference the correct contract addresses.
+> This ensures layerzero.config.ts reads it before wiring.
 
 ---
 
