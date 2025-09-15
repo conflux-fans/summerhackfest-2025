@@ -225,12 +225,12 @@ export default function P2ERewards({ className = '' }: P2ERewardsProps) {
 
         {/* Blockchain Stardust Info */}
         <div className="bg-blue-900/30 border border-blue-500/50 rounded-lg p-3">
-          <div className="flex items-center justify-between">
+          {/* <div className="flex items-center justify-between">
             <span className="text-sm text-blue-400">Blockchain Stardust:</span>
             <span className="text-sm font-bold text-blue-300">
               {blockchainStardust.toLocaleString()} ✨
             </span>
-          </div>
+          </div> */}
           <div className="text-xs text-gray-400 mt-1">
             Only blockchain stardust can be exchanged for CFX, make sure to save your game state to blockchain before exchanging.
           </div>
