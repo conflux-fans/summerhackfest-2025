@@ -22,21 +22,21 @@
 
 - **Event**: Code Without Borders - SummerHackfest 2025
 - **Focus Area**: Gaming & Entertainment - Play-to-Earn GameFi
-- **Team**: [Your Team Name]
+- **Team**: eSpaceDev
 - **Submission Date**: September 15, 2025
 
 ## 👥 Team
 
 | Name | Role | GitHub | Discord |
 |------|------|--------|---------|
-| [Your Name] | Full-Stack Developer | [@username](https://github.com/username) | username#1234 |
+| Anicar Cabrera | Full-Stack Developer | [@anicarrr](https://github.com/anicarrr) | kaiji1413 |
 
 ## 🚀 Problem Statement
 
 **Traditional idle clicker games lack real-world value and player ownership.**
 
 Current idle/clicker games suffer from several limitations:
-- **No Real Value**: Time invested has no monetary return
+- **No Real Value**: Time invested has no monetary return (for now)
 - **Centralized Control**: Game publishers control all assets and progress
 - **Limited Monetization**: Only benefits game developers, not players
 - **No Ownership**: Players can't truly own or trade their progress
@@ -146,7 +146,7 @@ Before you begin, ensure you have:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/star-miner.git
+git clone https://github.com/anicarrr/star-miner.git
 cd star-miner
 ```
 
@@ -287,13 +287,10 @@ npm run test:coverage
 ### Screenshots
 
 #### Main Game Interface
-![Main Interface](./demo/screenshots/main-interface.png)
-
-#### Upgrade Shop
-![Upgrade Shop](./demo/screenshots/upgrade-shop.png)
+![Main Interface](./demo/screenshots/main.png)
 
 #### Wallet Integration
-![Wallet Integration](./demo/screenshots/wallet-integration.png)
+![Wallet Integration](./demo/screenshots/wallet.png)
 
 ## 📄 Smart Contracts
 
@@ -302,10 +299,9 @@ npm run test:coverage
 #### Testnet
 | Contract | Address | Explorer |
 |----------|---------|----------|
-| StarMinerCredits | `0x123...` | [View on ConfluxScan](https://evmtestnet.confluxscan.io/address/0x123...) |
-| GameStateManager | `0x456...` | [View on ConfluxScan](https://evmtestnet.confluxscan.io/address/0x456...) |
-| P2ERewards | `0x789...` | [View on ConfluxScan](https://evmtestnet.confluxscan.io/address/0x789...) |
-| UpgradeNFTs | `0xabc...` | [View on ConfluxScan](https://evmtestnet.confluxscan.io/address/0xabc...) |
+| StarMinerCredits | `0x884...` | [View on ConfluxScan](https://evmtestnet.confluxscan.io/address/0x88493854eB3a577A95c91bBD399c322A9a195254) |
+| GameStateManager | `0xf35...` | [View on ConfluxScan](https://evmtestnet.confluxscan.io/address/0xf358260cb24354B966A9851C5b203A29234aAD45) |
+| P2ERewards | `0xD11...` | [View on ConfluxScan](https://evmtestnet.confluxscan.io/address/0xD110A5DC35f556280423441DcF87D97E777d2A9A) |
 
 ### Contract Interfaces
 
@@ -368,6 +364,7 @@ interface IStarMinerCredits {
 - [ ] Seasonal events
 - [ ] Cross-chain integration
 - [ ] Advanced analytics dashboard
+- [ ] Reward Pool funding strategies
 
 ## 🤝 Contributing
 
@@ -400,7 +397,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Contact & Support
 
 ### Team Contact
-- **GitHub**: [https://github.com/your-username/star-miner](https://github.com/your-username/star-miner)
+- **GitHub**: [https://github.com/anicarrr/star-miner](https://github.com/anicarrr/star-miner)
 - **Discord**: [Your Discord Handle]
 
 ### Project Links
@@ -409,8 +406,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Smart Contracts**: [./contracts/](./contracts/)
 
 ### Support
-- **Issues**: [GitHub Issues](https://github.com/your-username/star-miner/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-username/star-miner/discussions)
+- **Issues**: [GitHub Issues](https://github.com/anicarrr/star-miner/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/anicarrr/star-miner/discussions)
 
 ---
 
