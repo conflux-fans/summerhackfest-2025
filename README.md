@@ -1,235 +1,154 @@
-# DeepFamily - Decentralized Global Family Tree Protocol
+# Code Without Borders - SummerHackfest 2025
 
-## Overview
-DeepFamily is a blockchain-based decentralized global digital family tree protocol that leverages blockchain technology, NFTs, ERC20 token economics, and community governance to create a collaborative, verifiable, perpetual, and globally shared family history recording system. The protocol implements a dual-layer architecture that balances privacy protection with value creation through hash-based storage and zero-knowledge proofs.
+> **Hack the Heat. Build Without Borders.** - A virtual hackathon showcasing Conflux's unique capabilities
 
-## Hackathon
-Code Without Borders - SummerHackfest 2025 (August 18 – September 22, 2025)
+## 🎯 Overview
 
-## Team
-- HappCode (GitHub: @HappyCodeBase, Discord: blocknonce#0422)
+The Code Without Borders - SummerHackfest 2025 is a virtual hackathon designed to grow the developer funnel, spotlight Conflux's unique features, and foster innovation across diverse blockchain applications with complete creative freedom.
 
-## Problem Statement
-Traditional family tree research faces several critical challenges:
-- **Fragmented Data**: Family history information is scattered across private databases and personal records
-- **Privacy Concerns**: Sharing personal family information requires trust in centralized platforms
-- **Data Loss Risk**: Family histories can be lost when platforms shut down or data gets corrupted
-- **Limited Accessibility**: Family tree services are expensive and geographically restricted
-- **Lack of Incentives**: No economic motivation for people to contribute accurate family data
+### 🗓️ 2025 Hackathon Schedule
 
-## Solution
-DeepFamily solves these problems through:
-- **Decentralized Storage**: Immutable blockchain storage ensures permanent family history preservation
-- **Privacy-First Design**: Hash-based identity system with optional zero-knowledge proofs protects personal data
-- **Economic Incentives**: DEEP token rewards encourage quality contributions and complete family trees
-- **Community Validation**: Fee-based endorsement system builds trust through economic signaling
-- **Global Accessibility**: Borderless protocol accessible to anyone with internet connection
-- **Progressive Disclosure**: Users control information revelation from private hashes to public NFTs
+| Event | Dates | Structure | Prize Pool |
+|-------|-------|-----------|------------|
+| **Code Without Borders - SummerHackfest 2025** | August 18 – September 22, 2025 | Open Innovation | $10,000 (5 × $2,000) |
 
-## Conflux Integration
-DeepFamily is designed to leverage Conflux features for optimal performance and user experience:
-- [x] **eSpace**: Smart contracts deployed and tested on Conflux eSpace for EVM compatibility
-- [ ] **Core Space**: Planned deployment for maximum decentralization benefits
-- [ ] **Cross-Space Bridge**: Future integration for multi-space asset management
-- [ ] **Gas Sponsorship**: Planned implementation for seamless user onboarding
-- [ ] **Built-in Contracts**: Future integration for enhanced functionality
-- [ ] **Partner Integrations**: Planned Privy/Pyth integrations for improved UX
+**Total Program**: $10,000 in prizes with complete creative freedom
 
-## Features
-- **Multi-Version Family tree**: Each person can have multiple verified data versions with provenance tracking
-- **Zero-Knowledge Privacy**: Groth16 proof system enables privacy-preserving data submission
-- **Community Endorsement**: Fee-based validation system with dynamic fee distribution
-- **NFT Ecosystem**: Community-endorsed versions can mint unique ERC721 tokens with rich metadata
-- **Story Sharding**: Biographical content sharded into up to 100 chunks of 1KB (100KB total) with immutable sealing
-- **Progressive Mining**: Advanced tokenomics with variable-length cycles and exponential reward decay
-- **Interactive Visualization**: D3.js-powered family tree with multiple layout options
-- **Multi-Language Support**: i18n implementation with English, Chinese (Simplified/Traditional) support
+## 🚀 Why Participate?
 
-## Technology Stack
-- **Frontend**: React 18, TypeScript, Vite, TailwindCSS, D3.js
-- **Backend**: Hardhat, Node.js 18+, Ethers v6
-- **Blockchain**: Conflux eSpace (primary), Ethereum, Polygon, Arbitrum, BSC
-- **Smart Contracts**: Solidity ^0.8.20, OpenZeppelin v5.0
-- **Privacy**: Zero-knowledge proofs (Groth16), SnarkJS
-- **Storage**: IPFS integration for metadata
-- **Development**: TypeScript, Prettier, Husky pre-commit hooks
+### For Developers
+- **$10,000 prize pool** for the hackathon
+- **5 equal prizes of $2,000** - no hierarchy, just excellence
+- **Complete creative freedom** - build what you're passionate about
+- **Learn cutting-edge tech** with Conflux's unique features
+- **Build your portfolio** with real-world blockchain projects
+- **Network with experts** from Conflux and partner ecosystems
+- **Fast-track to grants** - top teams get priority for funding
 
-## Setup Instructions
+### For the Ecosystem
+- **Showcase Conflux differentiators**: Tree-Graph consensus, gas sponsorship, dual-space architecture
+- **Encourage diverse innovation** across all blockchain use cases
+- **Grow developer community** with hands-on experience
+- **Create reusable tools** that benefit the entire ecosystem
 
-### Prerequisites
-- Node.js v18.0.0+
-- Git
-- Conflux wallet (Fluent Wallet recommended) or MetaMask
-- NPM or Yarn package manager
+## 🎯 Project Wishlist & Inspiration
 
-### Installation
-1. Clone the repository
-   ```bash
-   git clone https://github.com/deepfamilylabs/DeepFamily.git
-   cd DeepFamily
-   ```
+Instead of rigid tracks, we provide inspiration areas to guide your creativity while maintaining complete freedom to build what excites you:
+
+### 🌟 Priority Areas (Guidance Only)
+- **🤖 AI + Blockchain Integration** - AI agents, workflows, and intelligent tooling
+- **🛠️ Developer Experience** - SDKs, deployment tools, analytics platforms, debugging tools
+- **💰 DeFi Innovation** - Novel financial services, yield optimization, risk management
+- **🌍 Real-World Applications** - Practical solutions for everyday problems using blockchain
+- **⛓️ Cross-Chain Solutions** - Multi-chain DeFi toolkits, interoperability tools
+- **🎮 Gaming & Entertainment** - GameFi, NFTs, social platforms, creator economy tools
+
+### ⚡ Technical Focus Areas
+- **Gas Sponsorship** - User-friendly applications with sponsored transactions
+- **Account Abstraction** - Seamless onboarding and user experience improvements
+- **Oracle Integration** - Real-world data integration and automation
+- **Cross-Space Utilization** - Leveraging Conflux's dual-space architecture
+- **Mobile-First** - Mobile applications and progressive web apps
+- **Enterprise Solutions** - Business-focused blockchain applications
+
+**Remember**: These are suggestions, not requirements. Build whatever innovative solution you envision using Conflux!
+
+## 🛠️ Resources & Support
+
+### Development Resources
+- **[Conflux Documentation](https://doc.confluxnetwork.org/)** - Complete developer guides
+- **[Starter Templates](./templates/)** - Boilerplate code for quick starts
+- **[RPC Endpoints](./docs/05_resources.md)** - Network connection details
+- **[Faucets](./docs/05_resources.md)** - Test tokens for development
+
+### Community Support
+- **Discord**: https://discord.gg/4A2q3xJKjC
+- **Office Hours**: Weekly sessions with Conflux engineers
+- **Mentorship**: Expert guidance from industry professionals
+- **GitHub Discussions**: Technical Q&A and collaboration
+
+## 📋 How to Participate
+
+### 1. Register
+- **Join the hackathon** (August 18 – September 22, 2025)
+- **Form your team** (1-5 members max)
+- **Join our Discord** for updates and support
+
+### 2. Build
+- **4 weeks of development** time
+- **Use Conflux features** to maximize your score
+- **Get support** from mentors and community
+- **Track progress** with daily standups
+
+### 3. Submit
+- **Submit by deadline** (September 15, 2025 @ 11:59 PM UTC)
+- **Add your project** to the `/projects/` folder
+- **Include demo video** (3-5 minutes)
+- **Complete submission checklist**
+- **Prepare for judging**
+
+### 4. Present & Win
+- **Top 5 projects** present live (no tracks, just best overall)
+- **Community voting** (20% weight)
+- **Expert judging** (80% weight)
+- **Winners announced** in live ceremony (September 29, 2025)
+
+## 📁 Project Submissions
+
+All hackathon projects are submitted to this repository in the `/projects/` folder:
+
 ```
-2. ZK Proving Key (.zkey) for Local Use
-- Download `.zkey` (Groth16 proving key):
-  https://github.com/deepfamilylabs/DeepFamily/releases/download/v1.0.0/person_hash_zk_final.zkey
-- Place the file at: `frontend/public/zk/person_hash_zk_final.zkey`
-  - The frontend loads artifacts from `frontend/public/zk/` and expects the exact filenames:
-    - `person_hash_zk.wasm` (already included)
-    - `person_hash_zk.vkey.json` (already included)
-    - `person_hash_zk_final.zkey` (you need to download)
-
-3. Install dependencies
-   ```bash
-   npm run setup
-   # Installs root + frontend dependencies
-   ```
-
-4. Configure environment
-   ```bash
-   cp .env.example .env
-   # Required for deployment and verification
-   PRIVATE_KEY=0x... # Your deployer wallet private key
-   ```
-
-5. Compile smart contracts
-   ```bash
-   npm run build
-   ```
-
-6. Run complete development environment
-   ```bash
-   npm run dev:all
-   # This starts: local node + contract deployment + demo data + frontend
-   ```
-
-### Testing
-```bash
-# Run all contract tests
-npm test
-
-# Run with gas reporting
-npm run test:gas
-
-# Generate coverage report
-npm run test:coverage
-
-# Run specific test suites
-npx hardhat test test/personVersion.test.js
-npx hardhat test test/endorse.test.js
-npx hardhat test test/mintNft.test.js
+projects/
+├── project-name-1/         # Individual project folder
+├── project-name-2/
+└── ...
 ```
 
-## Usage
+Each project folder should contain:
+- `README.md` - Project documentation
+- `demo/` - Demo video and screenshots
+- `src/` - Source code (or link to external repo)
+- `docs/` - Additional documentation
 
-### Complete Development Workflow
-#### One-Command Full Stack
-```bash
-# Install all dependencies
-npm run setup
+## 🏅 Judging Criteria
 
-# Compile smart contracts
-npm run build
+| Criteria | Weight | Description |
+|----------|--------|-------------|
+| **Technical Excellence** | 25% | Code quality, architecture, innovation |
+| **Conflux Integration** | 25% | Effective use of Conflux features |
+| **User Experience** | 20% | Design, usability, accessibility |
+| **Innovation** | 20% | Creativity, originality, impact potential |
+| **Presentation** | 10% | Demo quality, communication, pitch |
 
-# Start complete development environment
-npm run dev:all
-# This starts: local node + contract deployment + demo data seeding + frontend
-```
+**Note**: Projects are judged holistically across all categories, not within specific tracks.
 
-#### Manual Step-by-Step
-```bash
-# 1. Install dependencies
-npm run setup
+## 📚 Documentation
 
-# 2. Compile contracts
-npm run build
+- **[Overview](./docs/00_overview.md)** - Complete hackathon handbook
+- **[Rules & Guidelines](./docs/01_rules.md)** - Eligibility and requirements
+- **[Judging Criteria](./docs/04_judging_criteria.md)** - Scoring methodology
+- **[Resources](./docs/05_resources.md)** - Tools, APIs, and references
+- **[Submission Guide](./docs/06_submission_checklist.md)** - How to submit your project
 
-# 3. Start local Hardhat node
-npm run dev:node
+## 📞 Contact & Support
 
-# 4. Deploy contracts
-npm run dev:deploy
+### Get Help
+- **Discord**: https://discord.gg/4A2q3xJKjC
+- **Telegram**: https://t.me/ConfluxDevs
+- **Documentation**: https://doc.confluxnetwork.org/
+- **GitHub**: [Create an issue](https://github.com/conflux-fans/summerhackfest-2025/issues)
 
-# 5. Seed demo data
-npm run dev:seed
+### Community Channels
+- **Discord**: https://discord.gg/4A2q3xJKjC - Join our community for updates, team formation, and technical support
 
-# 6. Configure frontend environment
-npm run frontend:config
+## 📄 License
 
-# This automatically configures for local development
-# For manual configuration: copy frontend/.env.example to frontend/.env and update values
+This repository is licensed under the [MIT License](./LICENSE).
 
-# 7. Start frontend development server
-npm run frontend:dev
+## 🌟 Contributing
 
-## Architecture
-
-DeepFamily implements a sophisticated dual-layer blockchain architecture:
-
-### Layer 1: Privacy Protection (Hash-Based Relationships)
-- Hash-only storage of personal identities as keccak256 hashes
-- Genealogical connections via personHash → fatherHash + motherHash references
-- Multi-version support with zero-knowledge proof integration
-- Low-barrier participation without privacy risks
-
-### Layer 2: Value Confirmation (NFT + Token Economics)
-- Community-endorsed versions can mint unique ERC721 tokens
-- Story sharding system for rich biographical content (100×1KB chunks)
-- DEEP token rewards for complete family relationship data
-- Dynamic endorsement system with fee distribution
-
-### Core Components (1,795 lines of code)
-- **DeepFamily.sol** (1,384 lines): Core protocol with family tree, endorsements, NFTs
-- **DeepFamilyToken.sol** (201 lines): DEEP ERC20 with progressive halving mining
-- **PersonHashVerifier.sol** (210 lines): Groth16 zero-knowledge proof verifier
-
-## Smart Contracts
-
-### Conflux eSpace Testnet
-- DeepFamily: `0x63ea5897C88c9Dac09c3d5Af7a55f1442F08A7E9`
-- DeepFamilyToken: `0x3472a50766E29Ae6BDf218BfcDD21aE2ad67db82`
-- PersonHashVerifier: `0xF0442D0281bA02683C3466f53474F552Ac31621d`
-
-### Conflux eSpace Mainnet
-- DeepFamily: `TBD`
-- DeepFamilyToken: `TBD`
-- PersonHashVerifier: `TBD`
-
-## Future Improvements
-
-### Technical Enhancements
-- **Mobile Application**: React Native app for mobile-first family tree experience
-- **Advanced ZK Circuits**: Production-ready zero-knowledge proof system
-- **Graph Protocol**: Advanced indexing for complex genealogical queries
-
-### Feature Expansions
-- **Advanced Visualization**: 3D family tree rendering
-
-### Known Limitations
-- Zero-knowledge circuits require production deployment and testing
-- Gas costs may be significant for large family trees on mainnet
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- **Conflux Network**: For providing scalable blockchain infrastructure with low fees
-- **OpenZeppelin**: For battle-tested smart contract security primitives
-- **D3.js Community**: For powerful data visualization libraries
-- **React Ecosystem**: For modern frontend development tools
+We welcome contributions to improve the hackathon experience! Please read our [Contributing Guidelines](./CONTRIBUTING.md) and [Code of Conduct](./CODE_OF_CONDUCT.md).
 
 ---
 
-## 📚 Additional Documentation
-
-For comprehensive technical documentation, see:
-- [Architecture Guide](architecture.md) - System design and dual-layer approach
-- [Smart Contracts Reference](contracts.md) - Complete API documentation
-- [Data Model](data-model.md) - Person, version, and relationship structures
-- [Tokenomics](tokenomics.md) - DEEP token economics and mining mechanics
-- [API Reference](api.md) - Hardhat tasks and interaction patterns
-- [Frontend Integration](frontend.md) - React dApp development guide
-- [Zero-Knowledge Proofs](zero-knowledge-proofs.md) - Privacy implementation details
-
-**🌳 Building a shared digital family heritage for humanity 🌳**
+**Ready to hack the heat?** [Join our Discord](https://discord.gg/4A2q3xJKjC) and start your hackathon journey today!

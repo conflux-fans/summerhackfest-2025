@@ -1,161 +1,75 @@
-# DeepFamily - Decentralized Global On-Chain Family Tree Protocol
+# DeepFamily - Decentralized Global Family Tree Protocol
 
-<div align="center">
+## Overview
+DeepFamily is a blockchain-based decentralized global digital family tree protocol that leverages blockchain technology, NFTs, ERC20 token economics, and community governance to create a collaborative, verifiable, perpetual, and globally shared family history recording system. The protocol implements a dual-layer architecture that balances privacy protection with value creation through hash-based storage and zero-knowledge proofs.
 
-![DeepFamily Logo](https://img.shields.io/badge/DeepFamily-v1.0.0-blue?style=for-the-badge&logo=ethereum)
-[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
-[![Solidity](https://img.shields.io/badge/Solidity-^0.8.20-red?style=for-the-badge&logo=solidity)](https://soliditylang.org/)
-[![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react)](https://reactjs.org/)
-[![Node](https://img.shields.io/badge/Node.js-18+-green?style=for-the-badge&logo=node.js)](https://nodejs.org/)
+## Hackathon
+Code Without Borders - SummerHackfest 2025 (August 18 – September 22, 2025)
 
-**A blockchain-based decentralized global digital family tree protocol**
-*Leveraging NFTs, ERC20 tokenomics, and community governance for collaborative family history*
+## Team
+- HappCode (GitHub: @HappyCodeBase, Discord: blocknonce#0422)
 
-[🚀 Quick Start](#-quick-start) • [📖 Documentation](#-documentation) • [🎯 Core Features](#-core-features) • [🏗️ Architecture](#️-architecture) • [🚀 Deployment](#-deployment) • [🤝 Contributing](#-contributing)
+## Problem Statement
+Traditional family tree research faces several critical challenges:
+- **Fragmented Data**: Family history information is scattered across private databases and personal records
+- **Privacy Concerns**: Sharing personal family information requires trust in centralized platforms
+- **Data Loss Risk**: Family histories can be lost when platforms shut down or data gets corrupted
+- **Limited Accessibility**: Family tree services are expensive and geographically restricted
+- **Lack of Incentives**: No economic motivation for people to contribute accurate family data
 
-</div>
+## Solution
+DeepFamily solves these problems through:
+- **Decentralized Storage**: Immutable blockchain storage ensures permanent family history preservation
+- **Privacy-First Design**: Hash-based identity system with optional zero-knowledge proofs protects personal data
+- **Economic Incentives**: DEEP token rewards encourage quality contributions and complete family trees
+- **Community Validation**: Fee-based endorsement system builds trust through economic signaling
+- **Global Accessibility**: Borderless protocol accessible to anyone with internet connection
+- **Progressive Disclosure**: Users control information revelation from private hashes to public NFTs
 
----
+## Conflux Integration
+DeepFamily is designed to leverage Conflux features for optimal performance and user experience:
+- [x] **eSpace**: Smart contracts deployed and tested on Conflux eSpace for EVM compatibility
+- [ ] **Core Space**: Planned deployment for maximum decentralization benefits
+- [ ] **Cross-Space Bridge**: Future integration for multi-space asset management
+- [ ] **Gas Sponsorship**: Planned implementation for seamless user onboarding
+- [ ] **Built-in Contracts**: Future integration for enhanced functionality
+- [ ] **Partner Integrations**: Planned Privy/Pyth integrations for improved UX
 
-## 🌟 Vision & Mission
+## Features
+- **Multi-Version Family tree**: Each person can have multiple verified data versions with provenance tracking
+- **Zero-Knowledge Privacy**: Groth16 proof system enables privacy-preserving data submission
+- **Community Endorsement**: Fee-based validation system with dynamic fee distribution
+- **NFT Ecosystem**: Community-endorsed versions can mint unique ERC721 tokens with rich metadata
+- **Story Sharding**: Biographical content sharded into up to 100 chunks of 1KB (100KB total) with immutable sealing
+- **Progressive Mining**: Advanced tokenomics with variable-length cycles and exponential reward decay
+- **Interactive Visualization**: D3.js-powered family tree with multiple layout options
+- **Multi-Language Support**: i18n implementation with English, Chinese (Simplified/Traditional) support
 
-DeepFamily creates the world's first decentralized family tree infrastructure, combining blockchain immutability with privacy-preserving technology to build a collaborative, verifiable, and perpetual family history recording system.
+## Technology Stack
+- **Frontend**: React 18, TypeScript, Vite, TailwindCSS, D3.js
+- **Backend**: Hardhat, Node.js 18+, Ethers v6
+- **Blockchain**: Conflux eSpace (primary), Ethereum, Polygon, Arbitrum, BSC
+- **Smart Contracts**: Solidity ^0.8.20, OpenZeppelin v5.0
+- **Privacy**: Zero-knowledge proofs (Groth16), SnarkJS
+- **Storage**: IPFS integration for metadata
+- **Development**: TypeScript, Prettier, Husky pre-commit hooks
 
-### 🎯 Core Principles
-- 🔐 **Privacy-Preserving**: Dual-layer architecture with hash-based storage and zero-knowledge proofs
-- 🌍 **Globally Accessible**: Borderless family connections powered by blockchain technology
-- 💎 **Immutable Heritage**: Permanent on-chain storage ensures data preservation across generations
-- 💰 **Incentivized Participation**: DEEP token rewards encourage quality contributions and family completeness
-- 🤝 **Community-Driven**: Endorsement-based governance validates information quality and builds trust
-- 🏗️ **Scalable Design**: Multi-version data model supports diverse cultural family tree traditions
+## Setup Instructions
 
-## 🎯 Core Features
+### Prerequisites
+- Node.js v18.0.0+
+- Git
+- Conflux wallet (Fluent Wallet recommended) or MetaMask
+- NPM or Yarn package manager
 
-### 🔐 Privacy & Security
-- **Zero-Knowledge Proofs**: Groth16-based privacy-preserving data submission via `IPersonHashVerifier` interface
-- **Hash-Only Storage**: Personal data stored as keccak256 hashes on-chain, with raw PII kept off-chain
-- **Multi-Version Support**: Each person can have multiple verified versions with parent relationship tracking
-- **Comprehensive Security**: 50+ custom errors, reentrancy protection, and access control mechanisms
-
-### 🎨 NFT Ecosystem
-- **Unique NFTs**: Each person version can mint exactly one ERC721 token with on-chain core metadata
-- **Story Sharding**: Biographical data stored in up to 100 shards × 1KB each with immutable sealing
-- **Value Recognition**: Endorsement-driven value accrual and fee distribution system
-- **Rich Metadata**: On-chain name, birth/death years, and story hash with off-chain detailed content
-
-### 💰 DEEP Token Economics
-- **Smart Mining**: Rewards only granted when both parent relationships exist (complete family data)
-- **Progressive Halving**: Advanced tokenomics with variable-length cycles and binary halving
-  - Initial: 113,777 DEEP → Final: 0.1 DEEP minimum
-  - Cycles: 1→10→100→1k→10k→100k→1M→10M→100M→fixed 100M
-- **Capped Supply**: Maximum 100 billion DEEP tokens
-- **Mining Incentives**: Encourages family tree completeness over isolated entries
-
-### 🤝 Community Governance
-- **Staked Endorsements**: Pay current mining reward to endorse trusted versions
-- **Dynamic Fee Distribution**:
-  - Pre-NFT: 100% to version creator
-  - Post-NFT: 100% to current NFT holder
-- **Quality Signaling**: Community endorsement count indicates version trustworthiness
-- **Reputation System**: Build trust through verified contributions and endorsements
-
-### 📊 Advanced Data Management
-- **Name Indexing**: Hash-based reverse lookup for efficient person discovery
-- **Paginated Queries**: Gas-optimized queries with 100-record limits
-- **Composite APIs**: Single-call functions return complete relationship data
-- **Version Control**: Full history preservation with immutable parent references
-
-## 🏗️ Architecture
-
-### 🔄 Dual-Layer Design
-
-The system implements a sophisticated dual-layer architecture that balances privacy protection with value creation:
-
-#### **Layer 1: Privacy Protection (Hash-Based Relationships)**
-- **Hash Storage**: Only keccak256 hashes of personal information stored on-chain
-- **Relationship Networks**: Build family tree connections through `personHash`, `fatherHash`, `motherHash`
-- **Low-Barrier Entry**: Safe participation without privacy risks
-- **Token Incentives**: DEEP rewards for complete family data contributions
-
-#### **Layer 2: Value Confirmation (NFT Assets)**
-- **Selective Disclosure**: Community-endorsed information can be minted as NFTs
-- **Value Solidification**: NFTs represent recognition of high-quality, verified data
-- **Progressive Evolution**: Natural progression from private data → community validation → asset creation
-
-### 📱 Technology Stack
-- **Smart Contracts**: Solidity ^0.8.20, Hardhat, hardhat-deploy
-- **Blockchain Layer**: ERC20 (DEEP token) + ERC721Enumerable (Family NFTs)
-- **Frontend**: React 18 + TypeScript + Vite + TailwindCSS + D3.js
-- **Development**: Ethers v6, Hardhat testing, OpenZeppelin security primitives
-- **Privacy**: Zero-knowledge proofs (Groth16), hash-based identity protection
-
-### ⛓️ Smart Contract System
-
-```
-DeepFamily Contract Ecosystem
-├── 📄 DeepFamily.sol 
-│   ├── Multi-version person data management
-│   ├── Community endorsement & fee distribution
-│   ├── NFT minting with on-chain metadata
-│   ├── Story sharding system (100×1KB chunks)
-│   ├── Mining rewards for complete families
-│   └── Paginated queries & gas optimization
-│
-├── 🪙 DeepFamilyToken.sol
-│   ├── ERC20 with progressive halving
-│   ├── 100 billion supply cap, 10 halving cycles
-│   └── Authorized minting by DeepFamily contract only
-│
-└── 🔐 PersonHashVerifier.sol
-    ├── Groth16 zero-knowledge proof verification
-    ├── 7-limb hash validation for privacy
-    └── Integration ready for production ZK circuits
-```
-
-### 🏗️ Project Structure
-```
-DeepFamily/
-├── contracts/              # Smart Contracts (Solidity)
-│   ├── DeepFamily.sol         # Main family tree contract
-│   ├── DeepFamilyToken.sol    # DEEP ERC20 token
-│   └── PersonHashVerifier.sol # ZK proof verifier
-├── frontend/               # React dApp
-│   ├── src/
-│   │   ├── components/        # UI components (33 files)
-│   │   │   ├── FlexibleDAGView.tsx    # Flexible family tree
-│   │   │   ├── ForceDAGView.tsx       # Force-directed tree
-│   │   │   ├── NodeDetailModal.tsx    # Person details
-│   │   │   └── ...
-│   │   ├── pages/            # Application routes (9 pages)
-│   │   ├── hooks/            # React hooks (8 hooks)
-│   │   ├── context/          # State management (7 contexts)
-│   │   ├── abi/              # Contract ABIs
-│   │   └── utils/            # Helper utilities
-├── test/                   # Hardhat Tests (8 test suites)
-├── tasks/                  # Hardhat Tasks (16 custom tasks)
-├── deploy/                 # Deployment Scripts
-├── scripts/                # Utility Scripts
-│   ├── seed-demo.js          # Demo data seeding
-│   └── check-root.js         # Root node validation
-├── docs/                   # Documentation (7 guides)
-└── circuits/               # ZK Circuit Development
-```
-
-## 🚀 Quick Start
-
-### 📋 Prerequisites
-- **Node.js** >= 18.0.0 (required by package.json engines)
-- **npm** or **yarn** package manager
-- **Git** version control
-
-### 🔧 Environment Setup
+### Installation
 1. Clone the repository
    ```bash
    git clone https://github.com/deepfamilylabs/DeepFamily.git
    cd DeepFamily
    ```
+```
 2. ZK Proving Key (.zkey) for Local Use
-
 - Download `.zkey` (Groth16 proving key):
   https://github.com/deepfamilylabs/DeepFamily/releases/download/v1.0.0/person_hash_zk_final.zkey
 - Place the file at: `frontend/public/zk/person_hash_zk_final.zkey`
@@ -188,7 +102,7 @@ DeepFamily/
    # This starts: local node + contract deployment + demo data + frontend
    ```
 
-### 🧪 Testing
+### Testing
 ```bash
 # Run all contract tests
 npm test
@@ -238,110 +152,85 @@ npm run dev:deploy
 # 5. Seed demo data
 npm run dev:seed
 
-# 6. Start frontend development server
+# 6. Configure frontend environment
+npm run frontend:config
+
+# This automatically configures for local development
+# For manual configuration: copy frontend/.env.example to frontend/.env and update values
+
+# 7. Start frontend development server
 npm run frontend:dev
 ```
 
+## Architecture
 
-### 🌐 Access Points
-- **Frontend dApp**: http://localhost:5173
-- **Local Blockchain RPC**: http://localhost:8545
-- **Contract Deployment**: Check terminal output for deployed addresses
+DeepFamily implements a sophisticated dual-layer blockchain architecture:
 
+### Layer 1: Privacy Protection (Hash-Based Relationships)
+- Hash-only storage of personal identities as keccak256 hashes
+- Genealogical connections via personHash → fatherHash + motherHash references
+- Multi-version support with zero-knowledge proof integration
+- Low-barrier participation without privacy risks
 
-## 🚀 Deployment Guide
+### Layer 2: Value Confirmation (NFT + Token Economics)
+- Community-endorsed versions can mint unique ERC721 tokens
+- Story sharding system for rich biographical content (100×1KB chunks)
+- DEEP token rewards for complete family relationship data
+- Dynamic endorsement system with fee distribution
 
-### 🌐 Supported Networks
-**Ethereum Family:**
-- Mainnet, Sepolia, Holesky 
+### Core Components (1,795 lines of code)
+- **DeepFamily.sol** (1,384 lines): Core protocol with family tree, endorsements, NFTs
+- **DeepFamilyToken.sol** (201 lines): DEEP ERC20 with progressive halving mining
+- **PersonHashVerifier.sol** (210 lines): Groth16 zero-knowledge proof verifier
 
-**Layer 2 Solutions:**
-- Polygon: Mainnet, Amoy Testnet
-- Arbitrum: Mainnet , Sepolia Testnet
-- Optimism: Mainnet, Sepolia Testnet
+## Smart Contracts
 
-**Alternative Chains:**
-- BSC: Mainnet, Testnet
-- Conflux eSpace: Mainnet, Testnet
+### Conflux eSpace Testnet
+- DeepFamily: `0x63ea5897C88c9Dac09c3d5Af7a55f1442F08A7E9`
+- DeepFamilyToken: `0x3472a50766E29Ae6BDf218BfcDD21aE2ad67db82`
+- PersonHashVerifier: `0xF0442D0281bA02683C3466f53474F552Ac31621d`
 
-### 📦 Multi-Network Deployment
-```bash
-# Deploy to specific network
-npm run deploy:net --net=holesky
-npm run deploy:net --net=polygonAmoy
-npm run deploy:net --net=confluxTestnet
+### Conflux eSpace Mainnet
+- DeepFamily: `TBD`
+- DeepFamilyToken: `TBD`
+- PersonHashVerifier: `TBD`
 
-# Local development
-npm run deploy:local
+## Future Improvements
 
-# Verify deployed contracts
-npm run verify:net --net=holesky
-```
+### Technical Enhancements
+- **Mobile Application**: React Native app for mobile-first family tree experience
+- **Advanced ZK Circuits**: Production-ready zero-knowledge proof system
+- **Graph Protocol**: Advanced indexing for complex genealogical queries
 
-## 📚 Core Docs
-See detailed documents under `docs/`:
-- [Architecture](docs/architecture.md)
-- [Contracts Reference](docs/contracts.md)
-- [Data Model](docs/data-model.md)
-- [API & Tasks](docs/api.md)
-- [Tokenomics](docs/tokenomics.md)
-- [ZK Roadmap](docs/zk-roadmap.md)
-- [Frontend Integration](docs/frontend.md)
-3. Provide hosted service / decentralised index endpoints.
+### Feature Expansions
+- **Advanced Visualization**: 3D family tree rendering
 
-## 📘 Glossary
-| Term | Meaning |
-|------|---------|
-| Person Hash | keccak256 of structured basic info (name + birth data + gender) |
-| Version | A submitted record referencing optional parent version indices |
-| Endorsement | Staked trust action paying current reward to version author / NFT holder |
-| NFT | On-chain minted representation of a specific person version |
-| Story Chunk | Sharded biography text segment (hashed & aggregated) |
-| Full Story Hash | keccak256 of concatenated chunk hashes in order |
-| Mining Reward | DEEP tokens minted when adding qualifying person version |
+### Known Limitations
+- Zero-knowledge circuits require production deployment and testing
+- Gas costs may be significant for large family trees on mainnet
 
-## 🤝 Contributing
+## License
 
-### 🐛 Bug Reports
-1. Search existing Issues
-2. Open new issue with reproduction steps & env
-3. Include logs & network details
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-### 💻 Code
-1. Fork
-2. Branch: `git checkout -b feat/your-feature`
-3. Commit: `git commit -am 'feat: add X'`
-4. Push: `git push origin feat/your-feature`
-5. Open PR
+## Acknowledgments
 
-### 📋 Standards
-- Prettier + Solhint + lint-staged pre-commit (husky)
-- Conventional Commits
-- Tests required for new features
-- Update README / docs when changing core behaviors
+- **Conflux Network**: For providing scalable blockchain infrastructure with low fees
+- **OpenZeppelin**: For battle-tested smart contract security primitives
+- **D3.js Community**: For powerful data visualization libraries
+- **React Ecosystem**: For modern frontend development tools
 
-## 🌍 Community
-
-Links are placeholders until launch:
-- **GitHub**: https://github.com/deepfamilylabs/DeepFamily
-
-## 📄 License
-
-MIT License (see [LICENSE](LICENSE) for full text). Excerpt:
-```
-MIT License
-
-Copyright (c) 2025 DeepFamily
-```
 ---
 
-<div align="center">
+## 📚 Additional Documentation
 
-**🌳 DeepFamily - Connect the Past, Record the Present, Preserve the Future 🌳**
+For comprehensive technical documentation, see:
+- [Architecture Guide](architecture.md) - System design and dual-layer approach
+- [Smart Contracts Reference](contracts.md) - Complete API documentation
+- [Data Model](data-model.md) - Person, version, and relationship structures
+- [Tokenomics](tokenomics.md) - DEEP token economics and mining mechanics
+- [API Reference](api.md) - Hardhat tasks and interaction patterns
+- [Frontend Integration](frontend.md) - React dApp development guide
+- [Zero-Knowledge Proofs](zero-knowledge-proofs.md) - Privacy implementation details
 
-[![GitHub Stars](https://img.shields.io/github/stars/deepfamilylabs/DeepFamily?style=social)](https://github.com/deepfamilylabs/DeepFamily.git)
-[![GitHub Forks](https://img.shields.io/github/forks/deepfamilylabs/DeepFamily?style=social)](https://github.com/deepfamilylabs/DeepFamily.git)
-
-*Building a shared digital family heritage for humanity*
-
-</div>
+**🌳 Building a shared digital family heritage for humanity 🌳**
