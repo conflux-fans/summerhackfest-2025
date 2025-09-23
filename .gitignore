@@ -1,0 +1,56 @@
+# Node modules
+node_modules/
+
+# Environment files
+.env
+.env.*.local
+
+# Hardhat / Foundry build artifacts
+artifacts/
+cache/
+out/
+deployments/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# TypeScript compiled files
+*.tsbuildinfo
+dist/
+
+# Solidity and contract-related configs you may not want in git
+*.keystore
+*.key
+*.json    # Only if you don’t want deployment artifacts committed
+*.abi
+*.bin
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE / Editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# NPM lock files (optional, usually you may want to keep package-lock.json)
+# package-lock.json
+# yarn.lock
+
+# Temporary files
+*.tmp
+*.log
+
+# Yarn / npm directories
+.pnp.*
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# Coverage reports
+coverage/
