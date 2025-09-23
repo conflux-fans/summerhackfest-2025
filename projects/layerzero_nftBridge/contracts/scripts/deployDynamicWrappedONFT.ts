@@ -1,4 +1,4 @@
-// deployDynamicWrappedONFT.ts - Deployment script for DynamicWrappedONFT on Base Mainnet
+// deployDynamicWrappedONFTFactory.ts - Deployment script for DynamicWrappedONFTFactory on Base Mainnet
 import { ethers } from "hardhat";
 
 async function main() {
@@ -7,15 +7,15 @@ async function main() {
   const [deployer] = await ethers.getSigners();
   const DELEGATE_ADDRESS = deployer.address; // Owner/delegate for OApp configs
 
-  console.log(`Deploying DynamicWrappedONFT from account: ${deployer.address}`);
-  const DynamicWrappedONFT = await ethers.getContractFactory("DynamicWrappedONFT");
-  const dynamicWrapped = await DynamicWrappedONFT.deploy(
+  console.log(`Deploying DynamicWrappedONFTFactory from account: ${deployer.address}`);
+  const DynamicWrappedONFTFactory = await ethers.getContractFactory("DynamicWrappedONFTFactory");
+  const dynamicWrapped = await DynamicWrappedONFTFactory.deploy(
     ENDPOINT_ADDRESS,
     DELEGATE_ADDRESS
   );
 
   await dynamicWrapped.deployed();
-  console.log(`DynamicWrappedONFT deployed on Base to: ${dynamicWrapped.address}`);
+  console.log(`DynamicWrappedONFTFactory deployed on Base to: ${dynamicWrapped.address}`);
 }
 
 main().catch((error) => {

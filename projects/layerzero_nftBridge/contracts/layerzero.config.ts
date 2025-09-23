@@ -11,7 +11,7 @@ const confluxOApp = {
 
 const baseOApp = {
   eid: EndpointId.BASE_V2_MAINNET,
-  contractName: 'DynamicWrappedONFT',
+  contractName: 'DynamicWrappedONFTFactory',
 };
 
 // Define enforced options (currently empty)
