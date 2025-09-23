@@ -6,12 +6,12 @@ import { TwoWayConfig, generateConnectionsConfig } from '@layerzerolabs/metadata
 // Define OApp configurations
 const confluxOApp = {
   eid: EndpointId.CONFLUX_V2_MAINNET,
-  contractName: 'DynamicConfluxONFTAdapter',
+  contractName: 'DynamicONFTBridge',
 };
 
 const baseOApp = {
   eid: EndpointId.BASE_V2_MAINNET,
-  contractName: 'DynamicWrappedONFTFactory',
+  contractName: 'DynamicONFTBridge',
 };
 
 // Define enforced options (currently empty)

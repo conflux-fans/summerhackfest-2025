@@ -32,11 +32,50 @@ npm install
 Deploy your contracts to their respective networks using Hardhat:
 
 ```sh
-# Deploy to Conflux network
-npx hardhat run scripts/deployDynamicConfluxAdapter.ts --network conflux
+npx hardhat lz:deploy
+```
+Result should look like
 
-# Deploy to Base network
-npx hardhat run scripts/deployDynamicWrappedONFT.ts --network base
+```
+ npx hardhat  lz:deploy 
+
+    ╭─────────────────────────────────────────╮
+    │       ▓▓▓ LayerZero DevTools ▓▓▓        │
+    │  ═══════════════════════════════════    │
+    │          /*\                            │
+    │         /* *\     BUILD ANYTHING        │
+    │         ('v')                           │
+    │        //-=-\\    ▶ OMNICHAIN           │
+    │        (\_=_/)                          │
+    │         ^^ ^^                           │
+    │  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  │
+    ╰─────────────────────────────────────────╯
+
+info:    Compiling your hardhat project
+Nothing to compile
+? Which networks would you like to deploy? ›  
+Instructions:
+    ↑/↓: Highlight option
+    ←/→/[space]: Toggle selection
+    [a,b,c]/delete: Filter choices
+? Which networks would you like to deploy? ›  
+Instructions:
+    ↑/↓: Highlight option
+    ←/→/[space]: Toggle selection
+    [a,b,c]/delete: Filter choices
+✔ Which networks would you like to deploy? › base, conflux
+✔ Which deploy script tags would you like to use? … 
+info:    Will deploy 2 networks: base, conflux
+warn:    Will use all deployment scripts
+✔ Do you want to continue? … yes
+Network: base
+Deployer: 0xB9DCA4c38547Aea56C1036aa421b4DA083e62bcc
+Network: conflux
+Deployer: 0xB9DCA4c38547Aea56C1036aa421b4DA083e62bcc
+Deployed contract: DynamicONFTBridge, network: base, address: 0xB0C9C474AD0dBd3c8B4658F548B51976cDE0F19F
+Deployed contract: DynamicONFTBridge, network: conflux, address: 0xdCe7e8289fe891209Cc6C850d76c7B5B8e401fFa
+info:    ✓ Your contracts are now deployed
+
 ```
 
 ---
