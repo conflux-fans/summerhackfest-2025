@@ -11,10 +11,9 @@ const config: HardhatUserConfig = {
       {
         version: "0.8.22",
         settings: {
-          viaIR: true,
           optimizer: {
             enabled: true,
-            runs: 1,  // Low runs prioritizes smaller bytecode size over runtime gas efficiency
+            runs: 200,  // Low runs prioritizes smaller bytecode size over runtime gas efficiency
           },
         },
       },
