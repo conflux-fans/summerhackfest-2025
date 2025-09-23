@@ -80,19 +80,7 @@ info:    ✓ Your contracts are now deployed
 
 ---
 
-## ✍️ Step 4 — Update Deployment Addresses
-
-After deployment, copy the deployed contract addresses into the following files:
-
-- `deployments/base/DynamicWrappedONFT.json`
-- `deployments/conflux/DynamicConfluxONFTAdapter.json`
-
-> **Tip:**  
-> This ensures layerzero.config.ts reads it before wiring.
-
----
-
-## 🔗 Step 5 — Configure LayerZero (OApp Wiring)
+## 🔗 Step 4 — Configure LayerZero (OApp Wiring)
 
 Wire your OApp using the LayerZero configuration:
 
