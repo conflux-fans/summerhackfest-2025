@@ -1,36 +1,36 @@
 import { SwitchChainMutate } from 'wagmi';
-import { CONFLUX_CHAIN_ID, BASE_CHAIN_ID } from './constants';
+import { CONFLUX_CHAIN_ID, BASE_CHAIN_ID, ETH_SEPOLIA_CHAIN_ID, BASE_SEPOLIA_CHAIN_ID } from './constants';
 
-export const switchToConflux = async (
+export const switchToChain = async (
   switchChainAsync: SwitchChainMutate['switchChainAsync'],
+  targetChainId: number,
   setTxStatus: (status: string) => void,
   setTokenId: (tokenId: string) => void,
   setIsApproved: (approved: boolean) => void
 ) => {
   try {
-    await switchChainAsync({ chainId: CONFLUX_CHAIN_ID });
-    setTxStatus('Switched to Conflux eSpace');
+    await switchChainAsync({ chainId: targetChainId });
+    const chainName = getChainName(targetChainId);
+    setTxStatus(`Switched to ${chainName}`);
     setTokenId('');
     setIsApproved(false);
   } catch (err) {
-    console.error('Failed to switch to Conflux:', err);
-    setTxStatus('Failed to switch to Conflux');
+    console.error(`Failed to switch to chain ${targetChainId}:`, err);
+    setTxStatus(`Failed to switch to chain ${targetChainId}`);
   }
 };
 
-export const switchToBase = async (
-  switchChainAsync: SwitchChainMutate['switchChainAsync'],
-  setTxStatus: (status: string) => void,
-  setTokenId: (tokenId: string) => void,
-  setIsApproved: (approved: boolean) => void
-) => {
-  try {
-    await switchChainAsync({ chainId: BASE_CHAIN_ID });
-    setTxStatus('Switched to Base');
-    setTokenId('');
-    setIsApproved(false);
-  } catch (err) {
-    console.error('Failed to switch to Base:', err);
-    setTxStatus('Failed to switch to Base');
+const getChainName = (id: number): string => {
+  switch (id) {
+    case CONFLUX_CHAIN_ID:
+      return 'Conflux eSpace';
+    case BASE_CHAIN_ID:
+      return 'Base';
+    case ETH_SEPOLIA_CHAIN_ID:
+      return 'Ethereum Sepolia';
+    case BASE_SEPOLIA_CHAIN_ID:
+      return 'Base Sepolia';
+    default:
+      return 'Unknown Chain';
   }
 };

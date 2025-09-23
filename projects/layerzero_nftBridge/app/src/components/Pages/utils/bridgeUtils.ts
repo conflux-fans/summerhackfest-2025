@@ -6,13 +6,38 @@ import {
 import {
   CONFLUX_BRIDGE_ADDRESS,
   BASE_BRIDGE_ADDRESS,
+  ETH_SEPOLIA_BRIDGE_ADDRESS,
+  BASE_SEPOLIA_BRIDGE_ADDRESS,
   CONFLUX_CHAIN_ID,
-  BASE_CHAIN_ID, // Add this: 8453 for Base
+  BASE_CHAIN_ID,
+  ETH_SEPOLIA_CHAIN_ID,
+  BASE_SEPOLIA_CHAIN_ID,
   CONFLUX_EID,
-  BASE_EID
-} from "./constants"; // Assuming you have BASE_CHAIN_ID = 8453
+  BASE_EID,
+  ETH_SEPOLIA_EID,
+  BASE_SEPOLIA_EID
+} from "./constants";
 
-type BridgeDirection = 'toBase' | 'toConflux';
+type BridgeDirection = 'toBase' | 'toConflux' | 'toBaseSepolia' | 'toEthSepolia';
+
+interface ChainConfig {
+  bridgeAddress: Address;
+  eid: number;
+}
+
+const chainConfigs: Record<number, ChainConfig> = {
+  [CONFLUX_CHAIN_ID]: { bridgeAddress: CONFLUX_BRIDGE_ADDRESS, eid: CONFLUX_EID },
+  [BASE_CHAIN_ID]: { bridgeAddress: BASE_BRIDGE_ADDRESS, eid: BASE_EID },
+  [ETH_SEPOLIA_CHAIN_ID]: { bridgeAddress: ETH_SEPOLIA_BRIDGE_ADDRESS, eid: ETH_SEPOLIA_EID },
+  [BASE_SEPOLIA_CHAIN_ID]: { bridgeAddress: BASE_SEPOLIA_BRIDGE_ADDRESS, eid: BASE_SEPOLIA_EID },
+};
+
+const directionToDstChainIdMap: Record<BridgeDirection, number> = {
+  'toBase': BASE_CHAIN_ID,
+  'toConflux': CONFLUX_CHAIN_ID,
+  'toBaseSepolia': BASE_SEPOLIA_CHAIN_ID,
+  'toEthSepolia': ETH_SEPOLIA_CHAIN_ID,
+};
 
 interface BridgeParams {
   walletClient: WalletClient;

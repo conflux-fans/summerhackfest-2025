@@ -4,9 +4,9 @@ import { useWalletClient, usePublicClient, useSwitchChain } from 'wagmi';
 import { WalletConnectButton } from '../Buttons/WalletConnect';
 import { NFT } from './utils/types';
 import { fetchNFTs } from './utils/nftUtils';
-import { NetworkDropdown } from '../Common/NetworkDropdown';
+import { ChainDropdown } from '../Common/NetworkDropdown';
 import { approveNFT, bridgeNFT, registerCollection, checkIsApproved, checkIsSupported } from './utils/bridgeUtils';
-import { CONFLUX_CHAIN_ID, BASE_CHAIN_ID, CONFLUX_BRIDGE_ADDRESS, BASE_BRIDGE_ADDRESS } from './utils/constants';
+import { CONFLUX_CHAIN_ID, BASE_CHAIN_ID, ETH_SEPOLIA_CHAIN_ID, BASE_SEPOLIA_CHAIN_ID, CONFLUX_BRIDGE_ADDRESS, BASE_BRIDGE_ADDRESS, ETH_SEPOLIA_BRIDGE_ADDRESS, BASE_SEPOLIA_BRIDGE_ADDRESS } from './utils/constants';
 
 export function MainPage() {
   const { address, isConnected } = useAppKitAccount();
@@ -30,20 +30,28 @@ export function MainPage() {
   const [isSupported, setIsSupported] = useState(true);
   const [isRegistering, setIsRegistering] = useState(false);
   const [tokenContractAddress, setTokenContractAddress] = useState('');
+  const [destinationChainId, setDestinationChainId] = useState<number | null>(null);
 
   useEffect(() => {
     const initialize = async () => {
       if (isConnected && address && walletClient && publicClient) {
         setReady(true);
         setRecipient(address);
-        if (chainId !== CONFLUX_CHAIN_ID && chainId !== BASE_CHAIN_ID) {
-          setTxStatus('Please switch to Conflux eSpace or Base');
+        if (![CONFLUX_CHAIN_ID, BASE_CHAIN_ID, ETH_SEPOLIA_CHAIN_ID, BASE_SEPOLIA_CHAIN_ID].includes(chainId || 0)) {
+          setTxStatus('Please switch to a supported network');
           setIsApproved(false);
         } else {
           setTxStatus('');
+          if (!destinationChainId) {
+            setDestinationChainId(
+              chainId === CONFLUX_CHAIN_ID ? BASE_CHAIN_ID :
+              chainId === BASE_CHAIN_ID ? CONFLUX_CHAIN_ID :
+              chainId === ETH_SEPOLIA_CHAIN_ID ? BASE_SEPOLIA_CHAIN_ID : ETH_SEPOLIA_CHAIN_ID
+            );
+          }
         }
         if (tokenContractAddress && chainId) {
-          const bridgeAddress = chainId === CONFLUX_CHAIN_ID ? CONFLUX_BRIDGE_ADDRESS : BASE_BRIDGE_ADDRESS;
+          const bridgeAddress = getBridgeAddress(chainId);
           const supported = await checkIsSupported(publicClient, tokenContractAddress as Address, bridgeAddress as Address);
           setIsSupported(supported);
           if (!supported) {
@@ -69,6 +77,36 @@ export function MainPage() {
     initialize();
   }, [isConnected, address, walletClient, publicClient, chainId, tokenContractAddress, tokenId]);
 
+  const getBridgeAddress = (id: number): Address => {
+    switch (id) {
+      case CONFLUX_CHAIN_ID:
+        return CONFLUX_BRIDGE_ADDRESS;
+      case BASE_CHAIN_ID:
+        return BASE_BRIDGE_ADDRESS;
+      case ETH_SEPOLIA_CHAIN_ID:
+        return ETH_SEPOLIA_BRIDGE_ADDRESS;
+      case BASE_SEPOLIA_CHAIN_ID:
+        return BASE_SEPOLIA_BRIDGE_ADDRESS;
+      default:
+        throw new Error('Unsupported chain');
+    }
+  };
+
+  const getChainInfo = (id: number) => {
+    switch (id) {
+      case CONFLUX_CHAIN_ID:
+        return { name: 'Conflux', color: 'from-emerald-400 to-teal-500', logo: 'CFX' };
+      case BASE_CHAIN_ID:
+        return { name: 'Base', color: 'from-blue-400 to-indigo-500', logo: 'BASE' };
+      case ETH_SEPOLIA_CHAIN_ID:
+        return { name: 'Ethereum Sepolia', color: 'from-indigo-400 to-purple-500', logo: 'ETH' };
+      case BASE_SEPOLIA_CHAIN_ID:
+        return { name: 'Base Sepolia', color: 'from-blue-400 to-indigo-500', logo: 'BASE-S' };
+      default:
+        return { name: 'Unknown', color: 'from-gray-400 to-gray-500', logo: '?' };
+    }
+  };
+
   const handleFetchNFTs = () => {
     if (!isConnected) {
       setTxStatus('Please connect wallet to browse NFTs');
@@ -93,23 +131,9 @@ export function MainPage() {
     setRecipient(!useCustomRecipient ? '' : address || '');
   };
 
-  const getChainInfo = (id: number) => {
-    switch (id) {
-      case CONFLUX_CHAIN_ID:
-        return { name: 'Conflux', color: 'from-emerald-400 to-teal-500', logo: 'CFX' };
-      case BASE_CHAIN_ID:
-        return { name: 'Base', color: 'from-blue-400 to-indigo-500', logo: 'BASE' };
-      default:
-        return { name: 'Unknown', color: 'from-gray-400 to-gray-500', logo: '?' };
-    }
-  };
-
-  const currentChain = getChainInfo(chainId || 0);
-  const targetChain = getChainInfo(chainId === CONFLUX_CHAIN_ID ? BASE_CHAIN_ID : CONFLUX_CHAIN_ID);
-
   const handleRegisterClick = async () => {
     if (!chainId) return;
-    const bridgeAddress = chainId === CONFLUX_CHAIN_ID ? CONFLUX_BRIDGE_ADDRESS : BASE_BRIDGE_ADDRESS;
+    const bridgeAddress = getBridgeAddress(chainId);
     try {
       await registerCollection({
         walletClient,
@@ -128,7 +152,7 @@ export function MainPage() {
 
   const handleApproveClick = async () => {
     if (!chainId) return;
-    const bridgeAddress = chainId === CONFLUX_CHAIN_ID ? CONFLUX_BRIDGE_ADDRESS : BASE_BRIDGE_ADDRESS;
+    const bridgeAddress = getBridgeAddress(chainId);
     try {
       await approveNFT({
         walletClient,
@@ -147,8 +171,14 @@ export function MainPage() {
   };
 
   const handleBridgeClick = async () => {
-    if (!chainId) return;
-    const direction = chainId === CONFLUX_CHAIN_ID ? 'toBase' : 'toConflux';
+    if (!chainId || !destinationChainId) {
+      setTxStatus('Please select a valid destination chain');
+      return;
+    }
+    if (chainId === destinationChainId) {
+      setTxStatus('Cannot bridge to the same chain');
+      return;
+    }
     try {
       await bridgeNFT({
         walletClient,
@@ -161,12 +191,15 @@ export function MainPage() {
         setIsApproved,
         setTokenIds: (ids) => setTokenId(ids[0] || ''),
         setIsBridging,
-      }, direction);
+      }, destinationChainId);
     } catch (error) {
       console.error('[MainPage] Bridging error:', error);
       setTxStatus(`Failed to bridge: ${error.message || 'Unknown error'}`);
     }
   };
+
+  const currentChain = getChainInfo(chainId || 0);
+  const targetChain = getChainInfo(destinationChainId || 0);
 
   return (
     <div className="min-h-screen p-4">
@@ -186,7 +219,7 @@ export function MainPage() {
             </h1>
           </div>
           <p className="text-gray-300 text-lg md:text-xl max-w-2xl mx-auto">
-            Bridge any ERC-721 NFT between Conflux eSpace and Base using LayerZero technology
+            Bridge any ERC-721 NFT between supported chains using LayerZero technology
           </p>
         </div>
         <div className="grid lg:grid-cols-2 gap-8 items-start">
@@ -197,39 +230,33 @@ export function MainPage() {
                   <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
                   Network Selection
                 </h3>
-                <NetworkDropdown
-                  chainId={chainId}
-                  switchChainAsync={switchChainAsync}
-                  setTxStatus={setTxStatus}
-                  setTokenId={setTokenId}
-                  setIsApproved={setIsApproved}
-                />
               </div>
               <div className="relative">
                 <div className="flex items-center justify-between bg-white/5 border border-white/10 rounded-2xl p-4">
-                  <div className="flex items-center">
-                    <div className={`w-10 h-10 bg-gradient-to-br ${currentChain.color} rounded-xl flex items-center justify-center text-white text-xs font-bold mr-3`}>
-                      {currentChain.logo}
-                    </div>
-                    <div>
-                      <div className="text-white font-medium">{currentChain.name}</div>
-                      <div className="text-gray-400 text-sm">Current Network</div>
-                    </div>
-                  </div>
+                  <ChainDropdown
+                    type="origin"
+                    chainId={chainId}
+                    destinationChainId={destinationChainId}
+                    switchChainAsync={switchChainAsync}
+                    setTxStatus={setTxStatus}
+                    setTokenId={setTokenId}
+                    setIsApproved={setIsApproved}
+                  />
                   <div className="text-purple-400">
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
                     </svg>
                   </div>
-                  <div className="flex items-center">
-                    <div className={`w-10 h-10 bg-gradient-to-br ${targetChain.color} rounded-xl flex items-center justify-center text-white text-xs font-bold mr-3`}>
-                      {targetChain.logo}
-                    </div>
-                    <div>
-                      <div className="text-white font-medium">{targetChain.name}</div>
-                      <div className="text-gray-400 text-sm">Destination</div>
-                    </div>
-                  </div>
+                  <ChainDropdown
+                    type="destination"
+                    chainId={chainId}
+                    destinationChainId={destinationChainId}
+                    switchChainAsync={switchChainAsync}
+                    setTxStatus={setTxStatus}
+                    setTokenId={setTokenId}
+                    setIsApproved={setIsApproved}
+                    setDestinationChainId={setDestinationChainId}
+                  />
                 </div>
               </div>
             </div>
@@ -358,9 +385,9 @@ export function MainPage() {
               </button>
               <button
                 onClick={handleBridgeClick}
-                disabled={!ready || !tokenId || !recipient || !isApproved || !isSupported || !tokenContractAddress || isBridging}
+                disabled={!ready || !tokenId || !recipient || !isApproved || !isSupported || !tokenContractAddress || isBridging || !destinationChainId}
                 className={`w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center justify-center ${
-                  !ready || !tokenId || !recipient || !isApproved || !isSupported || !tokenContractAddress || isBridging
+                  !ready || !tokenId || !recipient || !isApproved || !isSupported || !tokenContractAddress || isBridging || !destinationChainId
                     ? 'opacity-50 cursor-not-allowed hover:scale-100'
                     : ''
                 }`}
@@ -376,14 +403,14 @@ export function MainPage() {
                 ) : (
                   <>
                     <span className="mr-3">🌉</span>
-                    {chainId === CONFLUX_CHAIN_ID ? 'Bridge to Base' : 'Bridge to Conflux'}
+                    Bridge to {targetChain.name}
                   </>
                 )}
               </button>
             </div>
             {txStatus && (
               <div className={`mt-6 p-4 rounded-2xl border ${
-                txStatus.includes('Failed') || txStatus.includes('Please') || txStatus.includes('Invalid')
+                txStatus.includes('Failed') || txStatus.includes('Please') || txStatus.includes('Invalid') || txStatus.includes('same chain')
                   ? 'bg-red-500/10 border-red-500/20 text-red-300'
                   : 'bg-green-500/10 border-green-500/20 text-green-300'
               }`}>

@@ -4,13 +4,22 @@ import { OAppEnforcedOption } from '@layerzerolabs/toolbox-hardhat';
 import { TwoWayConfig, generateConnectionsConfig } from '@layerzerolabs/metadata-tools';
 
 // Define OApp configurations
-const confluxOApp = {
-  eid: EndpointId.CONFLUX_V2_MAINNET,
+// const confluxOApp = {
+//   eid: EndpointId.CONFLUX_V2_MAINNET,
+//   contractName: 'DynamicONFTBridge',
+// };
+// const baseOApp = {
+//   eid: EndpointId.BASE_V2_MAINNET,
+//   contractName: 'DynamicONFTBridge',
+// };
+
+const ethereumSepoliaOApp = {
+  eid: 40161, // SEPOLIA_V2_TESTNET
   contractName: 'DynamicONFTBridge',
 };
 
-const baseOApp = {
-  eid: EndpointId.BASE_V2_MAINNET,
+const baseSepoliaOApp = {
+  eid: 40245, // BASE_V2_TESTNET
   contractName: 'DynamicONFTBridge',
 };
 
@@ -19,26 +28,26 @@ const enforcedOptions: OAppEnforcedOption[] = [];
 
 // Define pathway configurations for two-way connections
 const pathways: TwoWayConfig[] = [
-  // Conflux to Base
+  // Ethereum Sepolia to Base Sepolia
   [
-    confluxOApp,
-    baseOApp,
+    ethereumSepoliaOApp,
+    baseSepoliaOApp,
     [
-      ['LayerZero Labs'], // DVNs for Conflux -> Base
+      ['LayerZero Labs'], // DVNs for Ethereum Sepolia -> Base Sepolia
       [], // Executors (none specified)
     ],
-    [15, 200], // Confirmations: Conflux (15), Base (200)
+    [1, 1], // Confirmations: Lower for testnets (Ethereum Sepolia: 1, Base Sepolia: 1)
     [enforcedOptions, enforcedOptions], // Enforced options for both directions
   ],
-  // Base to Conflux
+  // Base Sepolia to Ethereum Sepolia
   [
-    baseOApp,
-    confluxOApp,
+    baseSepoliaOApp,
+    ethereumSepoliaOApp,
     [
-      ['LayerZero Labs'], // DVNs for Base -> Conflux
+      ['LayerZero Labs'], // DVNs for Base Sepolia -> Ethereum Sepolia
       [], // Executors (none specified)
     ],
-    [200, 15], // Confirmations: Base (200), Conflux (15)
+    [1, 1], // Confirmations: Lower for testnets (Base Sepolia: 1, Ethereum Sepolia: 1)
     [enforcedOptions, enforcedOptions], // Enforced options for both directions
   ],
 ];
@@ -48,8 +57,8 @@ export default async function () {
   const connections = await generateConnectionsConfig(pathways);
   return {
     contracts: [
-      { contract: confluxOApp },
-      { contract: baseOApp },
+      { contract: ethereumSepoliaOApp },
+      { contract: baseSepoliaOApp },
     ],
     connections,
   };
