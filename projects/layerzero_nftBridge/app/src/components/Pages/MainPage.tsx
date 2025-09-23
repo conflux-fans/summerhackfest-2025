@@ -5,10 +5,8 @@ import { WalletConnectButton } from '../Buttons/WalletConnect';
 import { NFT } from './utils/types';
 import { fetchNFTs } from './utils/nftUtils';
 import { NetworkDropdown } from '../Common/NetworkDropdown';
-import { approveNFT, approveWrappedNFT, bridgeToBase, bridgeBackToConflux, registerCollection } from './utils/bridgeUtils';
-import { CONFLUX_CHAIN_ID, CONFLUX_ORIGIN_ADDRESS, BASE_BRIDGE_ADDRESS } from './utils/constants';
-import { ESPACE_BRIDGE_ABI, BASE_WRAPPED_ABI } from './utils/abis';
-import { ethers } from 'ethers';
+import { approveNFT, bridgeNFT, registerCollection, checkIsApproved, checkIsSupported } from './utils/bridgeUtils';
+import { CONFLUX_CHAIN_ID, BASE_CHAIN_ID, CONFLUX_BRIDGE_ADDRESS, BASE_BRIDGE_ADDRESS } from './utils/constants';
 
 export function MainPage() {
   const { address, isConnected } = useAppKitAccount();
@@ -16,6 +14,7 @@ export function MainPage() {
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
   const { switchChainAsync } = useSwitchChain();
+
   const [ready, setReady] = useState(false);
   const [tokenId, setTokenId] = useState('');
   const [recipient, setRecipient] = useState('');
@@ -29,7 +28,7 @@ export function MainPage() {
   const [isLoadingNfts, setIsLoadingNfts] = useState(false);
   const [selectedNFT, setSelectedNFT] = useState<NFT | null>(null);
   const [isSupported, setIsSupported] = useState(true);
-  const [isWhitelisting, setIsWhitelisting] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false);
   const [tokenContractAddress, setTokenContractAddress] = useState('');
 
   useEffect(() => {
@@ -37,30 +36,25 @@ export function MainPage() {
       if (isConnected && address && walletClient && publicClient) {
         setReady(true);
         setRecipient(address);
-        if (chainId !== CONFLUX_CHAIN_ID && chainId !== 8453) {
+        if (chainId !== CONFLUX_CHAIN_ID && chainId !== BASE_CHAIN_ID) {
           setTxStatus('Please switch to Conflux eSpace or Base');
           setIsApproved(false);
         } else {
           setTxStatus('');
         }
-        if (tokenContractAddress && chainId === CONFLUX_CHAIN_ID) {
-          try {
-            const bridgeAddress = CONFLUX_ORIGIN_ADDRESS;
-            const bridgeAbi = ESPACE_BRIDGE_ABI;
-            const supported = await publicClient.readContract({
-              address: bridgeAddress as `0x${string}`,
-              abi: bridgeAbi,
-              functionName: 'supportedTokens',
-              args: [tokenContractAddress as `0x${string}`],
-            });
-            setIsSupported(!!supported);
-            if (!supported) {
-              setTxStatus('Token contract not registered. Please whitelist the collection to proceed.');
+        if (tokenContractAddress && chainId) {
+          const bridgeAddress = chainId === CONFLUX_CHAIN_ID ? CONFLUX_BRIDGE_ADDRESS : BASE_BRIDGE_ADDRESS;
+          const supported = await checkIsSupported(publicClient, tokenContractAddress as Address, bridgeAddress as Address);
+          setIsSupported(supported);
+          if (!supported) {
+            setTxStatus('Token contract not registered. Please register the collection to proceed.');
+          }
+          if (tokenId && supported) {
+            const approved = await checkIsApproved(publicClient, tokenId, tokenContractAddress as Address, bridgeAddress as Address);
+            setIsApproved(approved);
+            if (approved) {
+              setTxStatus('NFT already approved');
             }
-          } catch (err) {
-            console.error('Failed to check supportedTokens', err);
-            setIsSupported(false);
-            setTxStatus('Failed to verify token contract status. Please whitelist the collection.');
           }
         } else {
           setIsSupported(true);
@@ -73,7 +67,7 @@ export function MainPage() {
       }
     };
     initialize();
-  }, [isConnected, address, walletClient, publicClient, chainId, tokenContractAddress]);
+  }, [isConnected, address, walletClient, publicClient, chainId, tokenContractAddress, tokenId]);
 
   const handleFetchNFTs = () => {
     if (!isConnected) {
@@ -103,7 +97,7 @@ export function MainPage() {
     switch (id) {
       case CONFLUX_CHAIN_ID:
         return { name: 'Conflux', color: 'from-emerald-400 to-teal-500', logo: 'CFX' };
-      case 8453:
+      case BASE_CHAIN_ID:
         return { name: 'Base', color: 'from-blue-400 to-indigo-500', logo: 'BASE' };
       default:
         return { name: 'Unknown', color: 'from-gray-400 to-gray-500', logo: '?' };
@@ -111,31 +105,66 @@ export function MainPage() {
   };
 
   const currentChain = getChainInfo(chainId || 0);
-  const targetChain = getChainInfo(chainId === CONFLUX_CHAIN_ID ? 8453 : CONFLUX_CHAIN_ID);
+  const targetChain = getChainInfo(chainId === CONFLUX_CHAIN_ID ? BASE_CHAIN_ID : CONFLUX_CHAIN_ID);
 
-  const handleWhitelistClick = async () => {
-    console.log('[MainPage] Calling registerCollection with:', {
-      walletClient,
-      publicClient,
-      tokenId,
-      tokenContractAddress,
-      setTxStatus: typeof setTxStatus,
-      setIsSupported: typeof setIsSupported,
-      setIsWhitelisting: typeof setIsWhitelisting,
-    });
+  const handleRegisterClick = async () => {
+    if (!chainId) return;
+    const bridgeAddress = chainId === CONFLUX_CHAIN_ID ? CONFLUX_BRIDGE_ADDRESS : BASE_BRIDGE_ADDRESS;
     try {
-      await registerCollection(
+      await registerCollection({
+        walletClient,
+        publicClient,
+        tokenAddress: tokenContractAddress as Address,
+        bridgeAddress: bridgeAddress as Address,
+        setTxStatus,
+        setIsSupported,
+        setIsRegistering,
+      });
+    } catch (error) {
+      console.error('[MainPage] Registering error:', error);
+      setTxStatus(`Failed to register collection: ${error.message || 'Unknown error'}`);
+    }
+  };
+
+  const handleApproveClick = async () => {
+    if (!chainId) return;
+    const bridgeAddress = chainId === CONFLUX_CHAIN_ID ? CONFLUX_BRIDGE_ADDRESS : BASE_BRIDGE_ADDRESS;
+    try {
+      await approveNFT({
         walletClient,
         publicClient,
         tokenId,
-        tokenContractAddress,
+        tokenAddress: tokenContractAddress as Address,
+        bridgeAddress: bridgeAddress as Address,
         setTxStatus,
-        setIsSupported,
-        setIsWhitelisting
-      );
+        setIsApproved,
+        setIsApproving,
+      });
     } catch (error) {
-      console.error('[MainPage] Whitelisting error:', error);
-      setTxStatus(`Failed to whitelist collection: ${error.message || 'Unknown error'}`);
+      console.error('[MainPage] Approval error:', error);
+      setTxStatus(`Failed to approve: ${error.message || 'Unknown error'}`);
+    }
+  };
+
+  const handleBridgeClick = async () => {
+    if (!chainId) return;
+    const direction = chainId === CONFLUX_CHAIN_ID ? 'toBase' : 'toConflux';
+    try {
+      await bridgeNFT({
+        walletClient,
+        publicClient,
+        tokenIds: [tokenId],
+        localTokenAddress: tokenContractAddress as Address,
+        recipient: recipient as Address,
+        isApproved,
+        setTxStatus,
+        setIsApproved,
+        setTokenIds: (ids) => setTokenId(ids[0] || ''),
+        setIsBridging,
+      }, direction);
+    } catch (error) {
+      console.error('[MainPage] Bridging error:', error);
+      setTxStatus(`Failed to bridge: ${error.message || 'Unknown error'}`);
     }
   };
 
@@ -270,78 +299,68 @@ export function MainPage() {
               />
             </div>
             <div className="space-y-4">
-              {(chainId === CONFLUX_CHAIN_ID || chainId === 8453) && !isSupported && (
+              {!isSupported && (
                 <button
-                  onClick={handleWhitelistClick}
-                  disabled={!ready || !tokenContractAddress || isWhitelisting}
+                  onClick={handleRegisterClick}
+                  disabled={!ready || !tokenContractAddress || isRegistering}
                   className={`w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center justify-center ${
-                    !ready || !tokenContractAddress || isWhitelisting ? 'opacity-50 cursor-not-allowed hover:scale-100' : ''
+                    !ready || !tokenContractAddress || isRegistering ? 'opacity-50 cursor-not-allowed hover:scale-100' : ''
                   }`}
                 >
-                  {isWhitelisting ? (
+                  {isRegistering ? (
                     <>
                       <svg className="animate-spin h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                      Whitelisting...
+                      Registering...
                     </>
                   ) : (
                     <>
                       <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 0 0 0118 0z"/>
                       </svg>
-                      Whitelist Collection
-                    </>
-                  )}
-                </button>
-              )}
-              {(chainId === CONFLUX_CHAIN_ID || chainId === 8453) && (
-                <button
-                  onClick={() =>
-                    chainId === CONFLUX_CHAIN_ID
-                      ? approveNFT(walletClient, publicClient, tokenId, tokenContractAddress, setTxStatus, setIsApproved, setIsApproving)
-                      : approveWrappedNFT(walletClient, publicClient, tokenId, tokenContractAddress, setTxStatus, setIsApproved, setIsApproving)
-                  }
-                  disabled={!ready || !tokenId || (chainId === CONFLUX_CHAIN_ID && (!isSupported || !tokenContractAddress)) || isApproved || isApproving}
-                  className={`w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center justify-center ${
-                    !ready || !tokenId || (chainId === CONFLUX_CHAIN_ID && (!isSupported || !tokenContractAddress)) || isApproved || isApproving ? 'opacity-50 cursor-not-allowed hover:scale-100' : ''
-                  }`}
-                >
-                  {isApproving ? (
-                    <>
-                      <svg className="animate-spin h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Approving...
-                    </>
-                  ) : isApproved ? (
-                    <>
-                      <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
-                      </svg>
-                      NFT Approved
-                    </>
-                  ) : (
-                    <>
-                      <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                      </svg>
-                      Approve NFT
+                      Register Collection
                     </>
                   )}
                 </button>
               )}
               <button
-                onClick={() =>
-                  chainId === CONFLUX_CHAIN_ID
-                    ? bridgeToBase(walletClient, publicClient, tokenId, tokenContractAddress, recipient, isApproved, setTxStatus, setIsApproved, setTokenId, setIsBridging)
-                    : bridgeBackToConflux(walletClient, publicClient, tokenId, recipient, tokenContractAddress, isApproved, setTxStatus, setTokenId, setIsBridging)
-                }
-                disabled={!ready || !tokenId || !recipient || !isApproved || (chainId === CONFLUX_CHAIN_ID && (!isSupported || !tokenContractAddress)) || isBridging}
+                onClick={handleApproveClick}
+                disabled={!ready || !tokenId || !isSupported || !tokenContractAddress || isApproved || isApproving}
+                className={`w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center justify-center ${
+                  !ready || !tokenId || !isSupported || !tokenContractAddress || isApproved || isApproving ? 'opacity-50 cursor-not-allowed hover:scale-100' : ''
+                }`}
+              >
+                {isApproving ? (
+                  <>
+                    <svg className="animate-spin h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Approving...
+                  </>
+                ) : isApproved ? (
+                  <>
+                    <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    NFT Approved
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 0 0 0118 0z"/>
+                    </svg>
+                    Approve NFT
+                  </>
+                )}
+              </button>
+              <button
+                onClick={handleBridgeClick}
+                disabled={!ready || !tokenId || !recipient || !isApproved || !isSupported || !tokenContractAddress || isBridging}
                 className={`w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center justify-center ${
-                  !ready || !tokenId || !recipient || !isApproved || (chainId === CONFLUX_CHAIN_ID && (!isSupported || !tokenContractAddress)) || isBridging
+                  !ready || !tokenId || !recipient || !isApproved || !isSupported || !tokenContractAddress || isBridging
                     ? 'opacity-50 cursor-not-allowed hover:scale-100'
                     : ''
                 }`}
@@ -499,7 +518,7 @@ export function MainPage() {
                         <h4 className="text-white font-semibold text-lg mb-1">
                           {nft.name || `Token #${nft.tokenId}`}
                         </h4>
-                        <p className="text-gray-400 text-sm font-mono  truncate max-w-[200px]">ID: {nft.tokenId}</p>
+                        <p className="text-gray-400 text-sm font-mono truncate max-w-[200px]">ID: {nft.tokenId}</p>
                         <p className="text-gray-400 text-sm font-mono">
                           Contract: {nft.contractAddress ? `${nft.contractAddress.slice(0, 6)}...${nft.contractAddress.slice(-4)}` : 'Unknown'}
                         </p>
