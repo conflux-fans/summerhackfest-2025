@@ -2,59 +2,42 @@
 pragma solidity ^0.8.22;
 
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {ONFT721Core} from "@layerzerolabs/onft-evm/contracts/onft721/ONFT721Core.sol";
 import {MessagingFee} from "@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/OAppSender.sol";
 import {Origin} from "@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/OApp.sol";
-
-interface IERC721Receiver {
-    function onERC721Received(
-        address operator,
-        address from,
-        uint256 tokenId,
-        bytes calldata data
-    ) external returns (bytes4);
-}
+import {IERC721Metadata} from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
+import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
+import {WrappedONFT} from "./WrappedONFT.sol";
 
 /**
- * @title DynamicWrappedONFT
- * @dev Fully dynamic adapter for bridging multiple ERC721 NFTs from Base to Conflux eSpace.
- * Anyone can register ERC721 tokens (with interface check); bridging specifies the token address.
- * Payload includes token address for round-trip bridging.
- * Updated to implement wrapping logic: mint wrapped NFTs on receive, burn on send.
+ * @title DynamicWrappedONFTFactory
+ * @dev Factory and bridge handler for creating per-collection wrapped NFTs on Base.
+ * Deploys separate wrapped contracts for each original collection using a factory pattern.
+ * Handles bridging logic, minting/burning on the appropriate wrapper.
+ * Anyone can register ERC721 tokens; bridging specifies the original token address.
+ * Payload includes token address, metadata for round-trip bridging.
  */
-contract DynamicWrappedONFT is ONFT721Core, ERC721, IERC721Receiver {
+contract DynamicWrappedONFTFactory is ONFT721Core {
     mapping(address => bool) public supportedTokens;
-    mapping(uint256 => address) public wrappedToOriginalToken;
-    mapping(uint256 => uint256) public wrappedToOriginalId;
-
+    mapping(address => address) public originalToWrapper;
+    mapping(address => address) public wrapperToOriginal;
+    address public immutable wrappedImplementation;
     event TokenRegistered(address indexed token);
     event TokenUnregistered(address indexed token);
-    event WrappedMinted(address indexed originalToken, uint256 originalId, uint256 wrappedId, address to);
-    event WrappedBurned(uint256 wrappedId);
+    event WrappedMinted(address indexed wrapper, address indexed originalToken, uint256 originalId, uint256 wrappedId, address to);
+    event WrappedBurned(address indexed wrapper, uint256 wrappedId);
+    event WrapperDeployed(address indexed originalToken, address wrapper);
 
-    constructor(address _lzEndpoint, address _delegate) ONFT721Core(_lzEndpoint, _delegate) ERC721("WrappedNFT", "WNFT") {}
-
-    /**
-     * @notice Implements IERC721Receiver to handle safe ERC721 transfers.
-     * @return bytes4 The IERC721Receiver interface selector.
-     */
-    function onERC721Received(
-        address /* operator */,
-        address /* from */,
-        uint256 /* tokenId */,
-        bytes calldata /* data */
-    ) external pure returns (bytes4) {
-        return this.onERC721Received.selector;
+    constructor(address _lzEndpoint, address _delegate) ONFT721Core(_lzEndpoint, _delegate) {
+        wrappedImplementation = address(new WrappedONFT());
     }
 
     /**
      * @notice Permissionless registration of ERC721 tokens (auto-whitelist if valid ERC721).
-     * @param _token The ERC721 token address to register.
+     * @param _token The ERC721 token address to register (original on source chain).
      */
     function registerToken(address _token) external {
         require(_token != address(0), "Invalid token address");
-        require(isERC721(_token), "Not an ERC721 token");
         require(!supportedTokens[_token], "Already registered");
         supportedTokens[_token] = true;
         emit TokenRegistered(_token);
@@ -70,16 +53,22 @@ contract DynamicWrappedONFT is ONFT721Core, ERC721, IERC721Receiver {
     }
 
     /**
-     * @notice Check if a contract supports ERC721 interface.
-     * @param _token The token address to check.
-     * @return bool True if ERC721.
+     * @notice Deploy a new wrapper for an original token.
+     * @param _originalToken The original token address on source chain.
+     * @param _name The name for the wrapped collection.
+     * @param _symbol The symbol for the wrapped collection.
+     * @return wrapper The address of the deployed wrapper.
      */
-    function isERC721(address _token) public view returns (bool) {
-        try IERC721(_token).supportsInterface(0x80ac58cd) returns (bool supported) {
-            return supported;
-        } catch {
-            return false;
-        }
+    function deployWrapper(address _originalToken, string memory _name, string memory _symbol) internal returns (address wrapper) {
+        wrapper = Clones.clone(wrappedImplementation);
+        WrappedONFT(wrapper).initialize(_name, _symbol, _originalToken, address(this));
+        originalToWrapper[_originalToken] = wrapper;
+        wrapperToOriginal[wrapper] = _originalToken;
+        emit WrapperDeployed(_originalToken, wrapper);
+    }
+
+    function getWrapper(address _originalToken) external view returns (address) {
+        return originalToWrapper[_originalToken];
     }
 
     function token() external pure returns (address) {
@@ -94,21 +83,27 @@ contract DynamicWrappedONFT is ONFT721Core, ERC721, IERC721Receiver {
         address _originalToken,
         uint32 _dstEid,
         address _to,
-        uint256[] calldata _wrappedIds,
+        uint256[] calldata _tokenIds,
         bytes calldata _options,
         MessagingFee calldata _fee,
         address _refundAddress
     ) external payable {
+        address wrapper = originalToWrapper[_originalToken];
+        require(wrapper != address(0), "Wrapper not deployed");
         if (!supportedTokens[_originalToken]) {
-            // Auto-register if first time and valid ERC721
-            require(isERC721(_originalToken), "Not an ERC721 token");
             supportedTokens[_originalToken] = true;
             emit TokenRegistered(_originalToken);
         }
-        for (uint256 i = 0; i < _wrappedIds.length; i++) {
-            _dynamicDebit(_originalToken, msg.sender, _wrappedIds[i], _dstEid);
+        string memory collName = WrappedONFT(wrapper).name();
+        string memory collSymbol = WrappedONFT(wrapper).symbol();
+        string[] memory tokenURIs = new string<a href="_tokenIds.length" target="_blank" rel="noopener noreferrer nofollow"></a>;
+        for (uint256 i = 0; i < _tokenIds.length; i++) {
+            tokenURIs[i] = WrappedONFT(wrapper).tokenURI(_tokenIds[i]);
         }
-        bytes memory payload = abi.encode(_to, _wrappedIds, _originalToken);
+        for (uint256 i = 0; i < _tokenIds.length; i++) {
+            _dynamicDebit(_originalToken, msg.sender, _tokenIds[i], _dstEid);
+        }
+        bytes memory payload = abi.encode(_to, _tokenIds, _originalToken, collName, collSymbol, tokenURIs);
         _lzSend(_dstEid, payload, _options, _fee, _refundAddress);
     }
 
@@ -116,28 +111,34 @@ contract DynamicWrappedONFT is ONFT721Core, ERC721, IERC721Receiver {
         address _originalToken,
         uint32 _dstEid,
         address _to,
-        uint256[] calldata _wrappedIds,
+        uint256[] calldata _tokenIds,
         bytes calldata _options,
         bool _payInLzToken
     ) external view returns (MessagingFee memory fee) {
-        bytes memory payload = abi.encode(_to, _wrappedIds, _originalToken);
+        address wrapper = originalToWrapper[_originalToken];
+        require(wrapper != address(0), "Wrapper not deployed");
+        string memory collName = WrappedONFT(wrapper).name();
+        string memory collSymbol = WrappedONFT(wrapper).symbol();
+        string[] memory tokenURIs = new string<a href="_tokenIds.length" target="_blank" rel="noopener noreferrer nofollow"></a>;
+        for (uint256 i = 0; i < _tokenIds.length; i++) {
+            tokenURIs[i] = WrappedONFT(wrapper).tokenURI(_tokenIds[i]);
+        }
+        bytes memory payload = abi.encode(_to, _tokenIds, _originalToken, collName, collSymbol, tokenURIs);
         fee = _quote(_dstEid, payload, _options, _payInLzToken);
     }
 
     // Custom dynamic debit (not override)
     function _dynamicDebit(address _originalToken, address _from, uint256 _tokenId, uint32 _dstEid) internal virtual {
-        // Burn the wrapped NFT
-        _burn(_tokenId);
-        emit WrappedBurned(_tokenId);
+        address wrapper = originalToWrapper[_originalToken];
+        WrappedONFT(wrapper).burn(_tokenId);
+        emit WrappedBurned(wrapper, _tokenId);
     }
 
     // Custom dynamic credit (not override)
-    function _dynamicCredit(address _originalToken, address _toAddress, uint256 _tokenId, uint32 _srcEid) internal virtual {
-        // Mint a new wrapped NFT
-        _safeMint(_toAddress, _tokenId);
-        wrappedToOriginalToken[_tokenId] = _originalToken;
-        wrappedToOriginalId[_tokenId] = _tokenId; // Assuming same tokenId for simplicity; adjust if needed
-        emit WrappedMinted(_originalToken, _tokenId, _tokenId, _toAddress);
+    function _dynamicCredit(address _originalToken, address _toAddress, uint256 _tokenId, uint32 _srcEid, string memory _tokenURI) internal virtual {
+        address wrapper = originalToWrapper[_originalToken];
+        WrappedONFT(wrapper).mint(_toAddress, _tokenId, _tokenURI);
+        emit WrappedMinted(wrapper, _originalToken, _tokenId, _tokenId, _toAddress);
     }
 
     // Required override for abstract _debit (revert since we use custom entrypoint)
@@ -157,13 +158,17 @@ contract DynamicWrappedONFT is ONFT721Core, ERC721, IERC721Receiver {
         address _executor,
         bytes calldata _extraData
     ) internal virtual override {
-        (address toAddress, uint256[] memory tokenIds, address originalToken) = abi.decode(_message, (address, uint256[], address));
+        (address toAddress, uint256[] memory tokenIds, address originalToken, string memory collName, string memory collSymbol, string[] memory tokenURIs) = abi.decode(_message, (address, uint256[], address, string, string, string[]));
         if (!supportedTokens[originalToken]) {
             supportedTokens[originalToken] = true;
             emit TokenRegistered(originalToken);
         }
+        address wrapper = originalToWrapper[originalToken];
+        if (wrapper == address(0)) {
+            wrapper = deployWrapper(originalToken, collName, collSymbol);
+        }
         for (uint256 i = 0; i < tokenIds.length; i++) {
-            _dynamicCredit(originalToken, toAddress, tokenIds[i], _origin.srcEid);
+            _dynamicCredit(originalToken, toAddress, tokenIds[i], _origin.srcEid, tokenURIs[i]);
         }
     }
 }

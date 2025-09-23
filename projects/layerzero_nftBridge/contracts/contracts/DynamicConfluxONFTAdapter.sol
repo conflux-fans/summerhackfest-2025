@@ -5,6 +5,7 @@ import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {ONFT721Core} from "@layerzerolabs/onft-evm/contracts/onft721/ONFT721Core.sol";
 import {MessagingFee} from "@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/OAppSender.sol";
 import {Origin} from "@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/OApp.sol";
+import {IERC721Metadata} from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 
 interface IERC721Receiver {
     function onERC721Received(
@@ -20,6 +21,7 @@ interface IERC721Receiver {
  * @dev Fully dynamic adapter for bridging multiple ERC721 NFTs from Conflux eSpace.
  * Anyone can register ERC721 tokens (with interface check); bridging specifies the token address.
  * Payload includes token address for round-trip bridging.
+ * Updated to pass collection metadata (name, symbol) and individual NFT metadata (tokenURI) in the LayerZero payload.
  */
 contract DynamicConfluxONFTAdapter is ONFT721Core, IERC721Receiver {
     mapping(address => bool) public supportedTokens;
@@ -99,10 +101,22 @@ contract DynamicConfluxONFTAdapter is ONFT721Core, IERC721Receiver {
             supportedTokens[_originalToken] = true;
             emit TokenRegistered(_originalToken);
         }
+        string memory collName;
+        string memory collSymbol;
+        string[] memory tokenURIs = new string[](_tokenIds.length);
+        try IERC721Metadata(_originalToken).name() returns (string memory n) {
+            collName = n;
+        } catch {}
+        try IERC721Metadata(_originalToken).symbol() returns (string memory s) {
+            collSymbol = s;
+        } catch {}
         for (uint256 i = 0; i < _tokenIds.length; i++) {
             _dynamicDebit(_originalToken, msg.sender, _tokenIds[i], _dstEid);
+            try IERC721Metadata(_originalToken).tokenURI(_tokenIds[i]) returns (string memory u) {
+                tokenURIs[i] = u;
+            } catch {}
         }
-        bytes memory payload = abi.encode(_to, _tokenIds, _originalToken);
+        bytes memory payload = abi.encode(_to, _tokenIds, _originalToken, collName, collSymbol, tokenURIs);
         _lzSend(_dstEid, payload, _options, _fee, _refundAddress);
     }
 
@@ -114,7 +128,21 @@ contract DynamicConfluxONFTAdapter is ONFT721Core, IERC721Receiver {
         bytes calldata _options,
         bool _payInLzToken
     ) external view returns (MessagingFee memory fee) {
-        bytes memory payload = abi.encode(_to, _tokenIds, _originalToken);
+        string memory collName;
+        string memory collSymbol;
+        string[] memory tokenURIs = new string[](_tokenIds.length);
+        try IERC721Metadata(_originalToken).name() returns (string memory n) {
+            collName = n;
+        } catch {}
+        try IERC721Metadata(_originalToken).symbol() returns (string memory s) {
+            collSymbol = s;
+        } catch {}
+        for (uint256 i = 0; i < _tokenIds.length; i++) {
+            try IERC721Metadata(_originalToken).tokenURI(_tokenIds[i]) returns (string memory u) {
+                tokenURIs[i] = u;
+            } catch {}
+        }
+        bytes memory payload = abi.encode(_to, _tokenIds, _originalToken, collName, collSymbol, tokenURIs);
         fee = _quote(_dstEid, payload, _options, _payInLzToken);
     }
 
@@ -145,7 +173,7 @@ contract DynamicConfluxONFTAdapter is ONFT721Core, IERC721Receiver {
         address _executor,
         bytes calldata _extraData
     ) internal virtual override {
-        (address toAddress, uint256[] memory tokenIds, address originalToken) = abi.decode(_message, (address, uint256[], address));
+        (address toAddress, uint256[] memory tokenIds, address originalToken, string memory collName, string memory collSymbol, string[] memory tokenURIs) = abi.decode(_message, (address, uint256[], address, string, string, string[]));
         if (!supportedTokens[originalToken]) {
             supportedTokens[originalToken] = true;
             emit TokenRegistered(originalToken);
