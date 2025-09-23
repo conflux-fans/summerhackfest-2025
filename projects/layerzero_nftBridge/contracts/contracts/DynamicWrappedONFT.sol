@@ -27,11 +27,9 @@ contract DynamicWrappedONFTFactory is ONFT721Core {
     event WrappedMinted(address indexed wrapper, address indexed originalToken, uint256 originalId, uint256 wrappedId, address to);
     event WrappedBurned(address indexed wrapper, uint256 wrappedId);
     event WrapperDeployed(address indexed originalToken, address wrapper);
-
     constructor(address _lzEndpoint, address _delegate) ONFT721Core(_lzEndpoint, _delegate) {
         wrappedImplementation = address(new WrappedONFT());
     }
-
     /**
      * @notice Permissionless registration of ERC721 tokens (auto-whitelist if valid ERC721).
      * @param _token The ERC721 token address to register (original on source chain).
@@ -42,7 +40,6 @@ contract DynamicWrappedONFTFactory is ONFT721Core {
         supportedTokens[_token] = true;
         emit TokenRegistered(_token);
     }
-
     /**
      * @notice Owner can unregister tokens.
      * @param _token The ERC721 token address to unregister.
@@ -51,7 +48,6 @@ contract DynamicWrappedONFTFactory is ONFT721Core {
         supportedTokens[_token] = false;
         emit TokenUnregistered(_token);
     }
-
     /**
      * @notice Deploy a new wrapper for an original token.
      * @param _originalToken The original token address on source chain.
@@ -66,19 +62,15 @@ contract DynamicWrappedONFTFactory is ONFT721Core {
         wrapperToOriginal[wrapper] = _originalToken;
         emit WrapperDeployed(_originalToken, wrapper);
     }
-
     function getWrapper(address _originalToken) external view returns (address) {
         return originalToWrapper[_originalToken];
     }
-
     function token() external pure returns (address) {
         return address(0);
     }
-
     function approvalRequired() external pure virtual returns (bool) {
         return true;
     }
-
     function bridgeSend(
         address _originalToken,
         uint32 _dstEid,
@@ -96,7 +88,7 @@ contract DynamicWrappedONFTFactory is ONFT721Core {
         }
         string memory collName = WrappedONFT(wrapper).name();
         string memory collSymbol = WrappedONFT(wrapper).symbol();
-        string[] memory tokenURIs = new string<a href="_tokenIds.length" target="_blank" rel="noopener noreferrer nofollow"></a>;
+        string[] memory tokenURIs = new string[](_tokenIds.length);
         for (uint256 i = 0; i < _tokenIds.length; i++) {
             tokenURIs[i] = WrappedONFT(wrapper).tokenURI(_tokenIds[i]);
         }
@@ -106,7 +98,6 @@ contract DynamicWrappedONFTFactory is ONFT721Core {
         bytes memory payload = abi.encode(_to, _tokenIds, _originalToken, collName, collSymbol, tokenURIs);
         _lzSend(_dstEid, payload, _options, _fee, _refundAddress);
     }
-
     function quoteBridgeSend(
         address _originalToken,
         uint32 _dstEid,
@@ -119,38 +110,33 @@ contract DynamicWrappedONFTFactory is ONFT721Core {
         require(wrapper != address(0), "Wrapper not deployed");
         string memory collName = WrappedONFT(wrapper).name();
         string memory collSymbol = WrappedONFT(wrapper).symbol();
-        string[] memory tokenURIs = new string<a href="_tokenIds.length" target="_blank" rel="noopener noreferrer nofollow"></a>;
+        string[] memory tokenURIs = new string[](_tokenIds.length);
         for (uint256 i = 0; i < _tokenIds.length; i++) {
             tokenURIs[i] = WrappedONFT(wrapper).tokenURI(_tokenIds[i]);
         }
         bytes memory payload = abi.encode(_to, _tokenIds, _originalToken, collName, collSymbol, tokenURIs);
         fee = _quote(_dstEid, payload, _options, _payInLzToken);
     }
-
     // Custom dynamic debit (not override)
     function _dynamicDebit(address _originalToken, address _from, uint256 _tokenId, uint32 _dstEid) internal virtual {
         address wrapper = originalToWrapper[_originalToken];
         WrappedONFT(wrapper).burn(_tokenId);
         emit WrappedBurned(wrapper, _tokenId);
     }
-
     // Custom dynamic credit (not override)
     function _dynamicCredit(address _originalToken, address _toAddress, uint256 _tokenId, uint32 _srcEid, string memory _tokenURI) internal virtual {
         address wrapper = originalToWrapper[_originalToken];
         WrappedONFT(wrapper).mint(_toAddress, _tokenId, _tokenURI);
         emit WrappedMinted(wrapper, _originalToken, _tokenId, _tokenId, _toAddress);
     }
-
     // Required override for abstract _debit (revert since we use custom entrypoint)
     function _debit(address _from, uint256 _tokenId, uint32 _dstEid) internal virtual override {
         revert("Use bridgeSend for dynamic bridging");
     }
-
     // Required override for abstract _credit (revert since we use custom _lzReceive)
     function _credit(address _to, uint256 _tokenId, uint32 _srcEid) internal virtual override {
         revert("Use bridgeSend for dynamic bridging");
     }
-
     function _lzReceive(
         Origin calldata _origin,
         bytes32 _guid,
