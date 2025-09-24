@@ -129,7 +129,7 @@ export function Collections() {
           Create and manage your NFT collections on Base Sepolia
         </p>
       </div>
-      <div className="max-w-4xl mx-auto space-y-8">
+      <div className="max-w-5xl mx-auto space-y-8">
         {/* Connection Status Card */}
         <div className="bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 p-6">
           <div className="flex items-center justify-between">

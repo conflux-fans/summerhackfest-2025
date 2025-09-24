@@ -78,6 +78,10 @@ export async function createCollection(
   });
   setTxStatus('Transaction sent! Waiting for confirmation...');
   const receipt = await publicClient.waitForTransactionReceipt({ hash });
+  if (receipt.status === 'reverted') {
+    setTxStatus('Transaction reverted. Please check the parameters and try again.');
+    return;
+  }
   const newCollectionAddress = receipt.logs
     .map((log) => {
       try {
@@ -115,7 +119,6 @@ export async function fetchNfts(
 ) {
   if (!publicClient || !address) return;
   try {
-    setNfts([]);
     const tokenIds = await publicClient.readContract({
       address: NFT_MANAGER_BASE_SEPOLIA,
       abi: COLLECTION_ABI,
@@ -130,7 +133,7 @@ export async function fetchNfts(
           abi: COLLECTION_ABI,
           functionName: 'ownerOf',
           args: [tokenId],
-        });
+        }) as `0x${string}`;
         if (owner.toLowerCase() === address.toLowerCase()) {
           const uri = await publicClient.readContract({
             address: collAddress as `0x${string}`,
@@ -152,8 +155,9 @@ export async function fetchNfts(
           }
           nftList.push({ tokenId: tokenId.toString(), uri, image });
         }
-      } catch {
+      } catch (err) {
         // Skip burned or invalid tokens
+        console.error(`Failed to fetch token ${tokenId}:`, err);
       }
     }
     setNfts(nftList);
@@ -168,7 +172,6 @@ export async function mintNFT(
   publicClient: PublicClient,
   collectionAddress: string,
   address: string,
-  tokenId: string,
   ipfsCid: string,
   setNfts: (nfts: { tokenId: string; uri: string; image: string }[]) => void,
   fetchNfts: (collAddress: string, address: string, publicClient: PublicClient, setNfts: any, setTxStatus: any) => void,
@@ -180,10 +183,31 @@ export async function mintNFT(
     address: NFT_MANAGER_BASE_SEPOLIA,
     abi: COLLECTION_ABI,
     functionName: 'mintNFT',
-    args: [collectionAddress, address, BigInt(tokenId), uri],
+    args: [collectionAddress, address, uri],
   });
   setTxStatus('Transaction sent! Waiting for confirmation...');
-  await publicClient.waitForTransactionReceipt({ hash });
-  setTxStatus(`🎉 NFT minted successfully! Token ID: ${tokenId}`);
+  const receipt = await publicClient.waitForTransactionReceipt({ hash });
+  if (receipt.status === 'reverted') {
+    setTxStatus('Transaction reverted on chain. Possible reasons: you may not be the owner of the collection, invalid URI, or other contract requirements not met.');
+    return;
+  }
+  const mintedTokenId = receipt.logs
+    .map((log) => {
+      try {
+        const parsed = parseEventLogs({
+          abi: COLLECTION_ABI,
+          logs: [log],
+        })[0];
+        return parsed.eventName === 'NFTMinted' ? parsed.args.tokenId.toString() : null;
+      } catch {
+        return null;
+      }
+    })
+    .find((id) => id);
+  if (mintedTokenId) {
+    setTxStatus(`🎉 NFT minted successfully! Token ID: ${mintedTokenId}`);
+  } else {
+    setTxStatus('Failed to parse token ID from transaction');
+  }
   fetchNfts(collectionAddress, address, publicClient, setNfts, setTxStatus);
 }

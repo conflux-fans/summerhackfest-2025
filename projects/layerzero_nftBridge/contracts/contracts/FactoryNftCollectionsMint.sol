@@ -14,6 +14,7 @@ contract BaseNFT is ERC721, ERC721URIStorage, Ownable {
     string private _contractURI; // Collection metadata URI
     bool private _initialized;
     uint256 private _currentTokenId;
+    address private _factory;
 
     constructor() ERC721("", "") Ownable(msg.sender) {}
 
@@ -26,12 +27,18 @@ contract BaseNFT is ERC721, ERC721URIStorage, Ownable {
         address owner_
     ) external {
         require(!_initialized, "Already initialized");
+        _factory = msg.sender;
         _customName = name_;
         _customSymbol = symbol_;
         _collectionImage = collectionImage_;
         _contractURI = contractURI_;
         _transferOwnership(owner_);
         _initialized = true;
+    }
+
+    modifier onlyOwnerOrFactory() {
+        require(msg.sender == owner() || msg.sender == _factory, "Ownable: caller is not the owner or factory");
+        _;
     }
 
     function name() public view override returns (string memory) {
@@ -53,7 +60,7 @@ contract BaseNFT is ERC721, ERC721URIStorage, Ownable {
     }
 
     /// @notice Mints a new NFT with auto-incrementing token ID
-    function mint(address to, string memory uri) external onlyOwner returns (uint256) {
+    function mint(address to, string memory uri) external onlyOwnerOrFactory returns (uint256) {
         require(to != address(0), "Invalid recipient");
         uint256 tokenId = ++_currentTokenId;
         _safeMint(to, tokenId);
@@ -62,7 +69,7 @@ contract BaseNFT is ERC721, ERC721URIStorage, Ownable {
     }
 
     /// @notice Batch mints NFTs with auto-incrementing token IDs
-    function batchMint(address to, string[] calldata uris) external onlyOwner returns (uint256[] memory) {
+    function batchMint(address to, string[] calldata uris) external onlyOwnerOrFactory returns (uint256[] memory) {
         require(to != address(0), "Invalid recipient");
         require(uris.length > 0, "Empty arrays");
         uint256[] memory tokenIds = new uint256[](uris.length);
@@ -75,11 +82,11 @@ contract BaseNFT is ERC721, ERC721URIStorage, Ownable {
         return tokenIds;
     }
 
-    function burn(uint256 tokenId) external onlyOwner {
+    function burn(uint256 tokenId) external onlyOwnerOrFactory {
         _burn(tokenId);
     }
 
-    function batchBurn(uint256[] calldata tokenIds) external onlyOwner {
+    function batchBurn(uint256[] calldata tokenIds) external onlyOwnerOrFactory {
         require(tokenIds.length > 0, "Empty array");
         for (uint256 i = 0; i < tokenIds.length; i++) {
             _burn(tokenIds[i]);

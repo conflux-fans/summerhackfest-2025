@@ -21,6 +21,7 @@ interface NFT {
   tokenId: string;
   uri: string;
   image: string;
+  name?: string;
 }
 
 export function CollectionManagement() {
@@ -36,12 +37,16 @@ export function CollectionManagement() {
   const [collectionSymbol, setCollectionSymbol] = useState('');
   const [collectionImage, setCollectionImage] = useState('');
   const [ipfsCid, setIpfsCid] = useState('');
+  const [nftName, setNftName] = useState('');
   const [nfts, setNfts] = useState<NFT[]>([]);
   const [txStatus, setTxStatus] = useState('');
   const [isMinting, setIsMinting] = useState(false);
   const [isSwitching, setIsSwitching] = useState(false);
   const [showMintModal, setShowMintModal] = useState(false);
   const [previewUrl, setPreviewUrl] = useState('');
+  const [previewName, setPreviewName] = useState('');
+  const [isLoadingCollection, setIsLoadingCollection] = useState(true);
+  const [isLoadingNfts, setIsLoadingNfts] = useState(true);
 
   // Initialize and fetch collection details
   useEffect(() => {
@@ -52,6 +57,8 @@ export function CollectionManagement() {
           setTxStatus('Please switch to Base Sepolia');
         } else {
           setTxStatus('');
+          setIsLoadingCollection(true);
+          setIsLoadingNfts(true);
           try {
             const name = (await publicClient.readContract({
               address: collectionAddress as `0x${string}`,
@@ -75,10 +82,19 @@ export function CollectionManagement() {
                 ? getIpfsUrl(imageCid.replace('ipfs://', ''))
                 : 'https://via.placeholder.com/150?text=Collection+Image'
             );
-            await fetchNfts(collectionAddress, address, publicClient, setNfts, setTxStatus);
           } catch (err) {
             console.error('Failed to fetch collection details:', err);
             setTxStatus('Failed to load collection details');
+          } finally {
+            setIsLoadingCollection(false);
+          }
+          try {
+            await fetchNfts(collectionAddress, address, publicClient, setNfts, setTxStatus);
+          } catch (err) {
+            console.error('Failed to fetch NFTs:', err);
+            setTxStatus('Failed to load NFTs');
+          } finally {
+            setIsLoadingNfts(false);
           }
         }
       } else {
@@ -88,6 +104,37 @@ export function CollectionManagement() {
     };
     initialize();
   }, [isConnected, address, walletClient, publicClient, chainId, collectionAddress]);
+
+  // Fetch metadata for NFTs to get names and images
+  useEffect(() => {
+    const fetchNftMetadata = async () => {
+      const updatedNfts = await Promise.all(
+        nfts.map(async (nft) => {
+          if (nft.uri && validateIpfsCid(nft.uri.replace('ipfs://', ''))) {
+            try {
+              const response = await fetch(getIpfsUrl(nft.uri.replace('ipfs://', '')));
+              const metadata: NFTMetadata = await response.json();
+              return {
+                ...nft,
+                name: metadata.name || `Token #${nft.tokenId}`,
+                image: metadata.image?.startsWith('ipfs://')
+                  ? getIpfsUrl(metadata.image.replace('ipfs://', ''))
+                  : metadata.image || 'https://via.placeholder.com/150?text=NFT+Image',
+              };
+            } catch (err) {
+              console.error(`Failed to fetch metadata for NFT ${nft.tokenId}:`, err);
+              return { ...nft, name: `Token #${nft.tokenId}` };
+            }
+          }
+          return { ...nft, name: `Token #${nft.tokenId}` };
+        })
+      );
+      setNfts(updatedNfts);
+    };
+    if (nfts.length > 0) {
+      fetchNftMetadata();
+    }
+  }, [nfts]);
 
   // Handle IPFS CID for preview
   useEffect(() => {
@@ -100,12 +147,15 @@ export function CollectionManagement() {
             ? getIpfsUrl(metadata.image.replace('ipfs://', ''))
             : metadata.image || '';
           setPreviewUrl(image);
+          setPreviewName(metadata.name || '');
         } catch (err) {
           console.error('Failed to fetch preview metadata:', err);
           setPreviewUrl('');
+          setPreviewName('');
         }
       } else {
         setPreviewUrl('');
+        setPreviewName('');
       }
     };
     fetchPreview();
@@ -141,6 +191,7 @@ export function CollectionManagement() {
       return;
     }
     setIsMinting(true);
+    setIsLoadingNfts(true);
     try {
       await mintNFT(
         walletClient,
@@ -153,12 +204,17 @@ export function CollectionManagement() {
         setTxStatus
       );
       setIpfsCid('');
+      setNftName('');
       setShowMintModal(false);
+      // Refetch NFTs after mint
+      await fetchNfts(collectionAddress, address, publicClient, setNfts, setTxStatus);
     } catch (err: any) {
       console.error('Minting error:', err);
       setTxStatus(`Failed to mint NFT: ${err?.message || 'Unknown error'}`);
+    } finally {
+      setIsMinting(false);
+      setIsLoadingNfts(false);
     }
-    setIsMinting(false);
   };
 
   // Simplify txStatus class logic
@@ -172,6 +228,12 @@ export function CollectionManagement() {
     return 'bg-blue-500/10 border-blue-500/20 text-blue-300';
   };
 
+  const SkeletonLoader = ({ className }: { className?: string }) => (
+    <div className={`animate-pulse bg-white/5 rounded-2xl ${className}`}>
+      <div className="h-full w-full bg-gradient-to-br from-white/10 to-white/5"></div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen p-4 md:p-8 relative overflow-hidden">
       {/* Keep the existing gradient background */}
@@ -180,7 +242,6 @@ export function CollectionManagement() {
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
         <div className="absolute top-3/4 left-1/2 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
       </div>
-
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Header */}
         <header className="flex items-center justify-between mb-8 md:mb-12">
@@ -193,43 +254,54 @@ export function CollectionManagement() {
           </button>
           <WalletConnectButton />
         </header>
-
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column: Collection Info and Network */}
           <div className="lg:col-span-1 space-y-6">
             {/* Collection Preview */}
             <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-2xl">
-              <h2 className="text-2xl font-bold text-white mb-4">{collectionName || 'Collection'}</h2>
-              <div className="relative mb-4">
-                <img
-                  src={collectionImage}
-                  alt={collectionName}
-                  className="w-full aspect-square object-cover rounded-2xl"
-                  onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).src = 'https://via.placeholder.com/150?text=Collection+Image';
-                  }}
-                />
-                {collectionSymbol && (
-                  <div className="absolute top-2 right-2 bg-indigo-500/80 text-white text-xs font-bold px-2 py-1 rounded-full">
-                    {collectionSymbol}
+              {isLoadingCollection ? (
+                <>
+                  <SkeletonLoader className="h-8 w-32 mb-4" />
+                  <SkeletonLoader className="aspect-square mb-4" />
+                  <div className="space-y-2">
+                    <SkeletonLoader className="h-4" />
+                    <SkeletonLoader className="h-4" />
                   </div>
-                )}
-              </div>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between text-gray-300">
-                  <span>Network:</span>
-                  <span className="text-blue-300">Base Sepolia</span>
-                </div>
-                <div className="flex justify-between text-gray-300">
-                  <span>Contract:</span>
-                  <span className="font-mono text-purple-300 truncate">
-                    {collectionAddress ? `${collectionAddress.slice(0, 6)}...${collectionAddress.slice(-4)}` : 'N/A'}
-                  </span>
-                </div>
-              </div>
+                </>
+              ) : (
+                <>
+                  <h2 className="text-2xl font-bold text-white mb-4">{collectionName || 'Collection'}</h2>
+                  <div className="relative mb-4">
+                    <img
+                      src={collectionImage}
+                      alt={collectionName}
+                      className="w-full aspect-square object-cover rounded-2xl"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = 'https://via.placeholder.com/150?text=Collection+Image';
+                      }}
+                    />
+                    {collectionSymbol && (
+                      <div className="absolute top-2 right-2 bg-indigo-500/80 text-white text-xs font-bold px-2 py-1 rounded-full">
+                        {collectionSymbol}
+                      </div>
+                    )}
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between text-gray-300">
+                      <span>Network:</span>
+                      <span className="text-blue-300">Base Sepolia</span>
+                    </div>
+                    <div className="flex justify-between text-gray-300">
+                      <span>Contract:</span>
+                      <span className="font-mono text-purple-300 truncate">
+                        {collectionAddress ? `${collectionAddress.slice(0, 6)}...${collectionAddress.slice(-4)}` : 'N/A'}
+                      </span>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
-
             {/* Network Status */}
             <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-2xl">
               <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
@@ -272,7 +344,6 @@ export function CollectionManagement() {
                 </button>
               )}
             </div>
-
             {/* Status Message */}
             {txStatus && (
               <div className={`p-4 rounded-2xl border ${getTxStatusClasses()}`}>
@@ -280,7 +351,6 @@ export function CollectionManagement() {
               </div>
             )}
           </div>
-
           {/* Right Column: NFTs List */}
           <div className="lg:col-span-2 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-2xl">
             <div className="flex items-center justify-between mb-6">
@@ -299,7 +369,13 @@ export function CollectionManagement() {
                 Mint NFT
               </button>
             </div>
-            {nfts.length > 0 ? (
+            {isLoadingNfts ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {[...Array(4)].map((_, i) => (
+                  <SkeletonLoader key={i} className="h-64" />
+                ))}
+              </div>
+            ) : nfts.length > 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {nfts.map((nft) => (
                   <div
@@ -308,13 +384,13 @@ export function CollectionManagement() {
                   >
                     <img
                       src={nft.image}
-                      alt={`NFT ${nft.tokenId}`}
+                      alt={nft.name || `NFT ${nft.tokenId}`}
                       className="w-full aspect-square object-cover rounded-xl mb-3 group-hover:scale-105 transition-transform"
                       onError={(e) => {
                         (e.currentTarget as HTMLImageElement).src = 'https://via.placeholder.com/150?text=NFT+Image';
                       }}
                     />
-                    <p className="text-white text-sm font-medium mb-1">Token #{nft.tokenId}</p>
+                    <p className="text-white text-sm font-medium mb-1 truncate">{nft.name || `Token #${nft.tokenId}`}</p>
                     <p className="text-gray-400 text-xs font-mono truncate">
                       CID: {nft.uri.replace('ipfs://', '').slice(0, 8)}...
                     </p>
@@ -331,80 +407,97 @@ export function CollectionManagement() {
           </div>
         </div>
       </div>
-
       {/* Mint Modal */}
       {showMintModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4">
-          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl">
+          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 md:p-8 max-w-xl w-full shadow-2xl">
             <h3 className="text-xl font-bold text-white mb-6">Mint New NFT</h3>
-            <div className="space-y-6">
-              <div>
-                <label className="block text-gray-300 text-sm font-medium mb-2">IPFS CID (JSON Metadata)</label>
-                <input
-                  type="text"
-                  placeholder="Enter IPFS CID (e.g., Qm...)"
-                  value={ipfsCid}
-                  onChange={(e) => setIpfsCid(e.target.value)}
-                  disabled={!isConnected}
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-all font-mono text-sm"
-                />
-                <p className="text-gray-400 text-xs mt-2 flex items-center">
-                  <Info className="w-3 h-3 mr-1" />
-                  Use <a href="https://pinata.cloud" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline mx-1">Pinata</a> or <a href="https://nft.storage" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline mx-1">NFT.Storage</a> for uploading.
-                </p>
+            <div className="md:flex md:gap-6 mb-6">
+              <div className="space-y-6 md:flex-1">
+                <div>
+                  <label className="block text-gray-300 text-sm font-medium mb-2">NFT Name (for metadata)</label>
+                  <input
+                    type="text"
+                    placeholder="Enter NFT name (e.g., My Cool NFT)"
+                    value={nftName}
+                    onChange={(e) => setNftName(e.target.value)}
+                    disabled={!isConnected}
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-300 text-sm font-medium mb-2">IPFS CID (JSON Metadata)</label>
+                  <input
+                    type="text"
+                    placeholder="Enter IPFS CID (e.g., Qm...)"
+                    value={ipfsCid}
+                    onChange={(e) => setIpfsCid(e.target.value)}
+                    disabled={!isConnected}
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-all font-mono text-sm"
+                  />
+                  <p className="text-gray-400 text-xs mt-2 flex items-center">
+                    <Info className="w-3 h-3 mr-1" />
+                    Use <a href="https://pinata.cloud" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline mx-1">Pinata</a> or <a href="https://nft.storage" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline mx-1">NFT.Storage</a> for uploading.
+                  </p>
+                </div>
               </div>
-              <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
-                <p className="text-gray-300 text-sm font-medium mb-2">Preview</p>
-                <div className="aspect-square bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-xl flex items-center justify-center">
-                  {previewUrl ? (
-                    <img
-                      src={previewUrl}
-                      alt="NFT Preview"
-                      className="w-full h-full object-cover rounded-xl"
-                      onError={(e) => {
-                        const target = e.currentTarget as HTMLImageElement;
-                        if (previewUrl.startsWith('https://ipfs.io/')) {
-                          setPreviewUrl(getIpfsUrl(ipfsCid, true));
-                        } else {
-                          target.src = 'https://via.placeholder.com/150?text=Preview';
-                        }
-                      }}
-                    />
-                  ) : (
-                    <div className="text-center p-4">
-                      <ImageIcon className="w-8 h-8 mx-auto mb-2 text-gray-500" />
-                      <p className="text-gray-500 text-xs">{ipfsCid ? 'Loading...' : 'Enter CID to preview'}</p>
-                    </div>
+              <div className="mt-6 md:mt-0 md:flex-1">
+                <div className="bg-white/5 rounded-2xl p-4 border border-white/10 h-full">
+                  <p className="text-gray-300 text-sm font-medium mb-2">Preview</p>
+                  <div className="aspect-square bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-xl flex items-center justify-center">
+                    {previewUrl ? (
+                      <img
+                        src={previewUrl}
+                        alt="NFT Preview"
+                        className="w-full h-full object-cover rounded-xl"
+                        onError={(e) => {
+                          const target = e.currentTarget as HTMLImageElement;
+                          if (previewUrl.startsWith('https://ipfs.io/')) {
+                            setPreviewUrl(getIpfsUrl(ipfsCid, true));
+                          } else {
+                            target.src = 'https://via.placeholder.com/150?text=Preview';
+                          }
+                        }}
+                      />
+                    ) : (
+                      <div className="text-center p-4">
+                        <ImageIcon className="w-8 h-8 mx-auto mb-2 text-gray-500" />
+                        <p className="text-gray-500 text-xs">{ipfsCid ? 'Loading...' : 'Enter CID to preview'}</p>
+                      </div>
+                    )}
+                  </div>
+                  {previewName && (
+                    <p className="text-white text-sm font-medium mt-2 truncate">Name: {previewName}</p>
                   )}
                 </div>
               </div>
-              <div className="flex gap-4">
-                <button
-                  onClick={handleMintNFT}
-                  disabled={!ready || !ipfsCid || chainId !== BASE_SEPOLIA_CHAIN_ID || isMinting}
-                  className={`flex-1 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-semibold py-3 rounded-2xl transition-all duration-300 flex items-center justify-center ${
-                    !ready || !ipfsCid || chainId !== BASE_SEPOLIA_CHAIN_ID || isMinting ? 'opacity-50 cursor-not-allowed' : ''
-                  }`}
-                >
-                  {isMinting ? (
-                    <>
-                      <Loader2 className="animate-spin h-4 w-4 mr-2" />
-                      Minting...
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Mint NFT
-                    </>
-                  )}
-                </button>
-                <button
-                  onClick={() => setShowMintModal(false)}
-                  className="flex-1 bg-white/5 hover:bg-white/10 text-white font-semibold py-3 rounded-2xl transition-all"
-                >
-                  Cancel
-                </button>
-              </div>
+            </div>
+            <div className="flex gap-4">
+              <button
+                onClick={handleMintNFT}
+                disabled={!ready || !ipfsCid || chainId !== BASE_SEPOLIA_CHAIN_ID || isMinting}
+                className={`flex-1 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-semibold py-3 rounded-2xl transition-all duration-300 flex items-center justify-center ${
+                  !ready || !ipfsCid || chainId !== BASE_SEPOLIA_CHAIN_ID || isMinting ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+              >
+                {isMinting ? (
+                  <>
+                    <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                    Minting...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Mint NFT
+                  </>
+                )}
+              </button>
+              <button
+                onClick={() => setShowMintModal(false)}
+                className="flex-1 bg-white/5 hover:bg-white/10 text-white font-semibold py-3 rounded-2xl transition-all"
+              >
+                Cancel
+              </button>
             </div>
           </div>
         </div>
