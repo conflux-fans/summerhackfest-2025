@@ -113,14 +113,25 @@ export function CollectionManagement() {
           if (nft.uri && validateIpfsCid(nft.uri.replace('ipfs://', ''))) {
             try {
               const response = await fetch(getIpfsUrl(nft.uri.replace('ipfs://', '')));
-              const metadata: NFTMetadata = await response.json();
-              return {
-                ...nft,
-                name: metadata.name || `Token #${nft.tokenId}`,
-                image: metadata.image?.startsWith('ipfs://')
-                  ? getIpfsUrl(metadata.image.replace('ipfs://', ''))
-                  : metadata.image || 'https://via.placeholder.com/150?text=NFT+Image',
-              };
+              const contentType = response.headers.get('content-type');
+              if (contentType?.includes('application/json')) {
+                const metadata: NFTMetadata = await response.json();
+                console.log(`Metadata for token ${nft.tokenId}:`, metadata); // Debug log
+                return {
+                  ...nft,
+                  name: metadata.name || `Token #${nft.tokenId}`,
+                  image: metadata.image?.startsWith('ipfs://')
+                    ? getIpfsUrl(metadata.image.replace('ipfs://', ''))
+                    : metadata.image || 'https://via.placeholder.com/150?text=NFT+Image',
+                };
+              } else if (contentType?.includes('image')) {
+                return {
+                  ...nft,
+                  name: `Token #${nft.tokenId}`,
+                  image: getIpfsUrl(nft.uri.replace('ipfs://', '')),
+                };
+              }
+              return { ...nft, name: `Token #${nft.tokenId}` };
             } catch (err) {
               console.error(`Failed to fetch metadata for NFT ${nft.tokenId}:`, err);
               return { ...nft, name: `Token #${nft.tokenId}` };
@@ -142,12 +153,19 @@ export function CollectionManagement() {
       if (ipfsCid && validateIpfsCid(ipfsCid)) {
         try {
           const response = await fetch(getIpfsUrl(ipfsCid));
-          const metadata: NFTMetadata = await response.json();
-          const image = metadata.image?.startsWith('ipfs://')
-            ? getIpfsUrl(metadata.image.replace('ipfs://', ''))
-            : metadata.image || '';
-          setPreviewUrl(image);
-          setPreviewName(metadata.name || '');
+          const contentType = response.headers.get('content-type');
+          if (contentType?.includes('application/json')) {
+            const metadata: NFTMetadata = await response.json();
+            console.log('Preview metadata:', metadata); // Debug log
+            const image = metadata.image?.startsWith('ipfs://')
+              ? getIpfsUrl(metadata.image.replace('ipfs://', ''))
+              : metadata.image || '';
+            setPreviewUrl(image);
+            setPreviewName(metadata.name || '');
+          } else {
+            setPreviewUrl('');
+            setPreviewName('');
+          }
         } catch (err) {
           console.error('Failed to fetch preview metadata:', err);
           setPreviewUrl('');
@@ -190,6 +208,25 @@ export function CollectionManagement() {
       setTxStatus('Invalid IPFS CID. Please enter a valid CID (e.g., Qm...).');
       return;
     }
+    // Validate that the IPFS CID points to a JSON file
+    try {
+      const response = await fetch(getIpfsUrl(ipfsCid));
+      const contentType = response.headers.get('content-type');
+      if (!contentType?.includes('application/json')) {
+        setTxStatus('Invalid IPFS CID: Must point to a JSON metadata file.');
+        return;
+      }
+      const metadata = await response.json();
+      console.log('Mint metadata:', metadata); // Debug log
+      if (!metadata.name || !metadata.image) {
+        setTxStatus('Invalid JSON metadata: Must include name and image fields.');
+        return;
+      }
+    } catch (err) {
+      console.error('Failed to validate IPFS metadata:', err);
+      setTxStatus('Failed to validate IPFS CID: Ensure it points to a valid JSON metadata file.');
+      return;
+    }
     setIsMinting(true);
     setIsLoadingNfts(true);
     try {
@@ -206,7 +243,6 @@ export function CollectionManagement() {
       setIpfsCid('');
       setNftName('');
       setShowMintModal(false);
-      // Refetch NFTs after mint
       await fetchNfts(collectionAddress, address, publicClient, setNfts, setTxStatus);
     } catch (err: any) {
       console.error('Minting error:', err);
@@ -217,7 +253,6 @@ export function CollectionManagement() {
     }
   };
 
-  // Simplify txStatus class logic
   const getTxStatusClasses = () => {
     if (txStatus.includes('Failed') || txStatus.includes('Please')) {
       return 'bg-red-500/10 border-red-500/20 text-red-300';
@@ -236,14 +271,12 @@ export function CollectionManagement() {
 
   return (
     <div className="min-h-screen p-4 md:p-8 relative overflow-hidden">
-      {/* Keep the existing gradient background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
         <div className="absolute top-3/4 left-1/2 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
       </div>
       <div className="relative z-10 max-w-7xl mx-auto">
-        {/* Header */}
         <header className="flex items-center justify-between mb-8 md:mb-12">
           <button
             onClick={() => navigate('/collections')}
@@ -254,11 +287,8 @@ export function CollectionManagement() {
           </button>
           <WalletConnectButton />
         </header>
-        {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column: Collection Info and Network */}
           <div className="lg:col-span-1 space-y-6">
-            {/* Collection Preview */}
             <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-2xl">
               {isLoadingCollection ? (
                 <>
@@ -302,7 +332,6 @@ export function CollectionManagement() {
                 </>
               )}
             </div>
-            {/* Network Status */}
             <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-2xl">
               <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
                 <Network className="w-5 h-5 mr-2 text-blue-400" />
@@ -344,14 +373,12 @@ export function CollectionManagement() {
                 </button>
               )}
             </div>
-            {/* Status Message */}
             {txStatus && (
               <div className={`p-4 rounded-2xl border ${getTxStatusClasses()}`}>
                 <p className="text-center font-medium">{txStatus}</p>
               </div>
             )}
           </div>
-          {/* Right Column: NFTs List */}
           <div className="lg:col-span-2 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-2xl">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-white flex items-center">
@@ -407,7 +434,6 @@ export function CollectionManagement() {
           </div>
         </div>
       </div>
-      {/* Mint Modal */}
       {showMintModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4">
           <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 md:p-8 max-w-xl w-full shadow-2xl">
@@ -429,7 +455,7 @@ export function CollectionManagement() {
                   <label className="block text-gray-300 text-sm font-medium mb-2">IPFS CID (JSON Metadata)</label>
                   <input
                     type="text"
-                    placeholder="Enter IPFS CID (e.g., Qm...)"
+                    placeholder="Enter IPFS CID for JSON metadata (e.g., Qm.../metadata.json)"
                     value={ipfsCid}
                     onChange={(e) => setIpfsCid(e.target.value)}
                     disabled={!isConnected}
@@ -437,7 +463,7 @@ export function CollectionManagement() {
                   />
                   <p className="text-gray-400 text-xs mt-2 flex items-center">
                     <Info className="w-3 h-3 mr-1" />
-                    Use <a href="https://pinata.cloud" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline mx-1">Pinata</a> or <a href="https://nft.storage" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline mx-1">NFT.Storage</a> for uploading.
+                    Upload a JSON metadata file to <a href="https://pinata.cloud" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline mx-1">Pinata</a> or <a href="https://nft.storage" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline mx-1">NFT.Storage</a>. Ensure it contains name, description, and image fields.
                   </p>
                 </div>
               </div>

@@ -116,15 +116,17 @@ export function Collections() {
   const isOnCorrectNetwork = chainId === BASE_SEPOLIA_CHAIN_ID;
 
   return (
-    <div className="min-h-screen p-6">
+    <div className="min-h-screen p-6 pt-8">
       {/* Hero Section */}
       <div className="text-center mb-16">
-        <div className="inline-flex items-center justify-center w-20 h-20 bg-white/10 backdrop-blur-md rounded-3xl mb-6 border border-white/20">
+        <div className='flex items-center justify-center'>
+        <div className="inline-flex items-center justify-center w-20 h-20 bg-white/10 backdrop-blur-md rounded-3xl mb-6 border border-white/20 me-2 lg:me-5">
           <Palette className="w-10 h-10 text-white" />
         </div>
-        <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-white via-white/90 to-white/70 bg-clip-text text-transparent mb-4">
-          NFT Collections
+        <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-white via-white/90 to-white/70 bg-clip-text text-transparent mb-4">
+          Collections
         </h1>
+        </div>
         <p className="text-white/60 text-xl max-w-lg mx-auto">
           Create and manage your NFT collections on Base Sepolia
         </p>

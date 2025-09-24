@@ -9,7 +9,7 @@ export function DefaultLayout() {
 
       {/* Container with max width */}
       <main className="flex-grow w-full">
-        <div className="mx-auto max-w-[1300px] flex">
+        <div className="mx-auto max-w-[1400px] flex">
           {/* Main Content */}
           <div className="flex-grow p-4">
             <Outlet />

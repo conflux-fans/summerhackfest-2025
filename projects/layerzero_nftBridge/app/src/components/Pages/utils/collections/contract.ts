@@ -68,7 +68,7 @@ export async function createCollection(
 ) {
   setTxStatus('Preparing collection creation transaction...');
   const contractURI = collectionImageCid
-    ? `ipfs://${collectionImageCid}/metadata.json` // Assuming metadata JSON is at CID/metadata.json
+    ? `ipfs://${collectionImageCid}/metadata.json`
     : '';
   const hash = await walletClient.writeContract({
     address: NFT_MANAGER_BASE_SEPOLIA,
@@ -145,10 +145,15 @@ export async function fetchNfts(
           if (uri.startsWith('ipfs://')) {
             try {
               const response = await fetch(getIpfsUrl(uri.replace('ipfs://', '')));
-              const metadata: NFTMetadata = await response.json();
-              image = metadata.image?.startsWith('ipfs://')
-                ? getIpfsUrl(metadata.image.replace('ipfs://', ''))
-                : metadata.image || image;
+              const contentType = response.headers.get('content-type');
+              if (contentType?.includes('application/json')) {
+                const metadata: NFTMetadata = await response.json();
+                image = metadata.image?.startsWith('ipfs://')
+                  ? getIpfsUrl(metadata.image.replace('ipfs://', ''))
+                  : metadata.image || image;
+              } else if (contentType?.includes('image')) {
+                image = getIpfsUrl(uri.replace('ipfs://', ''));
+              }
             } catch (err) {
               console.error(`Failed to fetch metadata for token ${tokenId}:`, err);
             }
@@ -156,7 +161,6 @@ export async function fetchNfts(
           nftList.push({ tokenId: tokenId.toString(), uri, image });
         }
       } catch (err) {
-        // Skip burned or invalid tokens
         console.error(`Failed to fetch token ${tokenId}:`, err);
       }
     }
