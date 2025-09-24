@@ -1,24 +1,32 @@
-import { ReactNode } from 'react'
-import { createAppKit } from '@reown/appkit/react'
-import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
-import { WagmiProvider } from 'wagmi'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { http } from 'viem'
+import { ReactNode } from 'react';
+import { createAppKit } from '@reown/appkit/react';
+import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
+import { WagmiProvider } from 'wagmi';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { http, Chain } from 'viem';
+import { base, baseSepolia, sepolia } from 'wagmi/chains';
+import { CONFLUX_CHAIN_ID, BASE_CHAIN_ID, ETH_SEPOLIA_CHAIN_ID, BASE_SEPOLIA_CHAIN_ID } from '../components/Pages/utils/constants';
 
-// 0. Setup queryClient
-export const queryClient = new QueryClient()
-// 1. Get projectId
-const projectId = import.meta.env.VITE_PROJECT_ID as string
-// 2. Create metadata
-const metadata = {
-  name: 'My React App',
-  description: 'A React app with WalletConnect integration',
-  url: 'http://localhost:5173',
-  icons: ['https://avatars.githubusercontent.com/u/37784886'],
+// Setup queryClient
+export const queryClient = new QueryClient();
+
+// Get projectId
+const projectId = import.meta.env.VITE_PROJECT_ID as string;
+if (!projectId) {
+  throw new Error('VITE_PROJECT_ID is not set');
 }
-// 3. Define Conflux networks
-const confluxESpaceMainnet = {
-  id: 1030,
+
+// Create metadata
+const metadata = {
+  name: 'NFT Bridge',
+  description: 'A React app for bridging ERC-721 NFTs across chains',
+  url: 'http://localhost:5173', // Update to your production URL
+  icons: ['https://avatars.githubusercontent.com/u/37784886'],
+};
+
+// Define Conflux eSpace networks
+const confluxESpaceMainnet: Chain = {
+  id: CONFLUX_CHAIN_ID, // e.g., 1030
   name: 'Conflux eSpace',
   network: 'conflux-espace',
   nativeCurrency: {
@@ -31,10 +39,11 @@ const confluxESpaceMainnet = {
     public: { http: ['https://evm.confluxrpc.com'] },
   },
   blockExplorers: {
-    default: { name: 'ConfluxScan', url: 'https://evm.confluxscan.net' },
+    default: { name: 'ConfluxScan', url: 'https://evm.confluxscan.io' },
   },
-}
-const confluxESpaceTestnet = {
+};
+
+const confluxESpaceTestnet: Chain = {
   id: 71,
   name: 'Conflux eSpace Testnet',
   network: 'conflux-espace-testnet',
@@ -51,79 +60,49 @@ const confluxESpaceTestnet = {
     default: { name: 'ConfluxScan', url: 'https://evmtestnet.confluxscan.net' },
   },
   testnet: true,
-}
-// 4. Define Ethereum Sepolia
-const ethereumSepolia = {
-  id: 11155111,
-  name: 'Ethereum Sepolia',
-  network: 'sepolia',
-  nativeCurrency: {
-    name: 'Ethereum',
-    symbol: 'ETH',
-    decimals: 18,
-  },
-  rpcUrls: {
-    default: { http: ['https://ethereum-sepolia-rpc.publicnode.com'] },
-    public: { http: ['https://ethereum-sepolia-rpc.publicnode.com'] },
-  },
-  blockExplorers: {
-    default: { name: 'Etherscan', url: 'https://sepolia.etherscan.io' },
-  },
-  testnet: true,
-}
-// 5. Define Base network
-const baseMainnet = {
-  id: 8453,
-  name: 'Base',
-  network: 'base',
-  nativeCurrency: {
-    name: 'Ethereum',
-    symbol: 'ETH',
-    decimals: 18,
-  },
-  rpcUrls: {
-    default: { http: ['https://base-rpc.publicnode.com'] },
-    public: { http: ['https://base-rpc.publicnode.com'] },
-  },
-  blockExplorers: {
-    default: { name: 'Base Explorer', url: 'https://basescan.org' },
-  },
-}
-// 6. Set the networks
-const networks = [confluxESpaceMainnet, confluxESpaceTestnet, ethereumSepolia, baseMainnet]
-// 7. Create Wagmi Adapter
+};
+
+// Define supported chains
+const networks: Chain[] = [confluxESpaceMainnet, confluxESpaceTestnet, sepolia, base, baseSepolia];
+
+// Create Wagmi Adapter
 export const wagmiAdapter = new WagmiAdapter({
   networks,
   projectId,
   ssr: true,
   transports: {
-    [confluxESpaceMainnet.id]: http(confluxESpaceMainnet.rpcUrls.default.http[0]),
-    [confluxESpaceTestnet.id]: http(confluxESpaceTestnet.rpcUrls.default.http[0]),
-    [ethereumSepolia.id]: http(ethereumSepolia.rpcUrls.default.http[0]),
-    [baseMainnet.id]: http(baseMainnet.rpcUrls.default.http[0]),
-  }
-})
-// 8. Create modal (note the added `chainImages` mapping)
+    [confluxESpaceMainnet.id]: http('https://evm.confluxrpc.com'),
+    [confluxESpaceTestnet.id]: http('https://evmtestnet.confluxrpc.com'),
+    [sepolia.id]: http('https://rpc.sepolia.org'), // Use a more reliable RPC if needed
+    [base.id]: http('https://mainnet.base.org'),
+    [baseSepolia.id]: http('https://sepolia.base.org'),
+  },
+});
+
+// Create AppKit modal
 createAppKit({
   adapters: [wagmiAdapter],
   networks,
   projectId,
   metadata,
-  // map chainId -> image URL
   chainImages: {
-    1030: 'https://cdn.jsdelivr.net/gh/Conflux-Chain/helios@dev/packages/built-in-network-icons/Conflux.svg',
-    71: 'https://cdn.jsdelivr.net/gh/Conflux-Chain/helios@dev/packages/built-in-network-icons/Conflux.svg',
+    [confluxESpaceMainnet.id]: 'https://cdn.jsdelivr.net/gh/Conflux-Chain/helios@dev/packages/built-in-network-icons/Conflux.svg',
+    [confluxESpaceTestnet.id]: 'https://cdn.jsdelivr.net/gh/Conflux-Chain/helios@dev/packages/built-in-network-icons/Conflux.svg',
+    [base.id]: 'https://base.org/assets/base-icon-256x256.png',
+    [baseSepolia.id]: 'https://base.org/assets/base-icon-256x256.png',
+    [sepolia.id]: 'https://icons.llamao.fi/icons/chains/rsz_ethereum.jpg',
   },
   themeMode: 'light',
   themeVariables: {
     '--w3m-font-family': 'system-ui, sans-serif',
-    '--w3m-border-radius-master': '0.375rem', // Matches rounded-md (~6px)
+    '--w3m-border-radius-master': '0.375rem',
   },
   features: {
-    analytics: true // Optional - defaults to your Cloud configuration
-  }
-})
-// 9. Export AppKitProvider
+    analytics: true,
+  },
+});
+
+// Export AppKitProvider
 export function AppKitProvider({ children }: { children: ReactNode }) {
   return (
     <WagmiProvider config={wagmiAdapter.wagmiConfig}>
@@ -131,5 +110,5 @@ export function AppKitProvider({ children }: { children: ReactNode }) {
         {children}
       </QueryClientProvider>
     </WagmiProvider>
-  )
+  );
 }

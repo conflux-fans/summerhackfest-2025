@@ -10,24 +10,29 @@ import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 contract BaseNFT is ERC721, ERC721URIStorage, Ownable {
     string private _customName;
     string private _customSymbol;
+    string private _collectionImage; // Collection image CID
+    string private _contractURI; // Collection metadata URI
     bool private _initialized;
 
     constructor() ERC721("", "") Ownable(msg.sender) {}
 
-    /// @notice Initializes a cloned collection with name, symbol, and owner
+    /// @notice Initializes a cloned collection with name, symbol, image, contract URI, and owner
     function initialize(
         string memory name_,
         string memory symbol_,
+        string memory collectionImage_,
+        string memory contractURI_,
         address owner_
     ) external {
         require(!_initialized, "Already initialized");
         _customName = name_;
         _customSymbol = symbol_;
+        _collectionImage = collectionImage_;
+        _contractURI = contractURI_;
         _transferOwnership(owner_);
         _initialized = true;
     }
 
-    // Override name & symbol so they use storage values
     function name() public view override returns (string memory) {
         return _customName;
     }
@@ -36,7 +41,15 @@ contract BaseNFT is ERC721, ERC721URIStorage, Ownable {
         return _customSymbol;
     }
 
-    // ========== Minting ==========
+    /// @notice Returns the collection image CID
+    function collectionImage() public view returns (string memory) {
+        return _collectionImage;
+    }
+
+    /// @notice Returns the collection metadata URI for OpenSea
+    function contractURI() public view returns (string memory) {
+        return _contractURI;
+    }
 
     function mint(address to, uint256 tokenId, string memory uri) external onlyOwner {
         require(to != address(0), "Invalid recipient");
@@ -54,8 +67,6 @@ contract BaseNFT is ERC721, ERC721URIStorage, Ownable {
         }
     }
 
-    // ========== Burning ==========
-
     function burn(uint256 tokenId) external onlyOwner {
         _burn(tokenId);
     }
@@ -66,8 +77,6 @@ contract BaseNFT is ERC721, ERC721URIStorage, Ownable {
             _burn(tokenIds[i]);
         }
     }
-
-    // ========== Required Overrides ==========
 
     function tokenURI(uint256 tokenId)
         public
@@ -93,6 +102,8 @@ contract BaseNFT is ERC721, ERC721URIStorage, Ownable {
 /// @title NFTCollectionFactory - Factory for creating & managing NFT collections
 contract NFTCollectionFactory {
     address public immutable implementation;
+    mapping(address => address[]) private userCollections;
+    mapping(address => uint256[]) private collectionNFTs;
 
     event CollectionCreated(address indexed collection, address indexed creator, string name, string symbol);
     event NFTMinted(address indexed collection, address indexed to, uint256 indexed tokenId, string uri);
@@ -104,11 +115,17 @@ contract NFTCollectionFactory {
         implementation = address(new BaseNFT());
     }
 
-    function createCollection(string memory name, string memory symbol) external returns (address collection) {
+    function createCollection(
+        string memory name,
+        string memory symbol,
+        string memory collectionImage,
+        string memory contractURI
+    ) external returns (address collection) {
         require(bytes(name).length > 0, "Invalid name");
         require(bytes(symbol).length > 0, "Invalid symbol");
         collection = Clones.clone(implementation);
-        BaseNFT(collection).initialize(name, symbol, msg.sender);
+        BaseNFT(collection).initialize(name, symbol, collectionImage, contractURI, msg.sender);
+        userCollections[msg.sender].push(collection);
         emit CollectionCreated(collection, msg.sender, name, symbol);
     }
 
@@ -118,6 +135,7 @@ contract NFTCollectionFactory {
         BaseNFT nft = BaseNFT(collection);
         require(nft.owner() == msg.sender, "Not collection owner");
         nft.mint(to, tokenId, uri);
+        collectionNFTs[collection].push(tokenId);
         emit NFTMinted(collection, to, tokenId, uri);
     }
 
@@ -129,6 +147,9 @@ contract NFTCollectionFactory {
         BaseNFT nft = BaseNFT(collection);
         require(nft.owner() == msg.sender, "Not collection owner");
         nft.batchMint(to, tokenIds, uris);
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            collectionNFTs[collection].push(tokenIds[i]);
+        }
         emit NFTBatchMinted(collection, to, tokenIds);
     }
 
@@ -147,5 +168,13 @@ contract NFTCollectionFactory {
         require(nft.owner() == msg.sender, "Not collection owner");
         nft.batchBurn(tokenIds);
         emit NFTBatchBurned(collection, tokenIds);
+    }
+
+    function getUserCollections(address user) external view returns (address[] memory) {
+        return userCollections[user];
+    }
+
+    function getCollectionNFTs(address collection) external view returns (uint256[] memory) {
+        return collectionNFTs[collection];
     }
 }

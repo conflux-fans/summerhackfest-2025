@@ -1,6 +1,6 @@
 import { PublicClient, Address } from 'viem';
-import { NFT } from './types';
-import { ERC721_ABI, IMAGE_MINT_NFT_ABI } from './abis';
+import { NFT } from './types/types';
+import { ERC721_ABI } from './abi/bridgeAbi';
 import { CONFLUX_CHAIN_ID, BASE_CHAIN_ID, ETH_SEPOLIA_CHAIN_ID, BASE_SEPOLIA_CHAIN_ID } from './constants';
 
 interface ChainApiConfig {
@@ -15,14 +15,14 @@ interface ChainApiConfig {
 const chainApiConfigs: Record<number, ChainApiConfig> = {
   [CONFLUX_CHAIN_ID]: {
     apiBaseUrl: 'https://evmapi.confluxscan.org',
-    apiKey: "", // ConfluxScan doesn't require API key
+    apiKey: '', // ConfluxScan doesn't require API key
     balancesEndpoint: 'nft/balances',
     tokenNftTxAction: 'tokennfttx',
     isConfluxStyle: true,
   },
   [BASE_CHAIN_ID]: {
     apiBaseUrl: 'https://api.etherscan.io/v2',
-    apiKey: "GGTR68G4AATA131GA2W7R7RNKZJARZ5IZN",
+    apiKey: 'GGTR68G4AATA131GA2W7R7RNKZJARZ5IZN',
     balancesEndpoint: null,
     tokenNftTxAction: 'tokennfttx',
     isConfluxStyle: false,
@@ -30,7 +30,7 @@ const chainApiConfigs: Record<number, ChainApiConfig> = {
   },
   [ETH_SEPOLIA_CHAIN_ID]: {
     apiBaseUrl: 'https://api.etherscan.io/v2',
-    apiKey: "GGTR68G4AATA131GA2W7R7RNKZJARZ5IZN",
+    apiKey: 'GGTR68G4AATA131GA2W7R7RNKZJARZ5IZN',
     balancesEndpoint: null,
     tokenNftTxAction: 'tokennfttx',
     isConfluxStyle: false,
@@ -38,7 +38,7 @@ const chainApiConfigs: Record<number, ChainApiConfig> = {
   },
   [BASE_SEPOLIA_CHAIN_ID]: {
     apiBaseUrl: 'https://api.etherscan.io/v2',
-    apiKey: "GGTR68G4AATA131GA2W7R7RNKZJARZ5IZN",
+    apiKey: 'GGTR68G4AATA131GA2W7R7RNKZJARZ5IZN',
     balancesEndpoint: null,
     tokenNftTxAction: 'tokennfttx',
     isConfluxStyle: false,
@@ -59,6 +59,7 @@ export const fetchNFTs = async (
     setIsLoadingNfts(false);
     return;
   }
+
   const config = chainApiConfigs[chainId];
   if (!config) {
     setTxStatus('Unsupported network for NFT fetching');
@@ -69,10 +70,13 @@ export const fetchNFTs = async (
   setIsLoadingNfts(true);
   try {
     const nftList: NFT[] = [];
-    const contractTokenMap = new Map<string, Map<string, { isOwned: boolean; tokenName?: string; tokenSymbol?: string }>>();
+    const contractTokenMap = new Map<
+      string,
+      Map<string, { isOwned: boolean; tokenName?: string; tokenSymbol?: string }>
+    >();
 
     if (config.isConfluxStyle && config.balancesEndpoint) {
-      // Conflux-style: First get balances to find contracts
+      // Conflux-style: Fetch contracts via balances endpoint
       let skip = 0;
       const limit = 100;
       let total = Infinity;
@@ -98,12 +102,16 @@ export const fetchNFTs = async (
         await new Promise((resolve) => setTimeout(resolve, 200));
       }
     } else {
-      // Unified Etherscan V2 style: Use tokennfttx with chainid
+      // Etherscan-style: Fetch transactions via tokennfttx
       let page = 1;
       const pageSize = 100;
       let hasMore = true;
       while (hasMore) {
-        const url = `${config.apiBaseUrl}/api?module=account&action=${config.tokenNftTxAction}&address=${address}&startblock=0&endblock=latest&page=${page}&offset=${pageSize}&sort=asc&apikey=${config.apiKey}&chainid=${config.chainIdParam}`;
+        const url = `${config.apiBaseUrl}/api?module=account&action=${
+          config.tokenNftTxAction
+        }&address=${address}&startblock=0&endblock=latest&page=${page}&offset=${pageSize}&sort=asc&apikey=${
+          config.apiKey
+        }&chainid=${config.chainIdParam}`;
         const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
         if (!response.ok) {
           throw new Error(`API request failed: ${response.statusText}`);
@@ -116,7 +124,6 @@ export const fetchNFTs = async (
           }
           throw new Error(data.message || 'API error');
         }
-        // Process transactions to find owned NFTs
         for (const tx of data.result) {
           const contractAddress = tx.contractAddress.toLowerCase();
           const tokenId = tx.tokenID;
@@ -141,14 +148,16 @@ export const fetchNFTs = async (
       }
     }
 
-    // Fetch token IDs for each contract using tokennfttx (for Conflux-style if needed; already done for Etherscan)
+    // Fetch token IDs for Conflux-style if needed
     if (config.isConfluxStyle) {
       for (const contractAddress of contractTokenMap.keys()) {
         let page = 1;
         const pageSize = 100;
         let hasMore = true;
         while (hasMore) {
-          const url = `${config.apiBaseUrl}/api?module=account&action=${config.tokenNftTxAction}&contractaddress=${contractAddress}&address=${address}&page=${page}&offset=${pageSize}&sort=asc`;
+          const url = `${config.apiBaseUrl}/api?module=account&action=${
+            config.tokenNftTxAction
+          }&contractaddress=${contractAddress}&address=${address}&page=${page}&offset=${pageSize}&sort=asc`;
           const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
           if (!response.ok) {
             console.warn(`Failed to fetch tokennfttx for contract ${contractAddress}: ${response.statusText}`);
@@ -180,7 +189,7 @@ export const fetchNFTs = async (
       }
     }
 
-    // Fetch NFT details (common for all)
+    // Fetch NFT details using standard ERC721 metadata
     for (const [contractAddress, tokenOwners] of contractTokenMap) {
       for (const [tokenIdStr, { isOwned, tokenName, tokenSymbol }] of tokenOwners) {
         if (!isOwned) continue;
@@ -189,12 +198,12 @@ export const fetchNFTs = async (
         let image = '';
         try {
           // Verify ownership
-          const owner = await publicClient.readContract({
+          const owner = (await publicClient.readContract({
             address: contractAddress as Address,
             abi: ERC721_ABI,
             functionName: 'ownerOf',
             args: [BigInt(tokenIdStr)],
-          }) as Address;
+          })) as Address;
           if (owner.toLowerCase() !== address.toLowerCase()) continue;
 
           // Check if contract is ERC-721
@@ -211,82 +220,61 @@ export const fetchNFTs = async (
 
           // Fetch tokenURI
           try {
-            tokenURI = await publicClient.readContract({
+            tokenURI = (await publicClient.readContract({
               address: contractAddress as Address,
               abi: ERC721_ABI,
               functionName: 'tokenURI',
               args: [BigInt(tokenIdStr)],
-            }) as string;
+            })) as string;
           } catch (uriErr) {
             console.warn(`Failed to fetch tokenURI for token ${tokenIdStr} on contract ${contractAddress}:`, uriErr);
           }
 
           // Fetch metadata from tokenURI
           if (tokenURI) {
+            let metadataUrl = tokenURI;
             if (tokenURI.startsWith('ipfs://')) {
-              tokenURI = tokenURI.replace('ipfs://', 'https://ipfs.io/ipfs/');
+              metadataUrl = tokenURI.replace('ipfs://', 'https://ipfs.io/ipfs/');
             }
             try {
-              const metadataResponse = await fetch(tokenURI, { signal: AbortSignal.timeout(5000) });
-              if (metadataResponse.ok) {
-                const metadataJson = await metadataResponse.json();
-                name = metadataJson.name || name || `Token #${tokenIdStr}`;
-                image = metadataJson.image || '';
-                if (image.startsWith('ipfs://')) {
-                  image = image.replace('ipfs://', 'https://ipfs.io/ipfs/');
-                } else if (image && !image.startsWith('http')) {
-                  image = `https://ipfs.io/ipfs/${image}`;
-                }
+              let metadataResponse = await fetch(metadataUrl, { signal: AbortSignal.timeout(5000) });
+              if (!metadataResponse.ok) {
+                // Fallback to Cloudflare IPFS gateway
+                metadataUrl = tokenURI.replace('ipfs://', 'https://cloudflare-ipfs.com/ipfs/');
+                metadataResponse = await fetch(metadataUrl, { signal: AbortSignal.timeout(5000) });
               }
-            } catch (uriErr) {
-              console.warn(`Failed to fetch metadata from tokenURI for token ${tokenIdStr} on contract ${contractAddress}:`, uriErr);
-            }
-          }
-
-          // Try tokenMetadata for additional metadata if tokenURI failed
-          if (!image) {
-            try {
-              const metadata = await publicClient.readContract({
-                address: contractAddress as Address,
-                abi: IMAGE_MINT_NFT_ABI,
-                functionName: 'tokenMetadata',
-                args: [BigInt(tokenIdStr)],
-              }) as [string, string];
-              name = metadata[0] || name;
-              const ipfsHash = metadata[1];
-              if (ipfsHash) {
-                let metadataUrl = `https://ipfs.io/ipfs/${ipfsHash}`;
-                let metadataResponse = await fetch(metadataUrl, { signal: AbortSignal.timeout(5000) });
-                if (!metadataResponse.ok) {
-                  metadataUrl = `https://cloudflare-ipfs.com/ipfs/${ipfsHash}`;
-                  metadataResponse = await fetch(metadataUrl, { signal: AbortSignal.timeout(5000) });
-                }
-                if (metadataResponse.ok) {
-                  const contentType = metadataResponse.headers.get('Content-Type') || '';
-                  if (contentType.startsWith('image/')) {
-                    image = metadataUrl;
-                  } else if (contentType.includes('json')) {
-                    const metadataJson = await metadataResponse.json();
-                    image = metadataJson.image || image;
-                    if (image.startsWith('ipfs://')) {
-                      image = image.replace('ipfs://', 'https://ipfs.io/ipfs/');
-                    } else if (image && !image.startsWith('http')) {
-                      image = `https://ipfs.io/ipfs/${image}`;
-                    }
+              if (metadataResponse.ok) {
+                const contentType = metadataResponse.headers.get('Content-Type') || '';
+                if (contentType.includes('json')) {
+                  const metadataJson = await metadataResponse.json();
+                  name = metadataJson.name || name;
+                  image = metadataJson.image || '';
+                  if (image.startsWith('ipfs://')) {
+                    image = image.replace('ipfs://', 'https://ipfs.io/ipfs/');
+                  } else if (image && !image.startsWith('http')) {
+                    image = `https://ipfs.io/ipfs/${image}`;
                   }
+                } else if (contentType.startsWith('image/')) {
+                  image = metadataUrl;
                 }
               }
             } catch (metadataErr) {
-              console.warn(`Failed to fetch tokenMetadata for token ${tokenIdStr} on contract ${contractAddress}:`, metadataErr);
+              console.warn(`Failed to fetch metadata for token ${tokenIdStr} on contract ${contractAddress}:`, metadataErr);
             }
           }
 
-          // Fallback name
+          // Fallback name if still not set
           if (!name) {
             name = `Token #${tokenIdStr}`;
           }
 
-          nftList.push({ tokenId: tokenIdStr, tokenURI, name: `${name} (${tokenSymbol || ''})`, image, contractAddress });
+          nftList.push({
+            tokenId: tokenIdStr,
+            tokenURI,
+            name: `${name} (${tokenSymbol || ''})`,
+            image,
+            contractAddress,
+          });
         } catch (err) {
           console.warn(`Failed to fetch data for token ${tokenIdStr} on contract ${contractAddress}:`, err);
         }

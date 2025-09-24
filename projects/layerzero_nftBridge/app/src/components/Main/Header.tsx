@@ -4,7 +4,7 @@ import { Menu, X, Home, Palette, Zap, Users, Settings } from 'lucide-react';
 import { WalletConnectButton } from "../Buttons/WalletConnect";
 
 const mobileNavItems = [
-  { name: 'Mint NFT', to: '/mint-nft', icon: <Palette size={18} /> },
+  { name: 'Collections', to: '/collections', icon: <Palette size={18} /> },
   { name: 'Bridge', to: '/', icon: <Zap size={18} /> },
 ];
 

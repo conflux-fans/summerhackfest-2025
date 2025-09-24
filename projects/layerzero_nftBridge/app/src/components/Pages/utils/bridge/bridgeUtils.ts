@@ -2,7 +2,7 @@ import { WalletClient, PublicClient, Address, toHex, pad, decodeErrorResult, Has
 import {
   ERC721_ABI,
   BRIDGE_ABI,
-} from "./abis";
+} from "../abi/bridgeAbi";
 import {
   CONFLUX_BRIDGE_ADDRESS,
   BASE_BRIDGE_ADDRESS,
@@ -16,7 +16,7 @@ import {
   BASE_EID,
   ETH_SEPOLIA_EID,
   BASE_SEPOLIA_EID
-} from "./constants";
+} from "../constants";
 
 type BridgeDirection = 'toBase' | 'toConflux' | 'toBaseSepolia' | 'toEthSepolia';
 

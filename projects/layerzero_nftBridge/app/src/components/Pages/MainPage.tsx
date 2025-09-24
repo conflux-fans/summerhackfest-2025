@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import { useAppKitAccount, useAppKitNetwork } from '@reown/appkit/react';
 import { useWalletClient, usePublicClient, useSwitchChain } from 'wagmi';
 import { WalletConnectButton } from '../Buttons/WalletConnect';
-import { NFT } from './utils/types';
+import { NFT } from './utils/types/types';
 import { fetchNFTs } from './utils/nftUtils';
 import { ChainDropdown } from '../Common/NetworkDropdown';
-import { approveNFT, bridgeNFT, registerCollection, checkIsApproved, checkIsSupported } from './utils/bridgeUtils';
+import { approveNFT, bridgeNFT, registerCollection, checkIsApproved, checkIsSupported } from './utils/bridge/bridgeUtils';
 import { CONFLUX_CHAIN_ID, BASE_CHAIN_ID, ETH_SEPOLIA_CHAIN_ID, BASE_SEPOLIA_CHAIN_ID, CONFLUX_BRIDGE_ADDRESS, BASE_BRIDGE_ADDRESS, ETH_SEPOLIA_BRIDGE_ADDRESS, BASE_SEPOLIA_BRIDGE_ADDRESS } from './utils/constants';
 
 export function MainPage() {

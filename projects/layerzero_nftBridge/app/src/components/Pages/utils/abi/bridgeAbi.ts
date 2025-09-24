@@ -349,48 +349,6 @@ export const BRIDGE_ABI = [
     "type": "function"
   }
 ];
-export const IMAGE_MINT_NFT_ABI = [
-  {
-    "inputs": [
-      { "name": "to", "type": "address" },
-      { "name": "tokenId", "type": "uint256" }
-    ],
-    "name": "approve",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "name": "tokenId", "type": "uint256" }
-    ],
-    "name": "ownerOf",
-    "outputs": [{ "name": "", "type": "address" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "name": "tokenId", "type": "uint256" }
-    ],
-    "name": "tokenMetadata",
-    "outputs": [
-      { "name": "name", "type": "string" },
-      { "name": "cid", "type": "string" }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "name": "tokenId", "type": "uint256" }
-    ],
-    "name": "tokenURI",
-    "outputs": [{ "name": "", "type": "string" }],
-    "stateMutability": "view",
-    "type": "function"
-  }
-];
 export const LAYERZERO_ENDPOINT_ABI = [
   {
     "inputs": [
