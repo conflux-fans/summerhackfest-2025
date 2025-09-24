@@ -35,7 +35,6 @@ export function CollectionManagement() {
   const [collectionName, setCollectionName] = useState('');
   const [collectionSymbol, setCollectionSymbol] = useState('');
   const [collectionImage, setCollectionImage] = useState('');
-  const [tokenId, setTokenId] = useState('');
   const [ipfsCid, setIpfsCid] = useState('');
   const [nfts, setNfts] = useState<NFT[]>([]);
   const [txStatus, setTxStatus] = useState('');
@@ -129,10 +128,10 @@ export function CollectionManagement() {
   };
 
   const handleMintNFT = async () => {
-    if (!isConnected || !walletClient || !publicClient || !tokenId || !ipfsCid || !collectionAddress || chainId !== BASE_SEPOLIA_CHAIN_ID) {
+    if (!isConnected || !walletClient || !publicClient || !ipfsCid || !collectionAddress || chainId !== BASE_SEPOLIA_CHAIN_ID) {
       setTxStatus(
         !isConnected ? 'Please connect wallet to mint NFT' :
-        !tokenId || !ipfsCid ? 'Please fill in all fields' :
+        !ipfsCid ? 'Please enter IPFS CID' :
         'Please switch to Base Sepolia'
       );
       return;
@@ -148,13 +147,11 @@ export function CollectionManagement() {
         publicClient,
         collectionAddress,
         address,
-        tokenId,
         ipfsCid,
         setNfts,
         fetchNfts,
         setTxStatus
       );
-      setTokenId('');
       setIpfsCid('');
       setShowMintModal(false);
     } catch (err: any) {
@@ -342,17 +339,6 @@ export function CollectionManagement() {
             <h3 className="text-xl font-bold text-white mb-6">Mint New NFT</h3>
             <div className="space-y-6">
               <div>
-                <label className="block text-gray-300 text-sm font-medium mb-2">Token ID</label>
-                <input
-                  type="text"
-                  placeholder="Enter token ID (e.g., 1)"
-                  value={tokenId}
-                  onChange={(e) => setTokenId(e.target.value)}
-                  disabled={!isConnected}
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-all"
-                />
-              </div>
-              <div>
                 <label className="block text-gray-300 text-sm font-medium mb-2">IPFS CID (JSON Metadata)</label>
                 <input
                   type="text"
@@ -395,9 +381,9 @@ export function CollectionManagement() {
               <div className="flex gap-4">
                 <button
                   onClick={handleMintNFT}
-                  disabled={!ready || !tokenId || !ipfsCid || chainId !== BASE_SEPOLIA_CHAIN_ID || isMinting}
+                  disabled={!ready || !ipfsCid || chainId !== BASE_SEPOLIA_CHAIN_ID || isMinting}
                   className={`flex-1 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-semibold py-3 rounded-2xl transition-all duration-300 flex items-center justify-center ${
-                    !ready || !tokenId || !ipfsCid || chainId !== BASE_SEPOLIA_CHAIN_ID || isMinting ? 'opacity-50 cursor-not-allowed' : ''
+                    !ready || !ipfsCid || chainId !== BASE_SEPOLIA_CHAIN_ID || isMinting ? 'opacity-50 cursor-not-allowed' : ''
                   }`}
                 >
                   {isMinting ? (
