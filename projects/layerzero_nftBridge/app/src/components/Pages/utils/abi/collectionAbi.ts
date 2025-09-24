@@ -198,4 +198,3 @@ export const COLLECTION_ABI = [
       type: "function",
     },
   ];
-  

@@ -13,6 +13,7 @@ contract BaseNFT is ERC721, ERC721URIStorage, Ownable {
     string private _collectionImage; // Collection image CID
     string private _contractURI; // Collection metadata URI
     bool private _initialized;
+    uint256 private _currentTokenId;
 
     constructor() ERC721("", "") Ownable(msg.sender) {}
 
@@ -51,20 +52,27 @@ contract BaseNFT is ERC721, ERC721URIStorage, Ownable {
         return _contractURI;
     }
 
-    function mint(address to, uint256 tokenId, string memory uri) external onlyOwner {
+    /// @notice Mints a new NFT with auto-incrementing token ID
+    function mint(address to, string memory uri) external onlyOwner returns (uint256) {
         require(to != address(0), "Invalid recipient");
+        uint256 tokenId = ++_currentTokenId;
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, uri);
+        return tokenId;
     }
 
-    function batchMint(address to, uint256[] calldata tokenIds, string[] calldata uris) external onlyOwner {
+    /// @notice Batch mints NFTs with auto-incrementing token IDs
+    function batchMint(address to, string[] calldata uris) external onlyOwner returns (uint256[] memory) {
         require(to != address(0), "Invalid recipient");
-        require(tokenIds.length == uris.length, "Mismatched arrays");
-        require(tokenIds.length > 0, "Empty arrays");
-        for (uint256 i = 0; i < tokenIds.length; i++) {
-            _safeMint(to, tokenIds[i]);
-            _setTokenURI(tokenIds[i], uris[i]);
+        require(uris.length > 0, "Empty arrays");
+        uint256[] memory tokenIds = new uint256[](uris.length);
+        for (uint256 i = 0; i < uris.length; i++) {
+            uint256 tokenId = ++_currentTokenId;
+            tokenIds[i] = tokenId;
+            _safeMint(to, tokenId);
+            _setTokenURI(tokenId, uris[i]);
         }
+        return tokenIds;
     }
 
     function burn(uint256 tokenId) external onlyOwner {
@@ -129,28 +137,29 @@ contract NFTCollectionFactory {
         emit CollectionCreated(collection, msg.sender, name, symbol);
     }
 
-    function mintNFT(address collection, address to, uint256 tokenId, string memory uri) external {
+    function mintNFT(address collection, address to, string memory uri) external returns (uint256) {
         require(collection != address(0), "Invalid collection");
         require(to != address(0), "Invalid recipient");
         BaseNFT nft = BaseNFT(collection);
         require(nft.owner() == msg.sender, "Not collection owner");
-        nft.mint(to, tokenId, uri);
+        uint256 tokenId = nft.mint(to, uri);
         collectionNFTs[collection].push(tokenId);
         emit NFTMinted(collection, to, tokenId, uri);
+        return tokenId;
     }
 
-    function batchMintNFT(address collection, address to, uint256[] calldata tokenIds, string[] calldata uris) external {
+    function batchMintNFT(address collection, address to, string[] calldata uris) external returns (uint256[] memory) {
         require(collection != address(0), "Invalid collection");
         require(to != address(0), "Invalid recipient");
-        require(tokenIds.length == uris.length, "Mismatched arrays");
-        require(tokenIds.length > 0, "Empty arrays");
+        require(uris.length > 0, "Empty arrays");
         BaseNFT nft = BaseNFT(collection);
         require(nft.owner() == msg.sender, "Not collection owner");
-        nft.batchMint(to, tokenIds, uris);
+        uint256[] memory tokenIds = nft.batchMint(to, uris);
         for (uint256 i = 0; i < tokenIds.length; i++) {
             collectionNFTs[collection].push(tokenIds[i]);
         }
         emit NFTBatchMinted(collection, to, tokenIds);
+        return tokenIds;
     }
 
     function burnNFT(address collection, uint256 tokenId) external {
