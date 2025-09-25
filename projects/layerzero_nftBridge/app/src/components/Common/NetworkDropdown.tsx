@@ -5,6 +5,7 @@ import confluxLogo from "../../assets/logos/conflux.svg";
 import baseLogo from "../../assets/logos/base.svg";
 import ethereumLogo from "../../assets/logos/ethereum.svg";
 import baseSepoliaLogo from "../../assets/logos/base-sepolia.svg";
+import { ChevronDown } from 'lucide-react';
 
 interface NetworkOption {
   id: number;
@@ -68,39 +69,58 @@ export function ChainDropdown({
   };
 
   return (
-    <div className="relative inline-block text-left w-36">
+    <div className="relative inline-block text-left w-36 lg:w-48">
       {/* Trigger button */}
       <button
         onClick={() => setOpen(!open)}
-        className="w-full cursor-pointer text-white flex items-center justify-between gap-2 px-3 py-2 rounded-md bg-white/5 border border-white/10 backdrop-blur-xl transition text-sm font-medium"
+        className={`
+          w-full cursor-pointer text-white flex items-center justify-between gap-2
+          px-4 py-3 rounded-xl
+          bg-gradient-to-r bg-white/5 backdrop-blur-xl border border-white/10
+          transition-all duration-200 ease-out
+          text-sm font-medium shadow-lg hover:shadow-xl
+          ${open ? 'ring-2 ring-blue-500/50 border-blue-500/50' : ''}
+        `}
       >
         {currentNetwork.logo && (
-          <img src={currentNetwork.logo} alt={`${currentNetwork.name} logo`} className="h-5 w-5" />
+          <img
+            src={currentNetwork.logo}
+            alt={`${currentNetwork.name} logo`}
+            className="h-6 w-6 rounded-full shadow-sm"
+          />
         )}
-        <span className="truncate max-w-[100px]">{currentNetwork.name}</span>
-        <svg
-          className={`h-4 w-4 transition-transform ${open ? 'rotate-180' : ''}`}
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-        </svg>
+        <span className="truncate max-w-[120px] lg:max-w-[160px] font-medium">{currentNetwork.name}</span>
+        <ChevronDown
+          className={`h-4 w-4 transition-transform duration-200 text-slate-400 ${open ? 'rotate-180' : ''}`}
+        />
       </button>
+
       {open && (
-        <div className="absolute right-0 mt-2 w-full bg-white/90 border border-white/10 backdrop-blur-xl rounded-lg shadow-md z-50">
-          {availableOptions.map((opt) => (
-            <button
-              key={opt.id}
-              onClick={() => handleSelect(opt.id)}
-              className="w-full cursor-pointer px-3 py-2 flex items-center gap-2 hover:bg-gray-100 transition text-sm"
-            >
-              <img src={opt.logo} alt={`${opt.name} logo`} className="h-5 w-5" />
-              <span className="truncate max-w-[100px]">{opt.name}</span>
-            </button>
-          ))}
-        </div>
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 z-40"
+            onClick={() => setOpen(false)}
+          />
+          <div className="absolute right-0 mt-2 w-full bg-white/95 border border-white/20 backdrop-blur-xl rounded-xl shadow-2xl z-50 overflow-hidden animate-in slide-in-from-top-2 duration-200">
+            <div className="p-1">
+              {availableOptions.map((opt) => (
+                <button
+                  key={opt.id}
+                  onClick={() => handleSelect(opt.id)}
+                  className="w-full cursor-pointer px-3 py-3 flex items-center gap-3 hover:bg-slate-50 transition-all duration-150 text-sm rounded-lg text-slate-700 font-medium group"
+                >
+                  <img
+                    src={opt.logo}
+                    alt={`${opt.name} logo`}
+                    className="h-6 w-6 rounded-full shadow-sm group-hover:scale-105 transition-transform"
+                  />
+                  <span className="truncate max-w-[100px] lg:max-w-[140px]">{opt.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
       )}
     </div>
   );

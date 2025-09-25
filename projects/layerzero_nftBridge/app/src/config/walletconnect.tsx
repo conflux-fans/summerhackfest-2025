@@ -73,7 +73,7 @@ export const wagmiAdapter = new WagmiAdapter({
   transports: {
     [confluxESpaceMainnet.id]: http('https://evm.confluxrpc.com'),
     [confluxESpaceTestnet.id]: http('https://evmtestnet.confluxrpc.com'),
-    [sepolia.id]: http('https://rpc.sepolia.org'), // Use a more reliable RPC if needed
+    [sepolia.id]: http('https://ethereum-sepolia-rpc.publicnode.com'), // Use a more reliable RPC if needed
     [base.id]: http('https://mainnet.base.org'),
     [baseSepolia.id]: http('https://sepolia.base.org'),
   },

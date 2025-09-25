@@ -1,12 +1,28 @@
-import { useState, useEffect } from 'react';
-import { useAppKitAccount, useAppKitNetwork } from '@reown/appkit/react';
-import { useWalletClient, usePublicClient, useSwitchChain } from 'wagmi';
-import { WalletConnectButton } from '../Buttons/WalletConnect';
-import { NFT } from './utils/types/types';
-import { fetchNFTs } from './utils/nftUtils';
-import { ChainDropdown } from '../Common/NetworkDropdown';
-import { approveNFT, bridgeNFT, registerCollection, checkIsApproved, checkIsSupported } from './utils/bridge/bridgeUtils';
-import { CONFLUX_CHAIN_ID, BASE_CHAIN_ID, ETH_SEPOLIA_CHAIN_ID, BASE_SEPOLIA_CHAIN_ID, CONFLUX_BRIDGE_ADDRESS, BASE_BRIDGE_ADDRESS, ETH_SEPOLIA_BRIDGE_ADDRESS, BASE_SEPOLIA_BRIDGE_ADDRESS } from './utils/constants';
+import { useState, useEffect } from "react";
+import { useAppKitAccount, useAppKitNetwork } from "@reown/appkit/react";
+import { useWalletClient, usePublicClient, useSwitchChain } from "wagmi";
+import { WalletConnectButton } from "../Buttons/WalletConnect";
+import { NFT } from "./utils/types/types";
+import { fetchNFTs } from "./utils/nftUtils";
+import { ChainDropdown } from "../Common/NetworkDropdown";
+import {
+  approveNFT,
+  bridgeNFT,
+  registerCollection,
+  checkIsApproved,
+  checkIsSupported,
+} from "./utils/bridge/bridgeUtils";
+import {
+  CONFLUX_CHAIN_ID,
+  BASE_CHAIN_ID,
+  ETH_SEPOLIA_CHAIN_ID,
+  BASE_SEPOLIA_CHAIN_ID,
+  CONFLUX_BRIDGE_ADDRESS,
+  BASE_BRIDGE_ADDRESS,
+  ETH_SEPOLIA_BRIDGE_ADDRESS,
+  BASE_SEPOLIA_BRIDGE_ADDRESS,
+} from "./utils/constants";
+import { ArrowLeftRight, Image as ImageIcon, Check, CheckCircle, X, Loader2 } from 'lucide-react';
 
 export function MainPage() {
   const { address, isConnected } = useAppKitAccount();
@@ -14,12 +30,11 @@ export function MainPage() {
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
   const { switchChainAsync } = useSwitchChain();
-
   const [ready, setReady] = useState(false);
-  const [tokenId, setTokenId] = useState('');
-  const [recipient, setRecipient] = useState('');
+  const [tokenId, setTokenId] = useState("");
+  const [recipient, setRecipient] = useState("");
   const [useCustomRecipient, setUseCustomRecipient] = useState(false);
-  const [txStatus, setTxStatus] = useState('');
+  const [txStatus, setTxStatus] = useState("");
   const [isApproved, setIsApproved] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
   const [isBridging, setIsBridging] = useState(false);
@@ -29,39 +44,63 @@ export function MainPage() {
   const [selectedNFT, setSelectedNFT] = useState<NFT | null>(null);
   const [isSupported, setIsSupported] = useState(true);
   const [isRegistering, setIsRegistering] = useState(false);
-  const [tokenContractAddress, setTokenContractAddress] = useState('');
-  const [destinationChainId, setDestinationChainId] = useState<number | null>(null);
+  const [tokenContractAddress, setTokenContractAddress] = useState("");
+  const [destinationChainId, setDestinationChainId] = useState<number | null>(
+    null,
+  );
 
   useEffect(() => {
     const initialize = async () => {
       if (isConnected && address && walletClient && publicClient) {
         setReady(true);
         setRecipient(address);
-        if (![CONFLUX_CHAIN_ID, BASE_CHAIN_ID, ETH_SEPOLIA_CHAIN_ID, BASE_SEPOLIA_CHAIN_ID].includes(chainId || 0)) {
-          setTxStatus('Please switch to a supported network');
+        if (
+          ![
+            CONFLUX_CHAIN_ID,
+            BASE_CHAIN_ID,
+            ETH_SEPOLIA_CHAIN_ID,
+            BASE_SEPOLIA_CHAIN_ID,
+          ].includes(chainId || 0)
+        ) {
+          setTxStatus("Please switch to a supported network");
           setIsApproved(false);
         } else {
-          setTxStatus('');
+          setTxStatus("");
           if (!destinationChainId) {
             setDestinationChainId(
-              chainId === CONFLUX_CHAIN_ID ? BASE_CHAIN_ID :
-              chainId === BASE_CHAIN_ID ? CONFLUX_CHAIN_ID :
-              chainId === ETH_SEPOLIA_CHAIN_ID ? BASE_SEPOLIA_CHAIN_ID : ETH_SEPOLIA_CHAIN_ID
+              chainId === CONFLUX_CHAIN_ID
+                ? BASE_CHAIN_ID
+                : chainId === BASE_CHAIN_ID
+                ? CONFLUX_CHAIN_ID
+                : chainId === ETH_SEPOLIA_CHAIN_ID
+                ? BASE_SEPOLIA_CHAIN_ID
+                : ETH_SEPOLIA_CHAIN_ID,
             );
           }
         }
         if (tokenContractAddress && chainId) {
           const bridgeAddress = getBridgeAddress(chainId);
-          const supported = await checkIsSupported(publicClient, tokenContractAddress as Address, bridgeAddress as Address);
+          const supported = await checkIsSupported(
+            publicClient,
+            tokenContractAddress as Address,
+            bridgeAddress as Address,
+          );
           setIsSupported(supported);
           if (!supported) {
-            setTxStatus('Token contract not registered. Please register the collection to proceed.');
+            setTxStatus(
+              "Token contract not registered. Please register the collection to proceed.",
+            );
           }
           if (tokenId && supported) {
-            const approved = await checkIsApproved(publicClient, tokenId, tokenContractAddress as Address, bridgeAddress as Address);
+            const approved = await checkIsApproved(
+              publicClient,
+              tokenId,
+              tokenContractAddress as Address,
+              bridgeAddress as Address,
+            );
             setIsApproved(approved);
             if (approved) {
-              setTxStatus('NFT already approved');
+              setTxStatus("NFT already approved");
             }
           }
         } else {
@@ -69,13 +108,21 @@ export function MainPage() {
         }
       } else {
         setReady(false);
-        setRecipient('');
-        setTxStatus('Please connect wallet to proceed');
+        setRecipient("");
+        setTxStatus("Please connect wallet to proceed");
         setIsApproved(false);
       }
     };
     initialize();
-  }, [isConnected, address, walletClient, publicClient, chainId, tokenContractAddress, tokenId]);
+  }, [
+    isConnected,
+    address,
+    walletClient,
+    publicClient,
+    chainId,
+    tokenContractAddress,
+    tokenId,
+  ]);
 
   const getBridgeAddress = (id: number): Address => {
     switch (id) {
@@ -88,47 +135,114 @@ export function MainPage() {
       case BASE_SEPOLIA_CHAIN_ID:
         return BASE_SEPOLIA_BRIDGE_ADDRESS;
       default:
-        throw new Error('Unsupported chain');
+        throw new Error("Unsupported chain");
     }
   };
 
   const getChainInfo = (id: number) => {
     switch (id) {
       case CONFLUX_CHAIN_ID:
-        return { name: 'Conflux', color: 'from-emerald-400 to-teal-500', logo: 'CFX' };
+        return {
+          name: "Conflux",
+          color: "from-emerald-400 to-teal-500",
+          logo: "CFX",
+        };
       case BASE_CHAIN_ID:
-        return { name: 'Base', color: 'from-blue-400 to-indigo-500', logo: 'BASE' };
+        return {
+          name: "Base",
+          color: "from-blue-400 to-indigo-500",
+          logo: "BASE",
+        };
       case ETH_SEPOLIA_CHAIN_ID:
-        return { name: 'Ethereum Sepolia', color: 'from-indigo-400 to-purple-500', logo: 'ETH' };
+        return {
+          name: "Ethereum Sepolia",
+          color: "from-indigo-400 to-purple-500",
+          logo: "ETH",
+        };
       case BASE_SEPOLIA_CHAIN_ID:
-        return { name: 'Base Sepolia', color: 'from-blue-400 to-indigo-500', logo: 'BASE-S' };
+        return {
+          name: "Base Sepolia",
+          color: "from-blue-400 to-indigo-500",
+          logo: "BASE-S",
+        };
       default:
-        return { name: 'Unknown', color: 'from-gray-400 to-gray-500', logo: '?' };
+        return {
+          name: "Unknown",
+          color: "from-gray-400 to-gray-500",
+          logo: "?",
+        };
+    }
+  };
+
+  const getDirection = (
+    srcId: number | undefined,
+    dstId: number | null,
+  ): BridgeDirection | null => {
+    if (!srcId || !dstId) return null;
+    if (srcId === CONFLUX_CHAIN_ID && dstId === BASE_CHAIN_ID) return "toBase";
+    if (srcId === BASE_CHAIN_ID && dstId === CONFLUX_CHAIN_ID)
+      return "toConflux";
+    if (srcId === ETH_SEPOLIA_CHAIN_ID && dstId === BASE_SEPOLIA_CHAIN_ID)
+      return "toBaseSepolia";
+    if (srcId === BASE_SEPOLIA_CHAIN_ID && dstId === ETH_SEPOLIA_CHAIN_ID)
+      return "toEthSepolia";
+    return null;
+  };
+
+  const handleSwapNetworks = async () => {
+    if (!chainId || !destinationChainId) {
+      setTxStatus("Invalid network selection for swap");
+      return;
+    }
+    const newOrigin = destinationChainId;
+    const newDestination = chainId;
+    if (newOrigin === chainId) {
+      setTxStatus("Networks are the same, no swap needed");
+      return;
+    }
+    try {
+      await switchChainAsync({ chainId: newOrigin });
+      setDestinationChainId(newDestination);
+      setTxStatus("Networks swapped successfully");
+      // Reset NFT selection after swap
+      setTokenId("");
+      setTokenContractAddress("");
+      setSelectedNFT(null);
+      setIsApproved(false);
+      setIsSupported(true);
+    } catch (error) {
+      console.error("[MainPage] Swap error:", error);
+      setTxStatus(`Failed to swap networks: ${error.message || "Unknown error"}`);
     }
   };
 
   const handleFetchNFTs = () => {
     if (!isConnected) {
-      setTxStatus('Please connect wallet to browse NFTs');
+      setTxStatus("Please connect wallet to browse NFTs");
       return;
     }
-    fetchNFTs(publicClient, address, chainId, setNfts, setTxStatus, setIsLoadingNfts).then(() =>
-      setShowNFTModal(true)
-    );
+    fetchNFTs(
+      publicClient,
+      address,
+      chainId,
+      setNfts,
+      setTxStatus,
+      setIsLoadingNfts,
+    ).then(() => setShowNFTModal(true));
   };
 
   const selectNFT = (nft: NFT) => {
     setTokenId(nft.tokenId);
-    setTokenContractAddress(nft.contractAddress || '');
+    setTokenContractAddress(nft.contractAddress || "");
     setSelectedNFT(nft);
     setShowNFTModal(false);
     setIsApproved(false);
-    setTxStatus('');
+    setTxStatus("");
   };
 
   const toggleCustomRecipient = () => {
     setUseCustomRecipient(!useCustomRecipient);
-    setRecipient(!useCustomRecipient ? '' : address || '');
+    setRecipient(!useCustomRecipient ? "" : address || "");
   };
 
   const handleRegisterClick = async () => {
@@ -145,8 +259,10 @@ export function MainPage() {
         setIsRegistering,
       });
     } catch (error) {
-      console.error('[MainPage] Registering error:', error);
-      setTxStatus(`Failed to register collection: ${error.message || 'Unknown error'}`);
+      console.error("[MainPage] Registering error:", error);
+      setTxStatus(
+        `Failed to register collection: ${error.message || "Unknown error"}`,
+      );
     }
   };
 
@@ -165,36 +281,44 @@ export function MainPage() {
         setIsApproving,
       });
     } catch (error) {
-      console.error('[MainPage] Approval error:', error);
-      setTxStatus(`Failed to approve: ${error.message || 'Unknown error'}`);
+      console.error("[MainPage] Approval error:", error);
+      setTxStatus(`Failed to approve: ${error.message || "Unknown error"}`);
     }
   };
 
   const handleBridgeClick = async () => {
     if (!chainId || !destinationChainId) {
-      setTxStatus('Please select a valid destination chain');
+      setTxStatus("Please select a valid destination chain");
       return;
     }
     if (chainId === destinationChainId) {
-      setTxStatus('Cannot bridge to the same chain');
+      setTxStatus("Cannot bridge to the same chain");
+      return;
+    }
+    const direction = getDirection(chainId, destinationChainId);
+    if (!direction) {
+      setTxStatus("Invalid bridge direction for selected networks");
       return;
     }
     try {
-      await bridgeNFT({
-        walletClient,
-        publicClient,
-        tokenIds: [tokenId],
-        localTokenAddress: tokenContractAddress as Address,
-        recipient: recipient as Address,
-        isApproved,
-        setTxStatus,
-        setIsApproved,
-        setTokenIds: (ids) => setTokenId(ids[0] || ''),
-        setIsBridging,
-      }, destinationChainId);
+      await bridgeNFT(
+        {
+          walletClient,
+          publicClient,
+          tokenIds: [tokenId],
+          localTokenAddress: tokenContractAddress as Address,
+          recipient: recipient as Address,
+          isApproved,
+          setTxStatus,
+          setIsApproved,
+          setTokenIds: (ids) => setTokenId(ids[0] || ""),
+          setIsBridging,
+        },
+        direction,
+      );
     } catch (error) {
-      console.error('[MainPage] Bridging error:', error);
-      setTxStatus(`Failed to bridge: ${error.message || 'Unknown error'}`);
+      console.error("[MainPage] Bridging error:", error);
+      setTxStatus(`Failed to bridge: ${error.message || "Unknown error"}`);
     }
   };
 
@@ -219,7 +343,8 @@ export function MainPage() {
             </h1>
           </div>
           <p className="text-gray-300 text-lg md:text-xl max-w-2xl mx-auto">
-            Bridge any ERC-721 NFT between supported chains using LayerZero technology
+            Bridge any ERC-721 NFT between supported chains using LayerZero
+            technology
           </p>
         </div>
         <div className="grid lg:grid-cols-2 gap-8 items-start">
@@ -232,31 +357,37 @@ export function MainPage() {
                 </h3>
               </div>
               <div className="relative">
-                <div className="flex items-center justify-between bg-white/5 border border-white/10 rounded-2xl p-4">
-                  <ChainDropdown
-                    type="origin"
-                    chainId={chainId}
-                    destinationChainId={destinationChainId}
-                    switchChainAsync={switchChainAsync}
-                    setTxStatus={setTxStatus}
-                    setTokenId={setTokenId}
-                    setIsApproved={setIsApproved}
-                  />
-                  <div className="text-purple-400">
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-                    </svg>
+                <div className="flex items-center justify-between  gap-2">
+                  <div className="flex-1">
+                    <ChainDropdown
+                      type="origin"
+                      chainId={chainId}
+                      destinationChainId={destinationChainId}
+                      switchChainAsync={switchChainAsync}
+                      setTxStatus={setTxStatus}
+                      setTokenId={setTokenId}
+                      setIsApproved={setIsApproved}
+                    />
                   </div>
-                  <ChainDropdown
-                    type="destination"
-                    chainId={chainId}
-                    destinationChainId={destinationChainId}
-                    switchChainAsync={switchChainAsync}
-                    setTxStatus={setTxStatus}
-                    setTokenId={setTokenId}
-                    setIsApproved={setIsApproved}
-                    setDestinationChainId={setDestinationChainId}
-                  />
+                  <button
+                    onClick={handleSwapNetworks}
+                    className="text-purple-400 hover:text-purple-300 transition-colors p-2 mx-auto bg-white/5 border border-white/10 rounded-2xl p-2 cursor-pointer"
+                    title="Swap networks"
+                  >
+                    <ArrowLeftRight className="w-6 h-6" />
+                  </button>
+                  <div className="flex-1 text-end">
+                    <ChainDropdown
+                      type="destination"
+                      chainId={chainId}
+                      destinationChainId={destinationChainId}
+                      switchChainAsync={switchChainAsync}
+                      setTxStatus={setTxStatus}
+                      setTokenId={setTokenId}
+                      setIsApproved={setIsApproved}
+                      setDestinationChainId={setDestinationChainId}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -269,22 +400,19 @@ export function MainPage() {
                 onClick={handleFetchNFTs}
                 disabled={!ready || isLoadingNfts}
                 className={`w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center justify-center ${
-                  !ready || isLoadingNfts ? 'opacity-50 cursor-not-allowed hover:scale-100' : ''
+                  !ready || isLoadingNfts
+                    ? "opacity-50 cursor-not-allowed hover:scale-100"
+                    : ""
                 }`}
               >
                 {isLoadingNfts ? (
                   <>
-                    <svg className="animate-spin h-5 w-5 mr-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
+                    <Loader2 className="h-5 w-5 mr-3 text-white animate-spin" />
                     Scanning Collection...
                   </>
                 ) : (
                   <>
-                    <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
+                    <ImageIcon className="w-5 h-5 mr-3" />
                     Browse NFTs
                   </>
                 )}
@@ -304,26 +432,30 @@ export function MainPage() {
                     className="sr-only"
                     disabled={!isConnected}
                   />
-                  <div className={`w-6 h-6 rounded-lg border-2 mr-3 flex items-center justify-center transition-all ${useCustomRecipient ? 'bg-purple-500 border-purple-500' : 'border-gray-500'} ${!isConnected ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                  <div
+                    className={`w-6 h-6 rounded-lg border-2 mr-3 flex items-center justify-center transition-all ${useCustomRecipient ? "bg-purple-500 border-purple-500" : "border-gray-500"} ${!isConnected ? "opacity-50 cursor-not-allowed" : ""}`}
+                  >
                     {useCustomRecipient && (
-                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
-                      </svg>
+                      <Check className="w-4 h-4 text-white" />
                     )}
                   </div>
                   Use custom recipient address
                 </label>
               </div>
-              <input
-                type="text"
-                placeholder="Recipient Address (0x...)"
-                value={recipient}
-                onChange={(e) => setRecipient(e.target.value)}
-                disabled={!useCustomRecipient || !isConnected}
-                className={`w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all font-mono text-sm ${
-                  !useCustomRecipient || !isConnected ? 'opacity-50 cursor-not-allowed' : ''
-                }`}
-              />
+              {useCustomRecipient && (
+                <input
+                  type="text"
+                  placeholder="Recipient Address (0x...)"
+                  value={recipient}
+                  onChange={(e) => setRecipient(e.target.value)}
+                  disabled={!isConnected}
+                  className={`w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all font-mono text-sm ${
+                    !isConnected
+                      ? "opacity-50 cursor-not-allowed"
+                      : ""
+                  }`}
+                />
+              )}
             </div>
             <div className="space-y-4">
               {!isSupported && (
@@ -331,22 +463,19 @@ export function MainPage() {
                   onClick={handleRegisterClick}
                   disabled={!ready || !tokenContractAddress || isRegistering}
                   className={`w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center justify-center ${
-                    !ready || !tokenContractAddress || isRegistering ? 'opacity-50 cursor-not-allowed hover:scale-100' : ''
+                    !ready || !tokenContractAddress || isRegistering
+                      ? "opacity-50 cursor-not-allowed hover:scale-100"
+                      : ""
                   }`}
                 >
                   {isRegistering ? (
                     <>
-                      <svg className="animate-spin h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
+                      <Loader2 className="h-5 w-5 mr-3 animate-spin" />
                       Registering...
                     </>
                   ) : (
                     <>
-                      <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 0 0 0118 0z"/>
-                      </svg>
+                      <CheckCircle className="w-5 h-5 mr-3" />
                       Register Collection
                     </>
                   )}
@@ -354,50 +483,70 @@ export function MainPage() {
               )}
               <button
                 onClick={handleApproveClick}
-                disabled={!ready || !tokenId || !isSupported || !tokenContractAddress || isApproved || isApproving}
+                disabled={
+                  !ready ||
+                  !tokenId ||
+                  !isSupported ||
+                  !tokenContractAddress ||
+                  isApproved ||
+                  isApproving
+                }
                 className={`w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center justify-center ${
-                  !ready || !tokenId || !isSupported || !tokenContractAddress || isApproved || isApproving ? 'opacity-50 cursor-not-allowed hover:scale-100' : ''
+                  !ready ||
+                  !tokenId ||
+                  !isSupported ||
+                  !tokenContractAddress ||
+                  isApproved ||
+                  isApproving
+                    ? "opacity-50 cursor-not-allowed hover:scale-100"
+                    : ""
                 }`}
               >
                 {isApproving ? (
                   <>
-                    <svg className="animate-spin h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
+                    <Loader2 className="h-5 w-5 mr-3 animate-spin" />
                     Approving...
                   </>
                 ) : isApproved ? (
                   <>
-                    <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
-                    </svg>
+                    <Check className="w-5 h-5 mr-3" />
                     NFT Approved
                   </>
                 ) : (
                   <>
-                    <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 0 0 0118 0z"/>
-                    </svg>
+                    <CheckCircle className="w-5 h-5 mr-3" />
                     Approve NFT
                   </>
                 )}
               </button>
               <button
                 onClick={handleBridgeClick}
-                disabled={!ready || !tokenId || !recipient || !isApproved || !isSupported || !tokenContractAddress || isBridging || !destinationChainId}
+                disabled={
+                  !ready ||
+                  !tokenId ||
+                  !recipient ||
+                  !isApproved ||
+                  !isSupported ||
+                  !tokenContractAddress ||
+                  isBridging ||
+                  !destinationChainId
+                }
                 className={`w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center justify-center ${
-                  !ready || !tokenId || !recipient || !isApproved || !isSupported || !tokenContractAddress || isBridging || !destinationChainId
-                    ? 'opacity-50 cursor-not-allowed hover:scale-100'
-                    : ''
+                  !ready ||
+                  !tokenId ||
+                  !recipient ||
+                  !isApproved ||
+                  !isSupported ||
+                  !tokenContractAddress ||
+                  isBridging ||
+                  !destinationChainId
+                    ? "opacity-50 cursor-not-allowed hover:scale-100"
+                    : ""
                 }`}
               >
                 {isBridging ? (
                   <>
-                    <svg className="animate-spin h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
+                    <Loader2 className="h-5 w-5 mr-3 animate-spin" />
                     Bridging NFT...
                   </>
                 ) : (
@@ -409,11 +558,16 @@ export function MainPage() {
               </button>
             </div>
             {txStatus && (
-              <div className={`mt-6 p-4 rounded-2xl border ${
-                txStatus.includes('Failed') || txStatus.includes('Please') || txStatus.includes('Invalid') || txStatus.includes('same chain')
-                  ? 'bg-red-500/10 border-red-500/20 text-red-300'
-                  : 'bg-green-500/10 border-green-500/20 text-green-300'
-              }`}>
+              <div
+                className={`mt-6 p-4 rounded-2xl border ${
+                  txStatus.includes("Failed") ||
+                  txStatus.includes("Please") ||
+                  txStatus.includes("Invalid") ||
+                  txStatus.includes("same chain")
+                    ? "bg-red-500/10 border-red-500/20 text-red-300"
+                    : "bg-green-500/10 border-green-500/20 text-green-300"
+                }`}
+              >
                 <p className="text-center font-medium">{txStatus}</p>
               </div>
             )}
@@ -433,8 +587,9 @@ export function MainPage() {
                         alt={`NFT ${selectedNFT.tokenId}`}
                         className="w-full h-full object-contain rounded-2xl"
                         onError={(e) => {
-                          e.currentTarget.src = 'https://via.placeholder.com/400x400/6366f1/ffffff?text=NFT';
-                          e.currentTarget.alt = 'No image available';
+                          e.currentTarget.src =
+                            "https://via.placeholder.com/400x400/6366f1/ffffff?text=NFT";
+                          e.currentTarget.alt = "No image available";
                         }}
                       />
                     ) : (
@@ -457,22 +612,30 @@ export function MainPage() {
                   <div className="text-gray-300 space-y-2">
                     <div className="flex justify-between">
                       <span>Token ID:</span>
-                      <span className="font-mono text-purple-300">#{selectedNFT.tokenId}</span>
+                      <span className="font-mono text-purple-300">
+                        #{selectedNFT.tokenId}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Network:</span>
-                      <span className="text-emerald-300">{currentChain.name}</span>
+                      <span className="text-emerald-300">
+                        {currentChain.name}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Contract:</span>
                       <span className="font-mono text-xs text-cyan-300">
-                        {selectedNFT.contractAddress ? `${selectedNFT.contractAddress.slice(0, 6)}...${selectedNFT.contractAddress.slice(-4)}` : 'Not set'}
+                        {selectedNFT.contractAddress
+                          ? `${selectedNFT.contractAddress.slice(0, 6)}...${selectedNFT.contractAddress.slice(-4)}`
+                          : "Not set"}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Status:</span>
-                      <span className={`${isApproved ? 'text-green-300' : 'text-yellow-300'}`}>
-                        {isApproved ? 'Approved' : 'Pending Approval'}
+                      <span
+                        className={`${isApproved ? "text-green-300" : "text-yellow-300"}`}
+                      >
+                        {isApproved ? "Approved" : "Pending Approval"}
                       </span>
                     </div>
                   </div>
@@ -483,8 +646,12 @@ export function MainPage() {
                 <div className="w-32 h-32 mx-auto bg-gradient-to-br from-gray-700 to-gray-800 rounded-3xl flex items-center justify-center mb-6">
                   <span className="text-4xl text-gray-500">🖼️</span>
                 </div>
-                <h4 className="text-white text-xl font-semibold mb-2">No NFT Selected</h4>
-                <p className="text-gray-400">Click "Browse NFTs" to select an NFT for bridging</p>
+                <h4 className="text-white text-xl font-semibold mb-2">
+                  No NFT Selected
+                </h4>
+                <p className="text-gray-400">
+                  Click "Browse NFTs" to select an NFT for bridging
+                </p>
               </div>
             )}
           </div>
@@ -502,9 +669,7 @@ export function MainPage() {
                 onClick={() => setShowNFTModal(false)}
                 className="w-10 h-10 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-xl flex items-center justify-center text-red-300 hover:text-red-200 transition-all"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
+                <X className="w-6 h-6" />
               </button>
             </div>
             <div className="overflow-y-auto max-h-[calc(90vh-200px)]">
@@ -513,8 +678,12 @@ export function MainPage() {
                   <div className="w-24 h-24 mx-auto bg-gradient-to-br from-gray-600 to-gray-700 rounded-2xl flex items-center justify-center mb-6">
                     <span className="text-3xl">😕</span>
                   </div>
-                  <h3 className="text-white text-xl font-semibold mb-2">No NFTs Found</h3>
-                  <p className="text-gray-400">We couldn't find any NFTs in your wallet on this network.</p>
+                  <h3 className="text-white text-xl font-semibold mb-2">
+                    No NFTs Found
+                  </h3>
+                  <p className="text-gray-400">
+                    We couldn't find any NFTs in your wallet on this network.
+                  </p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -531,8 +700,9 @@ export function MainPage() {
                             alt={`NFT ${nft.tokenId}`}
                             className="w-full h-full object-contain rounded-lg group-hover:scale-110 transition-transform duration-300"
                             onError={(e) => {
-                              e.currentTarget.src = 'https://via.placeholder.com/300x300/6366f1/ffffff?text=NFT';
-                              e.currentTarget.alt = 'No image available';
+                              e.currentTarget.src =
+                                "https://via.placeholder.com/300x300/6366f1/ffffff?text=NFT";
+                              e.currentTarget.alt = "No image available";
                             }}
                           />
                         ) : (
@@ -545,13 +715,20 @@ export function MainPage() {
                         <h4 className="text-white font-semibold text-lg mb-1">
                           {nft.name || `Token #${nft.tokenId}`}
                         </h4>
-                        <p className="text-gray-400 text-sm font-mono truncate max-w-[200px]">ID: {nft.tokenId}</p>
+                        <p className="text-gray-400 text-sm font-mono truncate max-w-[200px]">
+                          ID: {nft.tokenId}
+                        </p>
                         <p className="text-gray-400 text-sm font-mono">
-                          Contract: {nft.contractAddress ? `${nft.contractAddress.slice(0, 6)}...${nft.contractAddress.slice(-4)}` : 'Unknown'}
+                          Contract:{" "}
+                          {nft.contractAddress
+                            ? `${nft.contractAddress.slice(0, 6)}...${nft.contractAddress.slice(-4)}`
+                            : "Unknown"}
                         </p>
                       </div>
                       <div className="mt-4 bg-purple-500/20 rounded-lg p-2 text-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <span className="text-purple-300 text-sm font-medium">Click to Select</span>
+                        <span className="text-purple-300 text-sm font-medium">
+                          Click to Select
+                        </span>
                       </div>
                     </div>
                   ))}

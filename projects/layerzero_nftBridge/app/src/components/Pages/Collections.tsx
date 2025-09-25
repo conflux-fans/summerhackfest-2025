@@ -2,11 +2,18 @@ import { useState, useEffect } from 'react';
 import { useAppKitAccount, useAppKitNetwork } from '@reown/appkit/react';
 import { useWalletClient, usePublicClient, useSwitchChain } from 'wagmi';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, Network, Plus, Info, Palette, Check, AlertCircle } from 'lucide-react';
+import { Loader2, Network, Plus, Info, Palette, Check, AlertCircle, Copy } from 'lucide-react';
 import { WalletConnectButton } from '../Buttons/WalletConnect';
 import { fetchUserCollections, createCollection } from './utils/collections/contract';
-import { validateIpfsCid } from './utils/collections/ipfs';
+import { validateIpfsCid, getIpfsUrl } from './utils/collections/ipfs';
 import { BASE_SEPOLIA_CHAIN_ID } from './utils/constants';
+
+interface CollectionMetadata {
+  name: string;
+  description: string;
+  image: string;
+  external_link?: string;
+}
 
 export function Collections() {
   const { address, isConnected } = useAppKitAccount();
@@ -15,6 +22,7 @@ export function Collections() {
   const publicClient = usePublicClient();
   const { switchChainAsync } = useSwitchChain();
   const navigate = useNavigate();
+
   const [ready, setReady] = useState(false);
   const [collections, setCollections] = useState<
     { address: string; name: string; symbol: string; image: string }[]
@@ -26,7 +34,12 @@ export function Collections() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [collectionName, setCollectionName] = useState('');
   const [collectionSymbol, setCollectionSymbol] = useState('');
+  const [collectionDescription, setCollectionDescription] = useState('');
   const [collectionImageCid, setCollectionImageCid] = useState('');
+  const [externalLink, setExternalLink] = useState('');
+  const [generatedJson, setGeneratedJson] = useState('');
+  const [isCopied, setIsCopied] = useState(false);
+  const [previewImageUrl, setPreviewImageUrl] = useState('');
   const [isLoadingCollections, setIsLoadingCollections] = useState(false);
 
   // Initialize and check network
@@ -55,6 +68,20 @@ export function Collections() {
     };
     initialize();
   }, [isConnected, address, walletClient, publicClient, chainId]);
+
+  // Update generated JSON and preview
+  useEffect(() => {
+    const metadata: CollectionMetadata = {
+      name: collectionName,
+      description: collectionDescription,
+      image: collectionImageCid ? `ipfs://${collectionImageCid}` : '',
+      external_link: externalLink || undefined,
+    };
+    setGeneratedJson(JSON.stringify(metadata, null, 2));
+    setPreviewImageUrl(
+      collectionImageCid && validateIpfsCid(collectionImageCid) ? getIpfsUrl(collectionImageCid) : ''
+    );
+  }, [collectionName, collectionDescription, collectionImageCid, externalLink]);
 
   const switchToBaseSepolia = async () => {
     if (!isConnected) {
@@ -87,12 +114,28 @@ export function Collections() {
     }
     setIsCreating(true);
     try {
+      // Generate base64 URI for metadata if fields are filled, else use empty
+      let contractUri = '';
+      if (collectionDescription || externalLink) {
+        const metadata: CollectionMetadata = {
+          name: collectionName,
+          description: collectionDescription,
+          image: collectionImageCid ? `ipfs://${collectionImageCid}` : '',
+          external_link: externalLink || undefined,
+        };
+        const jsonStr = JSON.stringify(metadata);
+        const encoder = new TextEncoder();
+        const data = encoder.encode(jsonStr);
+        const base64 = btoa(String.fromCharCode(...data));
+        contractUri = `data:application/json;base64,${base64}`;
+      }
       await createCollection(
         walletClient,
         publicClient,
         collectionName,
         collectionSymbol,
         collectionImageCid,
+        contractUri,
         setSelectedCollection,
         setCollections,
         setTxStatus
@@ -100,7 +143,9 @@ export function Collections() {
       setShowCreateModal(false);
       setCollectionName('');
       setCollectionSymbol('');
+      setCollectionDescription('');
       setCollectionImageCid('');
+      setExternalLink('');
     } catch (err: any) {
       console.error('Collection creation error:', err);
       setTxStatus('Failed to create collection: ' + (err?.message || 'Unknown error'));
@@ -113,6 +158,12 @@ export function Collections() {
     navigate(`/collection/${address}`);
   };
 
+  const copyJson = () => {
+    navigator.clipboard.writeText(generatedJson);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
+  };
+
   const isOnCorrectNetwork = chainId === BASE_SEPOLIA_CHAIN_ID;
 
   return (
@@ -120,17 +171,18 @@ export function Collections() {
       {/* Hero Section */}
       <div className="text-center mb-16">
         <div className='flex items-center justify-center'>
-        <div className="inline-flex items-center justify-center w-20 h-20 bg-white/10 backdrop-blur-md rounded-3xl mb-6 border border-white/20 me-2 lg:me-5">
-          <Palette className="w-10 h-10 text-white" />
-        </div>
-        <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-white via-white/90 to-white/70 bg-clip-text text-transparent mb-4">
-          Collections
-        </h1>
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-white/10 backdrop-blur-md rounded-3xl mb-6 border border-white/20 me-2 lg:me-5">
+            <Palette className="w-10 h-10 text-white" />
+          </div>
+          <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-white via-white/90 to-white/70 bg-clip-text text-transparent mb-4">
+            Collections
+          </h1>
         </div>
         <p className="text-white/60 text-xl max-w-lg mx-auto">
           Create and manage your NFT collections on Base Sepolia
         </p>
       </div>
+
       <div className="max-w-5xl mx-auto space-y-8">
         {/* Connection Status Card */}
         <div className="bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 p-6">
@@ -163,6 +215,7 @@ export function Collections() {
             </div>
           </div>
         </div>
+
         {/* Status Alert */}
         {txStatus && (
           <div className={`rounded-2xl border p-4 ${
@@ -192,6 +245,7 @@ export function Collections() {
             </div>
           </div>
         )}
+
         {/* Collections Section */}
         <div className="bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 p-8">
           <div className="flex items-center justify-between mb-8">
@@ -208,6 +262,7 @@ export function Collections() {
               Create Collection
             </button>
           </div>
+
           {/* Collections Grid */}
           {isLoadingCollections ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -265,81 +320,145 @@ export function Collections() {
           )}
         </div>
       </div>
+
       {/* Create Collection Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Plus className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-white text-2xl font-bold mb-2">Create Collection</h3>
-              <p className="text-white/60">Set up your new NFT collection</p>
-            </div>
-            <div className="space-y-6">
-              <div>
-                <label className="block text-white font-semibold mb-3">Collection Name</label>
-                <input
-                  type="text"
-                  placeholder="e.g., My Awesome Art"
-                  value={collectionName}
-                  onChange={(e) => setCollectionName(e.target.value)}
-                  className="w-full bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                />
-              </div>
-              <div>
-                <label className="block text-white font-semibold mb-3">Collection Symbol</label>
-                <input
-                  type="text"
-                  placeholder="e.g., MAA"
-                  value={collectionSymbol}
-                  onChange={(e) => setCollectionSymbol(e.target.value.toUpperCase())}
-                  className="w-full bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all font-mono"
-                />
-              </div>
-              <div>
-                <label className="block text-white font-semibold mb-3">
-                  Collection Image <span className="text-white/60 font-normal">(Optional)</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="IPFS CID (e.g., Qm...)"
-                  value={collectionImageCid}
-                  onChange={(e) => setCollectionImageCid(e.target.value)}
-                  className="w-full bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all font-mono text-sm"
-                />
-                <div className="flex items-start space-x-2 mt-3 text-xs text-white/50">
-                  <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                  <p>
-                    Upload to <a href="https://pinata.cloud" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Pinata</a> or <a href="https://nft.storage" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">NFT.Storage</a> for IPFS hosting
-                  </p>
+          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <h3 className="text-xl font-bold text-white mb-6">Create New Collection</h3>
+            <div className="grid md:grid-cols-2 gap-6 mb-6">
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-gray-300 text-sm font-medium mb-2">
+                    Collection Name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Enter collection name (e.g., My Awesome Art)"
+                    value={collectionName}
+                    onChange={(e) => setCollectionName(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-300 text-sm font-medium mb-2">
+                    Collection Symbol
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Enter collection symbol (e.g., MAA)"
+                    value={collectionSymbol}
+                    onChange={(e) => setCollectionSymbol(e.target.value.toUpperCase())}
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-all font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-300 text-sm font-medium mb-2">
+                    Description
+                  </label>
+                  <textarea
+                    placeholder="Enter collection description"
+                    value={collectionDescription}
+                    onChange={(e) => setCollectionDescription(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-all min-h-[100px]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-300 text-sm font-medium mb-2">
+                    Image IPFS CID
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Enter IPFS CID for image (e.g., Qm... or bafy...)"
+                    value={collectionImageCid}
+                    onChange={(e) => setCollectionImageCid(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-all font-mono text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-300 text-sm font-medium mb-2">
+                    External Link
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Enter external link (e.g., https://yourwebsite.com)"
+                    value={externalLink}
+                    onChange={(e) => setExternalLink(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-all"
+                  />
                 </div>
               </div>
-              <div className="flex space-x-4 pt-4">
-                <button
-                  onClick={handleCreateCollection}
-                  disabled={!collectionName || !collectionSymbol || isCreating}
-                  className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center"
-                >
-                  {isCreating ? (
-                    <>
-                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                      Creating...
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="w-5 h-5 mr-2" />
-                      Create
-                    </>
-                  )}
-                </button>
-                <button
-                  onClick={() => setShowCreateModal(false)}
-                  className="flex-1 bg-white/10 hover:bg-white/20 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300"
-                >
-                  Cancel
-                </button>
+              <div className="space-y-6">
+                <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
+                  <p className="text-gray-300 text-sm font-medium mb-2">
+                    Image Preview
+                  </p>
+                  <div className="aspect-square bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-xl flex items-center justify-center">
+                    {previewImageUrl ? (
+                      <img
+                        src={previewImageUrl}
+                        alt="Collection Preview"
+                        className="w-full h-full object-cover rounded-xl"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).src =
+                            "https://via.placeholder.com/150?text=Preview";
+                        }}
+                      />
+                    ) : (
+                      <div className="text-center p-4">
+                        <Palette className="w-8 h-8 mx-auto mb-2 text-gray-500" />
+                        <p className="text-gray-500 text-xs">
+                          Enter image CID to preview
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-gray-300 text-sm font-medium mb-2">
+                    Generated Metadata JSON
+                  </label>
+                  <pre className="bg-white/5 rounded-2xl p-4 text-white text-xs font-mono overflow-auto max-h-40">
+                    {generatedJson}
+                  </pre>
+                  <button
+                    onClick={copyJson}
+                    className="w-full mt-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 font-medium py-3 rounded-2xl transition-all flex items-center justify-center"
+                  >
+                    <Copy className="w-4 h-4 mr-2" />
+                    {isCopied ? "Copied!" : "Copy JSON"}
+                  </button>
+                </div>
               </div>
+            </div>
+            <div className="flex gap-4">
+              <button
+                onClick={handleCreateCollection}
+                disabled={!collectionName || !collectionSymbol || isCreating}
+                className={`flex-1 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3 rounded-2xl transition-all duration-300 flex items-center justify-center ${
+                  !collectionName || !collectionSymbol || isCreating
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
+                }`}
+              >
+                {isCreating ? (
+                  <>
+                    <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                    Creating...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Collection
+                  </>
+                )}
+              </button>
+              <button
+                onClick={() => setShowCreateModal(false)}
+                className="flex-1 bg-white/5 hover:bg-white/10 text-white font-semibold py-3 rounded-2xl transition-all"
+              >
+                Cancel
+              </button>
             </div>
           </div>
         </div>
