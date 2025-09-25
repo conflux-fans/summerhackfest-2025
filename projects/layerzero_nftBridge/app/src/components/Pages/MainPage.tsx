@@ -1,3 +1,4 @@
+// MainPage.tsx (fully updated)
 import { useState, useEffect } from "react";
 import { useAppKitAccount, useAppKitNetwork } from "@reown/appkit/react";
 import { useWalletClient, usePublicClient, useSwitchChain } from "wagmi";
@@ -22,7 +23,8 @@ import {
   ETH_SEPOLIA_BRIDGE_ADDRESS,
   BASE_SEPOLIA_BRIDGE_ADDRESS,
 } from "./utils/constants";
-import { ArrowLeftRight, Image as ImageIcon, Check, CheckCircle, X, Loader2 } from 'lucide-react';
+import { ArrowLeftRight, Image as ImageIcon, Check, CheckCircle, X, Loader2, Clock, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { extractLzMessageId, fetchLzMessageStatus, LzMessageStatus } from "./utils/bridge/layerZeroScanUtils";
 
 export function MainPage() {
   const { address, isConnected } = useAppKitAccount();
@@ -45,9 +47,12 @@ export function MainPage() {
   const [isSupported, setIsSupported] = useState(true);
   const [isRegistering, setIsRegistering] = useState(false);
   const [tokenContractAddress, setTokenContractAddress] = useState("");
-  const [destinationChainId, setDestinationChainId] = useState<number | null>(
-    null,
-  );
+  const [destinationChainId, setDestinationChainId] = useState<number | null>(null);
+  const [messageId, setMessageId] = useState<`0x${string}` | null>(null);
+  const [bridgeStatus, setBridgeStatus] = useState<LzMessageStatus["status"] | null>(null);
+  const [estimatedRemainingMs, setEstimatedRemainingMs] = useState<number | null>(null);
+  const [dstTxHash, setDstTxHash] = useState<string | null>(null);
+  const [pollInterval, setPollInterval] = useState<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const initialize = async () => {
@@ -123,6 +128,30 @@ export function MainPage() {
     tokenContractAddress,
     tokenId,
   ]);
+
+  // Polling useEffect for LayerZero status
+  useEffect(() => {
+    if (messageId && chainId && destinationChainId) {
+      const interval = setInterval(async () => {
+        const status = await fetchLzMessageStatus(messageId, chainId, destinationChainId);
+        if (status) {
+          setBridgeStatus(status.status);
+          setEstimatedRemainingMs(status.estimatedRemainingMs);
+          setDstTxHash(status.txHashes.dstTxHash || null);
+          if (status.status === "delivered" || status.status === "failed") {
+            clearInterval(interval);
+            setPollInterval(null);
+          }
+        }
+      }, 10000); // Poll every 10s
+      setPollInterval(interval);
+
+      // Cleanup on unmount or new message
+      return () => {
+        if (pollInterval) clearInterval(pollInterval);
+      };
+    }
+  }, [messageId, chainId, destinationChainId, pollInterval]);
 
   const getBridgeAddress = (id: number): Address => {
     switch (id) {
@@ -324,7 +353,6 @@ export function MainPage() {
 
   const currentChain = getChainInfo(chainId || 0);
   const targetChain = getChainInfo(destinationChainId || 0);
-
   return (
     <div className="min-h-screen p-4">
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -357,7 +385,7 @@ export function MainPage() {
                 </h3>
               </div>
               <div className="relative">
-                <div className="flex items-center justify-between  gap-2">
+                <div className="flex items-center justify-between gap-2">
                   <div className="flex-1">
                     <ChainDropdown
                       type="origin"
@@ -569,6 +597,75 @@ export function MainPage() {
                 }`}
               >
                 <p className="text-center font-medium">{txStatus}</p>
+              </div>
+            )}
+            {/* LayerZero Status Display */}
+            {bridgeStatus && (
+              <div className="mt-6">
+                <h4 className="text-white text-sm font-semibold mb-3 flex items-center gap-2">
+                  <span className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></span>
+                  Bridge Status (LayerZero Scan)
+                </h4>
+                <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-300 text-sm">Status:</span>
+                    <span
+                      className={`text-sm font-medium flex items-center gap-1 ${
+                        bridgeStatus === "delivered"
+                          ? "text-green-400"
+                          : bridgeStatus === "failed"
+                          ? "text-red-400"
+                          : "text-yellow-400"
+                      }`}
+                    >
+                      {bridgeStatus === "delivered" && <CheckCircle2 className="w-4 h-4" />}
+                      {bridgeStatus === "failed" && <AlertCircle className="w-4 h-4" />}
+                      {bridgeStatus === "pending" && <Clock className="w-4 h-4 animate-spin" />}
+                      {bridgeStatus.charAt(0).toUpperCase() + bridgeStatus.slice(1)}
+                    </span>
+                  </div>
+                  {bridgeStatus === "pending" && estimatedRemainingMs && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-300 text-sm">Est. Time Left:</span>
+                      <span className="text-yellow-300 text-sm font-mono">
+                        {Math.round(estimatedRemainingMs / 1000)}s
+                      </span>
+                    </div>
+                  )}
+                  {dstTxHash && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-300 text-sm">Destination Tx:</span>
+                      <a
+                        href={`https://sepolia.etherscan.io/tx/${dstTxHash}`} // Adjust URL based on dstChainId
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-purple-300 text-sm hover:text-purple-200 underline"
+                      >
+                        View on Explorer
+                      </a>
+                    </div>
+                  )}
+                  <div className="pt-2">
+                    <a
+                      href={`https://layerzeroscan.com/tx/${messageId}?network=testnet`} // Adjust network
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-purple-400 text-xs hover:text-purple-300 underline block"
+                    >
+                      Track on LayerZero Scan
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )}
+            {bridgeStatus === "delivered" && (
+              <div className="mt-4 p-4 bg-green-500/10 border border-green-500/20 rounded-2xl">
+                <p className="text-green-300 text-center text-sm">NFT bridged and delivered! Check destination chain.</p>
+              </div>
+            )}
+            {bridgeStatus === "failed" && (
+              <div className="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl">
+                <p className="text-red-300 text-center text-sm">Bridge failed. Check LayerZero Scan for details.</p>
               </div>
             )}
           </div>
