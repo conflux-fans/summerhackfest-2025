@@ -121,7 +121,7 @@ account: Address;
 value?: bigint;
   },
 bufferPercent: number = 15, // Reduced from 20 for optimization
-defaultGas: bigint = 300000n // Lowered based on typical calls
+defaultGas: bigint = 500000n 
 ): Promise<bigint> {
 try {
 const gasEstimate = await publicClient.estimateContractGas(config);
