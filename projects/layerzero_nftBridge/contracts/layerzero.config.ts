@@ -3,51 +3,49 @@ import { ExecutorOptionType } from '@layerzerolabs/lz-v2-utilities';
 import { OAppEnforcedOption } from '@layerzerolabs/toolbox-hardhat';
 import { TwoWayConfig, generateConnectionsConfig } from '@layerzerolabs/metadata-tools';
 
-// Define OApp configurations
-// const confluxOApp = {
-//   eid: EndpointId.CONFLUX_V2_MAINNET,
-//   contractName: 'DynamicONFTBridge',
-// };
-// const baseOApp = {
-//   eid: EndpointId.BASE_V2_MAINNET,
-//   contractName: 'DynamicONFTBridge',
-// };
-
-const ethereumSepoliaOApp = {
-  eid: 40161, // SEPOLIA_V2_TESTNET
+// Define OApp configurations for Conflux Mainnet and Base Mainnet
+const confluxOApp = {
+  eid: EndpointId.CONFLUX_V2_MAINNET,
   contractName: 'DynamicONFTBridge',
 };
 
-const baseSepoliaOApp = {
-  eid: 40245, // BASE_V2_TESTNET
+const baseOApp = {
+  eid: EndpointId.BASE_V2_MAINNET,
   contractName: 'DynamicONFTBridge',
 };
 
-// Define enforced options (currently empty)
-const enforcedOptions: OAppEnforcedOption[] = [];
+// Define enforced options for cross-chain message execution
+const enforcedOptions: OAppEnforcedOption[] = [
+  {
+    msgType: 1, // SEND (used for LZ_RECEIVE in LayerZero)
+    optionType: ExecutorOptionType.LZ_RECEIVE,
+    gas: 200000, // Gas limit for receiving messages (e.g., minting wrapped NFTs or unlocking natives)
+    value: 0, // No native token value required
+  },
+];
 
 // Define pathway configurations for two-way connections
 const pathways: TwoWayConfig[] = [
-  // Ethereum Sepolia to Base Sepolia
+  // Conflux Mainnet to Base Mainnet
   [
-    ethereumSepoliaOApp,
-    baseSepoliaOApp,
+    confluxOApp,
+    baseOApp,
     [
-      ['LayerZero Labs'], // DVNs for Ethereum Sepolia -> Base Sepolia
+      ['LayerZero Labs'], // DVNs for Conflux Mainnet -> Base Mainnet
       [], // Executors (none specified)
     ],
-    [1, 1], // Confirmations: Lower for testnets (Ethereum Sepolia: 1, Base Sepolia: 1)
+    [15, 15], // Confirmations: Standard for mainnets (Conflux: 15, Base: 15)
     [enforcedOptions, enforcedOptions], // Enforced options for both directions
   ],
-  // Base Sepolia to Ethereum Sepolia
+  // Base Mainnet to Conflux Mainnet
   [
-    baseSepoliaOApp,
-    ethereumSepoliaOApp,
+    baseOApp,
+    confluxOApp,
     [
-      ['LayerZero Labs'], // DVNs for Base Sepolia -> Ethereum Sepolia
+      ['LayerZero Labs'], // DVNs for Base Mainnet -> Conflux Mainnet
       [], // Executors (none specified)
     ],
-    [1, 1], // Confirmations: Lower for testnets (Base Sepolia: 1, Ethereum Sepolia: 1)
+    [15, 15], // Confirmations: Standard for mainnets (Base: 15, Conflux: 15)
     [enforcedOptions, enforcedOptions], // Enforced options for both directions
   ],
 ];
@@ -57,8 +55,8 @@ export default async function () {
   const connections = await generateConnectionsConfig(pathways);
   return {
     contracts: [
-      { contract: ethereumSepoliaOApp },
-      { contract: baseSepoliaOApp },
+      { contract: confluxOApp },
+      { contract: baseOApp },
     ],
     connections,
   };
