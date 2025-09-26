@@ -76,7 +76,7 @@ export function CollectionManagement() {
       ) {
         setReady(true);
         if (chainId !== CONFLUX_CHAIN_ID) {
-          setTxStatus("Please switch to Base Sepolia");
+          setTxStatus("Please switch to Conflux eSpace");
         } else {
           setTxStatus("");
           setIsLoadingCollection(true);
@@ -163,11 +163,11 @@ export function CollectionManagement() {
     setIsSwitching(true);
     try {
       await switchChainAsync({ chainId: CONFLUX_CHAIN_ID });
-      setTxStatus("Successfully switched to Base Sepolia!");
+      setTxStatus("Successfully switched to Conflux eSpace!");
     } catch (err: any) {
-      console.error("Failed to switch to Base Sepolia:", err);
+      console.error("Failed to switch to Conflux eSpace:", err);
       setTxStatus(
-        `Failed to switch to Base Sepolia network: ${err?.message || "Unknown error"}`,
+        `Failed to switch to Conflux eSpace network: ${err?.message || "Unknown error"}`,
       );
     }
     setIsSwitching(false);
@@ -184,7 +184,7 @@ export function CollectionManagement() {
       setTxStatus(
         !isConnected
           ? "Please connect wallet to mint NFT"
-          : "Please switch to Base Sepolia",
+          : "Please switch to Conflux eSpace",
       );
       return;
     }
@@ -337,7 +337,7 @@ export function CollectionManagement() {
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between text-gray-300">
                       <span>Network:</span>
-                      <span className="text-blue-300">Base Sepolia</span>
+                      <span className="text-blue-300">Conflux eSpace</span>
                     </div>
                     <div className="flex justify-between text-gray-300">
                       <span>Contract:</span>
@@ -362,7 +362,7 @@ export function CollectionManagement() {
                     B
                   </div>
                   <div>
-                    <div className="text-white font-medium">Base Sepolia</div>
+                    <div className="text-white font-medium">Conflux eSpace</div>
                     <div
                       className={`text-sm ${chainId === CONFLUX_CHAIN_ID ? "text-green-400" : "text-yellow-400"}`}
                     >
