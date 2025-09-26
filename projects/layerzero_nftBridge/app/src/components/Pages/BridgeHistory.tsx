@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import { useAppKitAccount, useAppKitNetwork } from "@reown/appkit/react";
 import { usePublicClient } from "wagmi";
-import { ChainDropdown } from "../Common/NetworkDropdown";
 import {
   CONFLUX_CHAIN_ID,
   BASE_CHAIN_ID,
@@ -23,6 +22,11 @@ import {
   fetchLzMessages,
   getLzNetwork,
 } from "./utils/bridge/layerZeroScanUtils";
+import confluxLogo from "../../assets/logos/conflux.svg";
+import baseLogo from "../../assets/logos/base.svg";
+import ethereumLogo from "../../assets/logos/ethereum.svg";
+import baseSepoliaLogo from "../../assets/logos/base-sepolia.svg";
+
 interface Message {
   pathway: {
     srcEid: number;
@@ -44,6 +48,15 @@ interface Message {
   };
   guid: string;
 }
+
+const networkOptions = [
+  { id: 0, name: 'All Chains', logo: '' },
+  { id: CONFLUX_CHAIN_ID, name: 'Conflux', logo: confluxLogo },
+  { id: BASE_CHAIN_ID, name: 'Base', logo: baseLogo },
+  { id: ETH_SEPOLIA_CHAIN_ID, name: 'Ethereum Sepolia', logo: ethereumLogo },
+  { id: BASE_SEPOLIA_CHAIN_ID, name: 'Base Sepolia', logo: baseSepoliaLogo },
+];
+
 export function BridgeHistory() {
   const { address, isConnected } = useAppKitAccount();
   const { chainId } = useAppKitNetwork();
@@ -53,6 +66,7 @@ export function BridgeHistory() {
   const [selectedChainId, setSelectedChainId] = useState<number>(0); // 0 for all
   const [txStatus, setTxStatus] = useState("");
   const [ready, setReady] = useState(false);
+
   useEffect(() => {
     if (isConnected && address && chainId) {
       setReady(true);
@@ -62,27 +76,30 @@ export function BridgeHistory() {
       setTxStatus("Please connect wallet to view history");
     }
   }, [isConnected, address, chainId]);
+
   const fetchHistory = async (addr: string, chId: number) => {
     setIsLoading(true);
     setTxStatus("");
     try {
       const network = getLzNetwork(chId);
       const msgs = await fetchLzMessages(addr, network);
-      setMessages(msgs);
+      setMessages(msgs.sort((a, b) => b.source.tx.blockTimestamp - a.source.tx.blockTimestamp));
     } catch (error) {
       setTxStatus("Failed to fetch bridge history");
     } finally {
       setIsLoading(false);
     }
   };
+
   const filteredMessages = messages.filter(
     (msg) =>
       selectedChainId === 0 ||
       msg.pathway.srcEid === CHAIN_TO_EID[selectedChainId],
   );
+
   const getStatusIcon = (statusName: string) => {
     if (statusName === "DELIVERED")
-      return <CheckCircle2 className="w-5 h-5 text-green-400" />;
+      return <CheckCircle2 className="w-4 h-4" />;
     if (
       [
         "FAILED",
@@ -94,9 +111,27 @@ export function BridgeHistory() {
         "MALFORMED_COMMAND",
       ].includes(statusName)
     )
-      return <AlertCircle className="w-5 h-5 text-red-400" />;
-    return <Clock className="w-5 h-5 text-yellow-400 animate-spin" />;
+      return <AlertCircle className="w-4 h-4" />;
+    return <Clock className="w-4 h-4 animate-spin" />;
   };
+
+  const getStatusColor = (statusName: string) => {
+    if (statusName === "DELIVERED") return "bg-green-500/20 text-green-300 border-green-500/30";
+    if (
+      [
+        "FAILED",
+        "BLOCKED",
+        "PAYLOAD_STORED",
+        "APPLICATION_BURNED",
+        "APPLICATION_SKIPPED",
+        "UNRESOLVABLE_COMMAND",
+        "MALFORMED_COMMAND",
+      ].includes(statusName)
+    )
+      return "bg-red-500/20 text-red-300 border-red-500/30";
+    return "bg-yellow-500/20 text-yellow-300 border-yellow-500/30";
+  };
+
   const getExplorerUrl = (chId: number, txHash: string) => {
     switch (chId) {
       case ETH_SEPOLIA_CHAIN_ID:
@@ -111,7 +146,25 @@ export function BridgeHistory() {
         return `#`;
     }
   };
+
   const getChainName = (eid: number) => EID_TO_NAME[eid] || "Unknown";
+
+  const getChainLogo = (eid: number) => {
+    const chainId = EID_TO_CHAIN[eid] || 0;
+    switch (chainId) {
+      case CONFLUX_CHAIN_ID:
+        return confluxLogo;
+      case BASE_CHAIN_ID:
+        return baseLogo;
+      case ETH_SEPOLIA_CHAIN_ID:
+        return ethereumLogo;
+      case BASE_SEPOLIA_CHAIN_ID:
+        return baseSepoliaLogo;
+      default:
+        return '';
+    }
+  };
+
   return (
     <div className="min-h-screen p-4">
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -134,6 +187,19 @@ export function BridgeHistory() {
           </p>
         </div>
         <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl">
+          <div className="flex justify-end mb-6">
+            <select
+              value={selectedChainId}
+              onChange={(e) => setSelectedChainId(Number(e.target.value))}
+              className="bg-white/5 border border-white/10 text-white px-4 py-2 rounded-xl backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50 cursor-pointer"
+            >
+              {networkOptions.map((opt) => (
+                <option key={opt.id} value={opt.id} className="bg-gray-900">
+                  {opt.name}
+                </option>
+              ))}
+            </select>
+          </div>
           {isLoading ? (
             <div className="text-center py-16">
               <Loader2 className="h-12 w-12 text-purple-400 animate-spin mx-auto mb-4" />
@@ -158,6 +224,7 @@ export function BridgeHistory() {
                   <tr className="border-b border-white/10">
                     <th className="py-3 px-4">From → To</th>
                     <th className="py-3 px-4">Source Tx</th>
+                    <th className="py-3 px-4">Dest Tx</th>
                     <th className="py-3 px-4">Status</th>
                     <th className="py-3 px-4">Time</th>
                   </tr>
@@ -172,14 +239,24 @@ export function BridgeHistory() {
                     return (
                       <tr
                         key={msg.guid}
-                        className="border-b border-white/5 hover:bg-white/5"
+                        className="border-b border-white/5 hover:bg-white/5 transition-all duration-200"
                       >
-                        <td className="py-3 px-4 flex items-center">
-                          {getChainName(msg.pathway.srcEid)}{" "}
-                          <ArrowRight className="w-4 h-4 mx-2" />{" "}
+                        <td className="py-4 px-4 flex items-center gap-2">
+                          <img
+                            src={getChainLogo(msg.pathway.srcEid)}
+                            alt={`${getChainName(msg.pathway.srcEid)} logo`}
+                            className="w-5 h-5 rounded-full shadow-sm"
+                          />
+                          {getChainName(msg.pathway.srcEid)}
+                          <ArrowRight className="w-4 h-4 mx-2 text-gray-400" />
+                          <img
+                            src={getChainLogo(msg.pathway.dstEid)}
+                            alt={`${getChainName(msg.pathway.dstEid)} logo`}
+                            className="w-5 h-5 rounded-full shadow-sm"
+                          />
                           {getChainName(msg.pathway.dstEid)}
                         </td>
-                        <td className="py-3 px-4">
+                        <td className="py-4 px-4">
                           <a
                             href={getExplorerUrl(
                               srcChain,
@@ -187,17 +264,41 @@ export function BridgeHistory() {
                             )}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-purple-300 hover:text-purple-200 underline font-mono text-sm"
+                            className="text-purple-300 hover:text-purple-200 underline font-mono text-sm transition-colors"
                           >
                             {msg.source.tx.txHash.slice(0, 6)}...
                             {msg.source.tx.txHash.slice(-4)}
                           </a>
                         </td>
-                        <td className="py-3 px-4 flex items-center gap-2">
-                          {getStatusIcon(msg.status.name)}
-                          {msg.status.name}
+                        <td className="py-4 px-4">
+                          {msg.destination?.tx?.txHash ? (
+                            <a
+                              href={getExplorerUrl(
+                                dstChain,
+                                msg.destination.tx.txHash,
+                              )}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-purple-300 hover:text-purple-200 underline font-mono text-sm transition-colors"
+                            >
+                              {msg.destination.tx.txHash.slice(0, 6)}...
+                              {msg.destination.tx.txHash.slice(-4)}
+                            </a>
+                          ) : (
+                            <span className="text-gray-500 italic">Pending</span>
+                          )}
                         </td>
-                        <td className="py-3 px-4 text-sm">{time}</td>
+                        <td className="py-4 px-4">
+                          <span
+                            className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(
+                              msg.status.name,
+                            )}`}
+                          >
+                            {getStatusIcon(msg.status.name)}
+                            {msg.status.name}
+                          </span>
+                        </td>
+                        <td className="py-4 px-4 text-sm text-gray-400">{time}</td>
                       </tr>
                     );
                   })}
