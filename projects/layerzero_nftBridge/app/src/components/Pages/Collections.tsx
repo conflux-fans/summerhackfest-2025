@@ -167,14 +167,13 @@ export function Collections() {
   const isOnCorrectNetwork = chainId === BASE_SEPOLIA_CHAIN_ID;
 
   return (
-    <div className="min-h-screen p-6 pt-8">
-      {/* Hero Section */}
-      <div className="text-center mb-16">
-        <div className='flex items-center justify-center'>
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-white/10 backdrop-blur-md rounded-3xl mb-6 border border-white/20 me-2 lg:me-5">
-            <Palette className="w-10 h-10 text-white" />
-          </div>
-          <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-white via-white/90 to-white/70 bg-clip-text text-transparent mb-4">
+    <div className="relative z-10 max-w-6xl mx-auto pt-8">
+    <div className="text-center mb-12">
+      <div className="flex items-center justify-center mb-6">
+          <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-600 rounded-2xl flex items-center justify-center mr-4">
+              <span className="text-2xl"> <Palette className="w-10 h-10 text-white" /></span>
+            </div>
+          <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent ">
             Collections
           </h1>
         </div>

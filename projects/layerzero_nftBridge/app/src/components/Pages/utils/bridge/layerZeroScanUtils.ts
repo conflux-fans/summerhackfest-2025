@@ -1,4 +1,4 @@
-// utils/layerZeroScanUtils.ts
+// utils/bridge/layerZeroScanUtils.ts
 import { PublicClient, Hash, Address, createPublicClient, http } from "viem";
 import { decodeAbiParameters, decodeEventLog, encodePacked, keccak256 } from "viem";
 import { BRIDGE_ABI } from "../abi/bridgeAbi";
@@ -24,7 +24,7 @@ message: `0x${string}`;
 refundAddress: Address;
 }
 // Helper to map chainId to LayerZero Scan network
-const getLzNetwork = (chainId: number): "testnet" | "mainnet" => {
+export const getLzNetwork = (chainId: number): "testnet" | "mainnet" => {
 // Assuming testnet for Sepolia/Base Sepolia; adjust for mainnet if needed
 if ([ETH_SEPOLIA_CHAIN_ID, BASE_SEPOLIA_CHAIN_ID].includes(chainId)) {
 return "testnet";
@@ -32,6 +32,26 @@ return "testnet";
 // For Conflux/Base mainnet (if live)
 return "mainnet";
 };
+// Fetch messages for a wallet
+export async function fetchLzMessages(
+address: string,
+network: "testnet" | "mainnet"
+): Promise<any[]> {
+try {
+const baseDomain = network === "testnet" ? 'scan-testnet.layerzero-api.com' : 'scan.layerzero-api.com';
+const originalUrl = `https://${baseDomain}/v1/messages/wallet/${address}?limit=100`;
+const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(originalUrl)}`;
+const response = await fetch(proxyUrl);
+if (!response.ok) {
+throw new Error(`API error: ${response.status}`);
+}
+const data = await response.json();
+return data.data || [];
+  } catch (error) {
+console.error("Failed to fetch Lz messages:", error);
+return [];
+  }
+}
 // Poll LayerZero Scan API for message status by tx hash
 export async function fetchLzMessageStatus(
 txHash: string,
@@ -41,8 +61,9 @@ dstChainId: number
 try {
 const network = getLzNetwork(srcChainId); // Use src network for query
 const baseDomain = network === "testnet" ? 'scan-testnet.layerzero-api.com' : 'scan.layerzero-api.com';
-const apiUrl = `https://${baseDomain}/v1/messages/tx/${txHash}`;
-const response = await fetch(apiUrl);
+const originalUrl = `https://${baseDomain}/v1/messages/tx/${txHash}`;
+const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(originalUrl)}`;
+const response = await fetch(proxyUrl);
 if (!response.ok) {
 throw new Error(`API error: ${response.status}`);
     }
