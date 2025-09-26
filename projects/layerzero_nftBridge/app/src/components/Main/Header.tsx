@@ -127,7 +127,7 @@ export function Header() {
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
             onClick={() => setIsMobileMenuOpen(false)}
           ></div>
-          <div className="fixed top-0 left-0 h-120 w-full bg-slate-900 border-b border-white/10 z-50 md:hidden transform translate-x-0 transition-transform duration-300">
+          <div className="fixed top-0 left-0 h-150 w-full bg-slate-900 border-b border-white/10 z-50 md:hidden transform translate-x-0 transition-transform duration-300">
             <div className="relative z-10 flex flex-col h-full">
               <div className="p-6 border-b border-white/10">
                 <div className="flex items-center justify-between">

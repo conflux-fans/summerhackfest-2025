@@ -99,6 +99,8 @@ createAppKit({
   },
   features: {
     analytics: true,
+    email: false, // Disable email/embedded wallet
+    socials: false, // Disable social logins
   },
 });
 
