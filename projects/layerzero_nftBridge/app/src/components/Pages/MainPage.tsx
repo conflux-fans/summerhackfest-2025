@@ -7,74 +7,72 @@ import { NFT } from "./utils/types/types";
 import { fetchNFTs } from "./utils/nftUtils";
 import { ChainDropdown } from "../Common/NetworkDropdown";
 import {
-  approveNFT,
-  bridgeNFT,
-  registerCollection,
-  checkIsApproved,
-  checkIsSupported,
+approveNFT,
+bridgeNFT,
+registerCollection,
+checkIsApproved,
+checkIsSupported,
 } from "./utils/bridge/bridgeUtils";
 import {
-  CONFLUX_CHAIN_ID,
-  BASE_CHAIN_ID,
-  ETH_SEPOLIA_CHAIN_ID,
-  BASE_SEPOLIA_CHAIN_ID,
-  CONFLUX_BRIDGE_ADDRESS,
-  BASE_BRIDGE_ADDRESS,
-  ETH_SEPOLIA_BRIDGE_ADDRESS,
-  BASE_SEPOLIA_BRIDGE_ADDRESS,
+CONFLUX_CHAIN_ID,
+BASE_CHAIN_ID,
+ETH_SEPOLIA_CHAIN_ID,
+BASE_SEPOLIA_CHAIN_ID,
+CONFLUX_BRIDGE_ADDRESS,
+BASE_BRIDGE_ADDRESS,
+ETH_SEPOLIA_BRIDGE_ADDRESS,
+BASE_SEPOLIA_BRIDGE_ADDRESS,
 } from "./utils/constants";
 import { ArrowLeftRight, Image as ImageIcon, Check, CheckCircle, X, Loader2, Clock, AlertCircle, CheckCircle2 } from 'lucide-react';
-import { extractLzMessageId, fetchLzMessageStatus, LzMessageStatus } from "./utils/bridge/layerZeroScanUtils";
-
+import { fetchLzMessageStatus, LzMessageStatus, pollLzStatus } from "./utils/bridge/layerZeroScanUtils";
 export function MainPage() {
-  const { address, isConnected } = useAppKitAccount();
-  const { chainId } = useAppKitNetwork();
-  const { data: walletClient } = useWalletClient();
-  const publicClient = usePublicClient();
-  const { switchChainAsync } = useSwitchChain();
-  const [ready, setReady] = useState(false);
-  const [tokenId, setTokenId] = useState("");
-  const [recipient, setRecipient] = useState("");
-  const [useCustomRecipient, setUseCustomRecipient] = useState(false);
-  const [txStatus, setTxStatus] = useState("");
-  const [isApproved, setIsApproved] = useState(false);
-  const [isApproving, setIsApproving] = useState(false);
-  const [isBridging, setIsBridging] = useState(false);
-  const [showNFTModal, setShowNFTModal] = useState(false);
-  const [nfts, setNfts] = useState<NFT[]>([]);
-  const [isLoadingNfts, setIsLoadingNfts] = useState(false);
-  const [selectedNFT, setSelectedNFT] = useState<NFT | null>(null);
-  const [isSupported, setIsSupported] = useState(true);
-  const [isRegistering, setIsRegistering] = useState(false);
-  const [tokenContractAddress, setTokenContractAddress] = useState("");
-  const [destinationChainId, setDestinationChainId] = useState<number | null>(null);
-  const [messageId, setMessageId] = useState<`0x${string}` | null>(null);
-  const [bridgeStatus, setBridgeStatus] = useState<LzMessageStatus["status"] | null>(null);
-  const [estimatedRemainingMs, setEstimatedRemainingMs] = useState<number | null>(null);
-  const [dstTxHash, setDstTxHash] = useState<string | null>(null);
-  const [pollInterval, setPollInterval] = useState<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    const initialize = async () => {
-      if (isConnected && address && walletClient && publicClient) {
-        setReady(true);
-        setRecipient(address);
-        if (
-          ![
-            CONFLUX_CHAIN_ID,
-            BASE_CHAIN_ID,
-            ETH_SEPOLIA_CHAIN_ID,
-            BASE_SEPOLIA_CHAIN_ID,
+const { address, isConnected } = useAppKitAccount();
+const { chainId } = useAppKitNetwork();
+const { data: walletClient } = useWalletClient();
+const publicClient = usePublicClient();
+const { switchChainAsync } = useSwitchChain();
+const [ready, setReady] = useState(false);
+const [tokenId, setTokenId] = useState("");
+const [recipient, setRecipient] = useState("");
+const [useCustomRecipient, setUseCustomRecipient] = useState(false);
+const [txStatus, setTxStatus] = useState("");
+const [isApproved, setIsApproved] = useState(false);
+const [isApproving, setIsApproving] = useState(false);
+const [isBridging, setIsBridging] = useState(false);
+const [showNFTModal, setShowNFTModal] = useState(false);
+const [nfts, setNfts] = useState<NFT[]>([]);
+const [isLoadingNfts, setIsLoadingNfts] = useState(false);
+const [selectedNFT, setSelectedNFT] = useState<NFT | null>(null);
+const [isSupported, setIsSupported] = useState(true);
+const [isRegistering, setIsRegistering] = useState(false);
+const [tokenContractAddress, setTokenContractAddress] = useState("");
+const [destinationChainId, setDestinationChainId] = useState<number | null>(null);
+const [bridgeStatus, setBridgeStatus] = useState<LzMessageStatus["status"] | null>(null);
+const [estimatedRemainingMs, setEstimatedRemainingMs] = useState<number | null>(null);
+const [dstTxHash, setDstTxHash] = useState<string | null>(null);
+const [pollInterval, setPollInterval] = useState<NodeJS.Timeout | null>(null);
+const [bridgingTxHash, setBridgingTxHash] = useState<string | null>(null);
+useEffect(() => {
+const initialize = async () => {
+if (isConnected && address && walletClient && publicClient) {
+setReady(true);
+setRecipient(address);
+if (
+![
+CONFLUX_CHAIN_ID,
+BASE_CHAIN_ID,
+ETH_SEPOLIA_CHAIN_ID,
+BASE_SEPOLIA_CHAIN_ID,
           ].includes(chainId || 0)
         ) {
-          setTxStatus("Please switch to a supported network");
-          setIsApproved(false);
+setTxStatus("Please switch to a supported network");
+setIsApproved(false);
         } else {
-          setTxStatus("");
-          if (!destinationChainId) {
-            setDestinationChainId(
-              chainId === CONFLUX_CHAIN_ID
-                ? BASE_CHAIN_ID
+setTxStatus("");
+if (!destinationChainId) {
+setDestinationChainId(
+chainId === CONFLUX_CHAIN_ID
+? BASE_CHAIN_ID
                 : chainId === BASE_CHAIN_ID
                 ? CONFLUX_CHAIN_ID
                 : chainId === ETH_SEPOLIA_CHAIN_ID
@@ -128,31 +126,21 @@ export function MainPage() {
     tokenContractAddress,
     tokenId,
   ]);
-
   // Polling useEffect for LayerZero status
   useEffect(() => {
-    if (messageId && chainId && destinationChainId) {
-      const interval = setInterval(async () => {
-        const status = await fetchLzMessageStatus(messageId, chainId, destinationChainId);
-        if (status) {
-          setBridgeStatus(status.status);
-          setEstimatedRemainingMs(status.estimatedRemainingMs);
-          setDstTxHash(status.txHashes.dstTxHash || null);
-          if (status.status === "delivered" || status.status === "failed") {
-            clearInterval(interval);
-            setPollInterval(null);
-          }
-        }
-      }, 10000); // Poll every 10s
-      setPollInterval(interval);
-
-      // Cleanup on unmount or new message
+    if (bridgingTxHash && chainId && destinationChainId) {
+      const onUpdate = (status: LzMessageStatus) => {
+        setBridgeStatus(status.status);
+        setEstimatedRemainingMs(status.estimatedRemainingMs);
+        setDstTxHash(status.txHashes.dstTxHash || null);
+      };
+      pollLzStatus(bridgingTxHash, chainId, destinationChainId, onUpdate);
+      // Cleanup on unmount or new tx
       return () => {
         if (pollInterval) clearInterval(pollInterval);
       };
     }
-  }, [messageId, chainId, destinationChainId, pollInterval]);
-
+  }, [bridgingTxHash, chainId, destinationChainId, pollInterval]);
   const getBridgeAddress = (id: number): Address => {
     switch (id) {
       case CONFLUX_CHAIN_ID:
@@ -167,7 +155,6 @@ export function MainPage() {
         throw new Error("Unsupported chain");
     }
   };
-
   const getChainInfo = (id: number) => {
     switch (id) {
       case CONFLUX_CHAIN_ID:
@@ -202,7 +189,24 @@ export function MainPage() {
         };
     }
   };
-
+  const getExplorerUrl = (id: number, txHash: string) => {
+    switch (id) {
+      case ETH_SEPOLIA_CHAIN_ID:
+        return `https://sepolia.etherscan.io/tx/${txHash}`;
+      case BASE_SEPOLIA_CHAIN_ID:
+        return `https://sepolia.basescan.org/tx/${txHash}`;
+      case CONFLUX_CHAIN_ID:
+        return `https://confluxscan.io/tx/${txHash}`;
+      case BASE_CHAIN_ID:
+        return `https://basescan.org/tx/${txHash}`;
+      default:
+        return `#`;
+    }
+  };
+  const getLzScanUrl = (txHash: string, srcChainId: number) => {
+    const network = [ETH_SEPOLIA_CHAIN_ID, BASE_SEPOLIA_CHAIN_ID].includes(srcChainId) ? 'testnet.layerzeroscan.com' : 'layerzeroscan.com';
+    return `https://${network}/tx/${txHash}`;
+  };
   const getDirection = (
     srcId: number | undefined,
     dstId: number | null,
@@ -217,7 +221,6 @@ export function MainPage() {
       return "toEthSepolia";
     return null;
   };
-
   const handleSwapNetworks = async () => {
     if (!chainId || !destinationChainId) {
       setTxStatus("Invalid network selection for swap");
@@ -244,7 +247,6 @@ export function MainPage() {
       setTxStatus(`Failed to swap networks: ${error.message || "Unknown error"}`);
     }
   };
-
   const handleFetchNFTs = () => {
     if (!isConnected) {
       setTxStatus("Please connect wallet to browse NFTs");
@@ -259,7 +261,6 @@ export function MainPage() {
       setIsLoadingNfts,
     ).then(() => setShowNFTModal(true));
   };
-
   const selectNFT = (nft: NFT) => {
     setTokenId(nft.tokenId);
     setTokenContractAddress(nft.contractAddress || "");
@@ -268,12 +269,10 @@ export function MainPage() {
     setIsApproved(false);
     setTxStatus("");
   };
-
   const toggleCustomRecipient = () => {
     setUseCustomRecipient(!useCustomRecipient);
     setRecipient(!useCustomRecipient ? "" : address || "");
   };
-
   const handleRegisterClick = async () => {
     if (!chainId) return;
     const bridgeAddress = getBridgeAddress(chainId);
@@ -294,7 +293,6 @@ export function MainPage() {
       );
     }
   };
-
   const handleApproveClick = async () => {
     if (!chainId) return;
     const bridgeAddress = getBridgeAddress(chainId);
@@ -314,7 +312,6 @@ export function MainPage() {
       setTxStatus(`Failed to approve: ${error.message || "Unknown error"}`);
     }
   };
-
   const handleBridgeClick = async () => {
     if (!chainId || !destinationChainId) {
       setTxStatus("Please select a valid destination chain");
@@ -330,7 +327,8 @@ export function MainPage() {
       return;
     }
     try {
-      await bridgeNFT(
+      // Assuming bridgeNFT returns { txHash: Hash, ... } or similar
+      const bridgeResponse = await bridgeNFT(
         {
           walletClient,
           publicClient,
@@ -345,12 +343,16 @@ export function MainPage() {
         },
         direction,
       );
+      const txHash = bridgeResponse.txHash as string; // Extract txHash from response, assume string
+      if (txHash && chainId) {
+        setBridgingTxHash(txHash);
+        setTxStatus(`Bridge initiated. Tracking status... Tx: ${txHash}`);
+      }
     } catch (error) {
       console.error("[MainPage] Bridging error:", error);
       setTxStatus(`Failed to bridge: ${error.message || "Unknown error"}`);
     }
   };
-
   const currentChain = getChainInfo(chainId || 0);
   const targetChain = getChainInfo(destinationChainId || 0);
   return (
@@ -632,11 +634,11 @@ export function MainPage() {
                       </span>
                     </div>
                   )}
-                  {dstTxHash && (
+                  {dstTxHash && destinationChainId && (
                     <div className="flex items-center justify-between">
                       <span className="text-gray-300 text-sm">Destination Tx:</span>
                       <a
-                        href={`https://sepolia.etherscan.io/tx/${dstTxHash}`} // Adjust URL based on dstChainId
+                        href={getExplorerUrl(destinationChainId, dstTxHash)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-purple-300 text-sm hover:text-purple-200 underline"
@@ -647,7 +649,7 @@ export function MainPage() {
                   )}
                   <div className="pt-2">
                     <a
-                      href={`https://layerzeroscan.com/tx/${messageId}?network=testnet`} // Adjust network
+                      href={bridgingTxHash ? getLzScanUrl(bridgingTxHash, chainId || 0) : '#'}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-purple-400 text-xs hover:text-purple-300 underline block"
