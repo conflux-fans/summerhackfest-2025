@@ -16,7 +16,7 @@ import {
 import { WalletConnectButton } from "../Buttons/WalletConnect";
 import { fetchNfts, mintNFT } from "./utils/collections/contract";
 import { validateIpfsCid, getIpfsUrl } from "./utils/collections/ipfs";
-import { BASE_SEPOLIA_CHAIN_ID } from "./utils/constants";
+import { CONFLUX_CHAIN_ID } from "./utils/constants";
 import { COLLECTION_ABI } from "./utils/abi/collectionAbi";
 
 // Define interfaces for type safety
@@ -75,7 +75,7 @@ export function CollectionManagement() {
         collectionAddress
       ) {
         setReady(true);
-        if (chainId !== BASE_SEPOLIA_CHAIN_ID) {
+        if (chainId !== CONFLUX_CHAIN_ID) {
           setTxStatus("Please switch to Base Sepolia");
         } else {
           setTxStatus("");
@@ -162,7 +162,7 @@ export function CollectionManagement() {
     }
     setIsSwitching(true);
     try {
-      await switchChainAsync({ chainId: BASE_SEPOLIA_CHAIN_ID });
+      await switchChainAsync({ chainId: CONFLUX_CHAIN_ID });
       setTxStatus("Successfully switched to Base Sepolia!");
     } catch (err: any) {
       console.error("Failed to switch to Base Sepolia:", err);
@@ -179,7 +179,7 @@ export function CollectionManagement() {
       !walletClient ||
       !publicClient ||
       !collectionAddress ||
-      chainId !== BASE_SEPOLIA_CHAIN_ID
+      chainId !== CONFLUX_CHAIN_ID
     ) {
       setTxStatus(
         !isConnected
@@ -364,19 +364,19 @@ export function CollectionManagement() {
                   <div>
                     <div className="text-white font-medium">Base Sepolia</div>
                     <div
-                      className={`text-sm ${chainId === BASE_SEPOLIA_CHAIN_ID ? "text-green-400" : "text-yellow-400"}`}
+                      className={`text-sm ${chainId === CONFLUX_CHAIN_ID ? "text-green-400" : "text-yellow-400"}`}
                     >
-                      {chainId === BASE_SEPOLIA_CHAIN_ID
+                      {chainId === CONFLUX_CHAIN_ID
                         ? "Connected"
                         : "Switch Required"}
                     </div>
                   </div>
                 </div>
                 <span
-                  className={`w-3 h-3 rounded-full ${chainId === BASE_SEPOLIA_CHAIN_ID ? "bg-green-400" : "bg-yellow-400"} animate-pulse`}
+                  className={`w-3 h-3 rounded-full ${chainId === CONFLUX_CHAIN_ID ? "bg-green-400" : "bg-yellow-400"} animate-pulse`}
                 ></span>
               </div>
-              {chainId !== BASE_SEPOLIA_CHAIN_ID && (
+              {chainId !== CONFLUX_CHAIN_ID && (
                 <button
                   onClick={switchToBaseSepolia}
                   disabled={isSwitching || !isConnected}
@@ -414,9 +414,9 @@ export function CollectionManagement() {
               </h3>
               <button
                 onClick={() => setShowMintModal(true)}
-                disabled={!isConnected || chainId !== BASE_SEPOLIA_CHAIN_ID}
+                disabled={!isConnected || chainId !== CONFLUX_CHAIN_ID}
                 className={`bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-semibold py-2 px-4 rounded-2xl transition-all duration-300 flex items-center ${
-                  !isConnected || chainId !== BASE_SEPOLIA_CHAIN_ID
+                  !isConnected || chainId !== CONFLUX_CHAIN_ID
                     ? "opacity-50 cursor-not-allowed"
                     : ""
                 }`}
@@ -601,10 +601,10 @@ export function CollectionManagement() {
                 <button
                   onClick={handleMintNFT}
                   disabled={
-                    !ready || chainId !== BASE_SEPOLIA_CHAIN_ID || isMinting
+                    !ready || chainId !== CONFLUX_CHAIN_ID || isMinting
                   }
                   className={`flex-1 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-semibold py-3 rounded-2xl transition-all duration-300 flex items-center justify-center ${
-                    !ready || chainId !== BASE_SEPOLIA_CHAIN_ID || isMinting
+                    !ready || chainId !== CONFLUX_CHAIN_ID || isMinting
                       ? "opacity-50 cursor-not-allowed"
                       : ""
                   }`}
