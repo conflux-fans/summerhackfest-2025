@@ -20,18 +20,18 @@ const config: HardhatUserConfig = {
     ],
   },
   networks: {
-    // conflux: {
-    //   url: process.env.CONFLUX_RPC || "https://evm.confluxrpc.com",
-    //   chainId: 1030,
-    //   eid: 30212,
-    //   accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
-    // },
-    // base: {
-    //   url: process.env.BASE_RPC || "https://mainnet.base.org",
-    //   chainId: 8453,
-    //   eid: 30184,
-    //   accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
-    // },
+    conflux: {
+      url: process.env.CONFLUX_RPC || "https://evm.confluxrpc.com",
+       chainId: 1030,
+      eid: 30212,
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+    },
+    base: {
+     url: process.env.BASE_RPC || "https://mainnet.base.org",
+      chainId: 8453,
+      eid: 30184,
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+     },
     baseSepolia: {
       url: process.env.BASE_SEPOLIA_RPC || "https://sepolia.base.org",
       chainId: 84532,

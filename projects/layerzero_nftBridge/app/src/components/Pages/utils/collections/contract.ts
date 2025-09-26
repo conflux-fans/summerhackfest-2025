@@ -1,7 +1,7 @@
 // Contract.ts
 import { PublicClient, WalletClient, parseEventLogs } from 'viem';
 import { COLLECTION_ABI } from '../abi/collectionAbi';
-import { NFT_MANAGER_BASE_SEPOLIA } from '../constants';
+import { NFT_MANAGER_CONFLUX } from '../constants';
 import { getIpfsUrl } from './ipfs';
 
 interface NFTMetadata {
@@ -21,7 +21,7 @@ export async function fetchUserCollections(
   if (!publicClient || !address) return;
   try {
     const collectionAddresses = await publicClient.readContract({
-      address: NFT_MANAGER_BASE_SEPOLIA,
+      address: NFT_MANAGER_CONFLUX,
       abi: COLLECTION_ABI,
       functionName: 'getUserCollections',
       args: [address],
@@ -79,7 +79,7 @@ export async function createCollection(
   const contractUri = collectionMetadataCid ? `ipfs://${collectionMetadataCid}` : '';
 
   const hash = await walletClient.writeContract({
-    address: NFT_MANAGER_BASE_SEPOLIA,
+    address: NFT_MANAGER_CONFLUX,
     abi: COLLECTION_ABI,
     functionName: 'createCollection',
     args: [name, symbol, collectionImageUri, contractUri],
@@ -133,7 +133,7 @@ export async function fetchNfts(
   if (!publicClient || !address) return;
   try {
     const tokenIds = await publicClient.readContract({
-      address: NFT_MANAGER_BASE_SEPOLIA,
+      address: NFT_MANAGER_CONFLUX,
       abi: COLLECTION_ABI,
       functionName: 'getCollectionNFTs',
       args: [collAddress],
@@ -243,7 +243,7 @@ export async function mintNFT(
   const uri = tokenUri;
 
   const hash = await walletClient.writeContract({
-    address: NFT_MANAGER_BASE_SEPOLIA,
+    address: NFT_MANAGER_CONFLUX,
     abi: COLLECTION_ABI,
     functionName: 'mintNFT',
     args: [collectionAddress, address, uri],

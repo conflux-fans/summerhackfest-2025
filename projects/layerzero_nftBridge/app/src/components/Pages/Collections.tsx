@@ -1,20 +1,30 @@
-import { useState, useEffect } from 'react';
-import { useAppKitAccount, useAppKitNetwork } from '@reown/appkit/react';
-import { useWalletClient, usePublicClient, useSwitchChain } from 'wagmi';
-import { useNavigate } from 'react-router-dom';
-import { Loader2, Network, Plus, Info, Palette, Check, AlertCircle, Copy } from 'lucide-react';
-import { WalletConnectButton } from '../Buttons/WalletConnect';
-import { fetchUserCollections, createCollection } from './utils/collections/contract';
-import { validateIpfsCid, getIpfsUrl } from './utils/collections/ipfs';
-import { BASE_SEPOLIA_CHAIN_ID } from './utils/constants';
-
+import { useState, useEffect } from "react";
+import { useAppKitAccount, useAppKitNetwork } from "@reown/appkit/react";
+import { useWalletClient, usePublicClient, useSwitchChain } from "wagmi";
+import { useNavigate } from "react-router-dom";
+import {
+  Loader2,
+  Network,
+  Plus,
+  Info,
+  Palette,
+  Check,
+  AlertCircle,
+  Copy,
+} from "lucide-react";
+import { WalletConnectButton } from "../Buttons/WalletConnect";
+import {
+  fetchUserCollections,
+  createCollection,
+} from "./utils/collections/contract";
+import { validateIpfsCid, getIpfsUrl } from "./utils/collections/ipfs";
+import { CONFLUX_CHAIN_ID } from "./utils/constants";
 interface CollectionMetadata {
   name: string;
   description: string;
   image: string;
   external_link?: string;
 }
-
 export function Collections() {
   const { address, isConnected } = useAppKitAccount();
   const { chainId } = useAppKitNetwork();
@@ -22,105 +32,116 @@ export function Collections() {
   const publicClient = usePublicClient();
   const { switchChainAsync } = useSwitchChain();
   const navigate = useNavigate();
-
   const [ready, setReady] = useState(false);
   const [collections, setCollections] = useState<
     { address: string; name: string; symbol: string; image: string }[]
   >([]);
-  const [selectedCollection, setSelectedCollection] = useState('');
-  const [txStatus, setTxStatus] = useState('');
+  const [selectedCollection, setSelectedCollection] = useState("");
+  const [txStatus, setTxStatus] = useState("");
   const [isSwitching, setIsSwitching] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [collectionName, setCollectionName] = useState('');
-  const [collectionSymbol, setCollectionSymbol] = useState('');
-  const [collectionDescription, setCollectionDescription] = useState('');
-  const [collectionImageCid, setCollectionImageCid] = useState('');
-  const [externalLink, setExternalLink] = useState('');
-  const [generatedJson, setGeneratedJson] = useState('');
+  const [collectionName, setCollectionName] = useState("");
+  const [collectionSymbol, setCollectionSymbol] = useState("");
+  const [collectionDescription, setCollectionDescription] = useState("");
+  const [collectionImageCid, setCollectionImageCid] = useState("");
+  const [externalLink, setExternalLink] = useState("");
+  const [generatedJson, setGeneratedJson] = useState("");
   const [isCopied, setIsCopied] = useState(false);
-  const [previewImageUrl, setPreviewImageUrl] = useState('');
+  const [previewImageUrl, setPreviewImageUrl] = useState("");
   const [isLoadingCollections, setIsLoadingCollections] = useState(false);
-
   // Initialize and check network
   useEffect(() => {
     const initialize = async () => {
       if (isConnected && address && walletClient && publicClient) {
         setReady(true);
-        if (chainId !== BASE_SEPOLIA_CHAIN_ID) {
-          setTxStatus('Please switch to Base Sepolia');
+        if (chainId !== CONFLUX_CHAIN_ID) {
+          setTxStatus("Please switch to Conflux eSpace");
         } else {
-          setTxStatus('');
+          setTxStatus("");
           setIsLoadingCollections(true);
           await fetchUserCollections(
             address,
             publicClient,
             setCollections,
             setSelectedCollection,
-            setTxStatus
+            setTxStatus,
           );
           setIsLoadingCollections(false);
         }
       } else {
         setReady(false);
-        setTxStatus('Please connect wallet to proceed');
+        setTxStatus("Please connect wallet to proceed");
       }
     };
     initialize();
   }, [isConnected, address, walletClient, publicClient, chainId]);
-
   // Update generated JSON and preview
   useEffect(() => {
     const metadata: CollectionMetadata = {
       name: collectionName,
       description: collectionDescription,
-      image: collectionImageCid ? `ipfs://${collectionImageCid}` : '',
+      image: collectionImageCid ? `ipfs://${collectionImageCid}` : "",
       external_link: externalLink || undefined,
     };
     setGeneratedJson(JSON.stringify(metadata, null, 2));
     setPreviewImageUrl(
-      collectionImageCid && validateIpfsCid(collectionImageCid) ? getIpfsUrl(collectionImageCid) : ''
+      collectionImageCid && validateIpfsCid(collectionImageCid)
+        ? getIpfsUrl(collectionImageCid)
+        : "",
     );
   }, [collectionName, collectionDescription, collectionImageCid, externalLink]);
-
-  const switchToBaseSepolia = async () => {
+  const switchToConflux = async () => {
     if (!isConnected) {
-      setTxStatus('Please connect wallet to switch networks');
+      setTxStatus("Please connect wallet to switch networks");
       return;
     }
     setIsSwitching(true);
     try {
-      await switchChainAsync({ chainId: BASE_SEPOLIA_CHAIN_ID });
-      setTxStatus('Successfully switched to Base Sepolia!');
+      await switchChainAsync({ chainId: CONFLUX_CHAIN_ID });
+      setTxStatus("Successfully switched to Conflux eSpace!");
     } catch (err: any) {
-      console.error('Failed to switch to Base Sepolia:', err);
-      setTxStatus('Failed to switch to Base Sepolia network: ' + (err?.message || 'Unknown error'));
+      console.error("Failed to switch to Conflux eSpace:", err);
+      setTxStatus(
+        "Failed to switch to Conflux eSpace network: " +
+          (err?.message || "Unknown error"),
+      );
     }
     setIsSwitching(false);
   };
-
   const handleCreateCollection = async () => {
-    if (!isConnected || !walletClient || !publicClient || !collectionName || !collectionSymbol || chainId !== BASE_SEPOLIA_CHAIN_ID) {
+    if (
+      !isConnected ||
+      !walletClient ||
+      !publicClient ||
+      !collectionName ||
+      !collectionSymbol ||
+      chainId !== CONFLUX_CHAIN_ID
+    ) {
       setTxStatus(
-        !isConnected ? 'Please connect wallet to create collection' :
-        !collectionName || !collectionSymbol ? 'Please fill in collection name and symbol' :
-        'Please switch to Base Sepolia'
+        !isConnected
+          ? "Please connect wallet to create collection"
+          : !collectionName || !collectionSymbol
+            ? "Please fill in collection name and symbol"
+            : "Please switch to Conflux eSpace",
       );
       return;
     }
     if (collectionImageCid && !validateIpfsCid(collectionImageCid)) {
-      setTxStatus('Invalid collection image CID. Please enter a valid CID (e.g., Qm...).');
+      setTxStatus(
+        "Invalid collection image CID. Please enter a valid CID (e.g., Qm...).",
+      );
       return;
     }
     setIsCreating(true);
     try {
       // Generate base64 URI for metadata if fields are filled, else use empty
-      let contractUri = '';
+      let contractUri = "";
       if (collectionDescription || externalLink) {
         const metadata: CollectionMetadata = {
           name: collectionName,
           description: collectionDescription,
-          image: collectionImageCid ? `ipfs://${collectionImageCid}` : '',
+          image: collectionImageCid ? `ipfs://${collectionImageCid}` : "",
           external_link: externalLink || undefined,
         };
         const jsonStr = JSON.stringify(metadata);
@@ -138,67 +159,73 @@ export function Collections() {
         contractUri,
         setSelectedCollection,
         setCollections,
-        setTxStatus
+        setTxStatus,
       );
       setShowCreateModal(false);
-      setCollectionName('');
-      setCollectionSymbol('');
-      setCollectionDescription('');
-      setCollectionImageCid('');
-      setExternalLink('');
+      setCollectionName("");
+      setCollectionSymbol("");
+      setCollectionDescription("");
+      setCollectionImageCid("");
+      setExternalLink("");
     } catch (err: any) {
-      console.error('Collection creation error:', err);
-      setTxStatus('Failed to create collection: ' + (err?.message || 'Unknown error'));
+      console.error("Collection creation error:", err);
+      setTxStatus(
+        "Failed to create collection: " + (err?.message || "Unknown error"),
+      );
     }
     setIsCreating(false);
   };
-
   const handleCollectionSelect = (address: string) => {
     setSelectedCollection(address);
     navigate(`/collections/${address}`);
   };
-
   const copyJson = () => {
     navigator.clipboard.writeText(generatedJson);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000);
   };
-
-  const isOnCorrectNetwork = chainId === BASE_SEPOLIA_CHAIN_ID;
-
+  const isOnCorrectNetwork = chainId === CONFLUX_CHAIN_ID;
   return (
     <div className="relative z-10 max-w-7xl mx-auto pt-8">
-    <div className="text-center mb-12">
-      <div className="flex items-center justify-center mb-6">
+      <div className="text-center mb-12">
+        <div className="flex items-center justify-center mb-6">
           <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-600 rounded-2xl flex items-center justify-center mr-4">
-              <span className="text-2xl"> <Palette className="w-10 h-10 text-white" /></span>
-            </div>
+            <span className="text-2xl">
+              {" "}
+              <Palette className="w-10 h-10 text-white" />
+            </span>
+          </div>
           <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent ">
             Collections
           </h1>
         </div>
         <p className="text-white/60 text-xl max-w-lg mx-auto">
-          Create and manage your NFT collections on Base Sepolia
+          Create and manage your NFT collections on Conflux eSpace
         </p>
       </div>
-
       <div className="max-w-5xl mx-auto space-y-8">
         {/* Connection Status Card */}
         <div className="bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className={`w-3 h-3 rounded-full animate-pulse ${isOnCorrectNetwork ? 'bg-green-400' : 'bg-amber-400'}`}></div>
+              <div
+                className={`w-3 h-3 rounded-full animate-pulse ${isOnCorrectNetwork ? "bg-green-400" : "bg-amber-400"}`}
+              ></div>
               <div>
                 <h3 className="text-white font-semibold">Network Status</h3>
-                <p className={`text-sm ${isOnCorrectNetwork ? 'text-green-400' : 'text-amber-400'}`}>
-                  {isOnCorrectNetwork ? 'Base Sepolia Connected' : 'Wrong Network'}
+                <p
+                  className={`text-sm ${isOnCorrectNetwork ? "text-green-400" : "text-amber-400"}`}
+                >
+                  {isOnCorrectNetwork
+                    ? "Conflux eSpace Connected"
+                    : "Wrong Network"}
                 </p>
               </div>
             </div>
             <div className="flex items-center space-x-3">
               {!isOnCorrectNetwork && (
                 <button
-                  onClick={switchToBaseSepolia}
+                  onClick={switchToConflux}
                   disabled={isSwitching || !isConnected}
                   className="inline-flex items-center px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-medium transition-all disabled:opacity-50"
                 >
@@ -214,42 +241,46 @@ export function Collections() {
             </div>
           </div>
         </div>
-
         {/* Status Alert */}
         {txStatus && (
-          <div className={`rounded-2xl border p-4 ${
-            txStatus.includes('Failed') || txStatus.includes('Please')
-              ? 'bg-red-500/10 border-red-500/20'
-              : txStatus.includes('Successfully')
-              ? 'bg-green-500/10 border-green-500/20'
-              : 'bg-blue-500/10 border-blue-500/20'
-          }`}>
+          <div
+            className={`rounded-2xl border p-4 ${
+              txStatus.includes("Failed") || txStatus.includes("Please")
+                ? "bg-red-500/10 border-red-500/20"
+                : txStatus.includes("Successfully")
+                  ? "bg-green-500/10 border-green-500/20"
+                  : "bg-blue-500/10 border-blue-500/20"
+            }`}
+          >
             <div className="flex items-center space-x-3">
-              {txStatus.includes('Failed') || txStatus.includes('Please') ? (
+              {txStatus.includes("Failed") || txStatus.includes("Please") ? (
                 <AlertCircle className="w-5 h-5 text-red-400" />
-              ) : txStatus.includes('Successfully') ? (
+              ) : txStatus.includes("Successfully") ? (
                 <Check className="w-5 h-5 text-green-400" />
               ) : (
                 <Info className="w-5 h-5 text-blue-400" />
               )}
-              <p className={`font-medium ${
-                txStatus.includes('Failed') || txStatus.includes('Please')
-                  ? 'text-red-300'
-                  : txStatus.includes('Successfully')
-                  ? 'text-green-300'
-                  : 'text-blue-300'
-              }`}>
+              <p
+                className={`font-medium ${
+                  txStatus.includes("Failed") || txStatus.includes("Please")
+                    ? "text-red-300"
+                    : txStatus.includes("Successfully")
+                      ? "text-green-300"
+                      : "text-blue-300"
+                }`}
+              >
                 {txStatus}
               </p>
             </div>
           </div>
         )}
-
         {/* Collections Section */}
         <div className="bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 p-8">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-2xl font-bold text-white mb-2">Your Collections</h2>
+              <h2 className="text-2xl font-bold text-white mb-2">
+                Your Collections
+              </h2>
               <p className="text-white/60">Manage your NFT collections</p>
             </div>
             <button
@@ -261,7 +292,6 @@ export function Collections() {
               Create Collection
             </button>
           </div>
-
           {/* Collections Grid */}
           {isLoadingCollections ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -285,7 +315,9 @@ export function Collections() {
                 <Palette className="w-8 h-8 text-white/40" />
               </div>
               <h3 className="text-white/60 text-lg mb-2">No collections yet</h3>
-              <p className="text-white/40">Create your first NFT collection to get started</p>
+              <p className="text-white/40">
+                Create your first NFT collection to get started
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -302,15 +334,20 @@ export function Collections() {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       onError={(e) => {
                         (e.currentTarget as HTMLImageElement).src =
-                          'https://via.placeholder.com/300x300/1f2937/9ca3af?text=No+Image';
+                          "https://via.placeholder.com/300x300/1f2937/9ca3af?text=No+Image";
                       }}
                     />
                   </div>
                   <div className="p-6">
-                    <h3 className="text-white font-semibold text-lg mb-1">{collection.name}</h3>
-                    <p className="text-white/60 text-sm mb-3">{collection.symbol}</p>
+                    <h3 className="text-white font-semibold text-lg mb-1">
+                      {collection.name}
+                    </h3>
+                    <p className="text-white/60 text-sm mb-3">
+                      {collection.symbol}
+                    </p>
                     <p className="text-purple-300 text-xs font-mono bg-purple-500/10 px-3 py-1 rounded-lg inline-block">
-                      {collection.address.slice(0, 6)}...{collection.address.slice(-4)}
+                      {collection.address.slice(0, 6)}...
+                      {collection.address.slice(-4)}
                     </p>
                   </div>
                 </div>
@@ -319,12 +356,13 @@ export function Collections() {
           )}
         </div>
       </div>
-
       {/* Create Collection Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <h3 className="text-xl font-bold text-white mb-6">Create New Collection</h3>
+            <h3 className="text-xl font-bold text-white mb-6">
+              Create New Collection
+            </h3>
             <div className="grid md:grid-cols-2 gap-6 mb-6">
               <div className="space-y-6">
                 <div>
@@ -347,7 +385,9 @@ export function Collections() {
                     type="text"
                     placeholder="Enter collection symbol (e.g., MAA)"
                     value={collectionSymbol}
-                    onChange={(e) => setCollectionSymbol(e.target.value.toUpperCase())}
+                    onChange={(e) =>
+                      setCollectionSymbol(e.target.value.toUpperCase())
+                    }
                     className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-all font-mono"
                   />
                 </div>
