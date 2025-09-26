@@ -64,7 +64,7 @@ setDestinationChainId?.(selectedId);
     }
   };
 return (
-<div className="relative inline-block text-left w-36 lg:w-48">
+<div className="relative inline-block text-left w-36 lg:w-36">
 {/* Trigger button */}
 <button
 onClick={() => setOpen(!open)}

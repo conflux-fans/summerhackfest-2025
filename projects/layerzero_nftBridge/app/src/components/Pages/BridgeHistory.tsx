@@ -26,7 +26,6 @@ import confluxLogo from "../../assets/logos/conflux.svg";
 import baseLogo from "../../assets/logos/base.svg";
 import ethereumLogo from "../../assets/logos/ethereum.svg";
 import baseSepoliaLogo from "../../assets/logos/base-sepolia.svg";
-
 interface Message {
   pathway: {
     srcEid: number;
@@ -48,25 +47,14 @@ interface Message {
   };
   guid: string;
 }
-
-const networkOptions = [
-  { id: 0, name: 'All Chains', logo: '' },
-  { id: CONFLUX_CHAIN_ID, name: 'Conflux', logo: confluxLogo },
-  { id: BASE_CHAIN_ID, name: 'Base', logo: baseLogo },
-  { id: ETH_SEPOLIA_CHAIN_ID, name: 'Ethereum Sepolia', logo: ethereumLogo },
-  { id: BASE_SEPOLIA_CHAIN_ID, name: 'Base Sepolia', logo: baseSepoliaLogo },
-];
-
 export function BridgeHistory() {
   const { address, isConnected } = useAppKitAccount();
   const { chainId } = useAppKitNetwork();
   const publicClient = usePublicClient();
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedChainId, setSelectedChainId] = useState<number>(0); // 0 for all
   const [txStatus, setTxStatus] = useState("");
   const [ready, setReady] = useState(false);
-
   useEffect(() => {
     if (isConnected && address && chainId) {
       setReady(true);
@@ -76,30 +64,25 @@ export function BridgeHistory() {
       setTxStatus("Please connect wallet to view history");
     }
   }, [isConnected, address, chainId]);
-
   const fetchHistory = async (addr: string, chId: number) => {
     setIsLoading(true);
     setTxStatus("");
     try {
       const network = getLzNetwork(chId);
       const msgs = await fetchLzMessages(addr, network);
-      setMessages(msgs.sort((a, b) => b.source.tx.blockTimestamp - a.source.tx.blockTimestamp));
+      setMessages(
+        msgs.sort(
+          (a, b) => b.source.tx.blockTimestamp - a.source.tx.blockTimestamp,
+        ),
+      );
     } catch (error) {
       setTxStatus("Failed to fetch bridge history");
     } finally {
       setIsLoading(false);
     }
   };
-
-  const filteredMessages = messages.filter(
-    (msg) =>
-      selectedChainId === 0 ||
-      msg.pathway.srcEid === CHAIN_TO_EID[selectedChainId],
-  );
-
   const getStatusIcon = (statusName: string) => {
-    if (statusName === "DELIVERED")
-      return <CheckCircle2 className="w-4 h-4" />;
+    if (statusName === "DELIVERED") return <CheckCircle2 className="w-4 h-4" />;
     if (
       [
         "FAILED",
@@ -114,9 +97,9 @@ export function BridgeHistory() {
       return <AlertCircle className="w-4 h-4" />;
     return <Clock className="w-4 h-4 animate-spin" />;
   };
-
   const getStatusColor = (statusName: string) => {
-    if (statusName === "DELIVERED") return "bg-green-500/20 text-green-300 border-green-500/30";
+    if (statusName === "DELIVERED")
+      return "bg-green-500/20 text-green-300 border-green-500/30";
     if (
       [
         "FAILED",
@@ -131,7 +114,6 @@ export function BridgeHistory() {
       return "bg-red-500/20 text-red-300 border-red-500/30";
     return "bg-yellow-500/20 text-yellow-300 border-yellow-500/30";
   };
-
   const getExplorerUrl = (chId: number, txHash: string) => {
     switch (chId) {
       case ETH_SEPOLIA_CHAIN_ID:
@@ -146,9 +128,7 @@ export function BridgeHistory() {
         return `#`;
     }
   };
-
   const getChainName = (eid: number) => EID_TO_NAME[eid] || "Unknown";
-
   const getChainLogo = (eid: number) => {
     const chainId = EID_TO_CHAIN[eid] || 0;
     switch (chainId) {
@@ -161,10 +141,9 @@ export function BridgeHistory() {
       case BASE_SEPOLIA_CHAIN_ID:
         return baseSepoliaLogo;
       default:
-        return '';
+        return "";
     }
   };
-
   return (
     <div className="min-h-screen p-4">
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -187,25 +166,12 @@ export function BridgeHistory() {
           </p>
         </div>
         <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl">
-          <div className="flex justify-end mb-6">
-            <select
-              value={selectedChainId}
-              onChange={(e) => setSelectedChainId(Number(e.target.value))}
-              className="bg-white/5 border border-white/10 text-white px-4 py-2 rounded-xl backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50 cursor-pointer"
-            >
-              {networkOptions.map((opt) => (
-                <option key={opt.id} value={opt.id} className="bg-gray-900">
-                  {opt.name}
-                </option>
-              ))}
-            </select>
-          </div>
           {isLoading ? (
             <div className="text-center py-16">
               <Loader2 className="h-12 w-12 text-purple-400 animate-spin mx-auto mb-4" />
               <p className="text-white">Loading bridge history...</p>
             </div>
-          ) : filteredMessages.length === 0 ? (
+          ) : messages.length === 0 ? (
             <div className="text-center py-16">
               <div className="w-32 h-32 mx-auto bg-gradient-to-br from-gray-700 to-gray-800 rounded-3xl flex items-center justify-center mb-6">
                 <span className="text-4xl text-gray-500">📭</span>
@@ -230,7 +196,7 @@ export function BridgeHistory() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredMessages.map((msg) => {
+                  {messages.map((msg) => {
                     const srcChain = EID_TO_CHAIN[msg.pathway.srcEid] || 0;
                     const dstChain = EID_TO_CHAIN[msg.pathway.dstEid] || 0;
                     const time = new Date(
@@ -285,7 +251,9 @@ export function BridgeHistory() {
                               {msg.destination.tx.txHash.slice(-4)}
                             </a>
                           ) : (
-                            <span className="text-gray-500 italic">Pending</span>
+                            <span className="text-gray-500 italic">
+                              Pending
+                            </span>
                           )}
                         </td>
                         <td className="py-4 px-4">
@@ -298,7 +266,9 @@ export function BridgeHistory() {
                             {msg.status.name}
                           </span>
                         </td>
-                        <td className="py-4 px-4 text-sm text-gray-400">{time}</td>
+                        <td className="py-4 px-4 text-sm text-gray-400">
+                          {time}
+                        </td>
                       </tr>
                     );
                   })}
