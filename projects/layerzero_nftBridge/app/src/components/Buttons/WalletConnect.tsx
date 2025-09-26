@@ -18,7 +18,7 @@ export function WalletConnectButton() {
   return (
     <div className="inline-block">
       <button
-        className="bg-indigo-600 text-white px-4 py-3 rounded-md hover:bg-indigo-700 transition font-medium flex items-center gap-2"
+        className="bg-indigo-600 text-white px-4 py-3 rounded-xl cursor-pointer hover:bg-indigo-700 transition font-medium flex items-center gap-2"
         onClick={() => open()}
       >
         {isConnected && (

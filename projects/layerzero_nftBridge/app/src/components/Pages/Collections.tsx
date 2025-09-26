@@ -155,7 +155,7 @@ export function Collections() {
 
   const handleCollectionSelect = (address: string) => {
     setSelectedCollection(address);
-    navigate(`/collection/${address}`);
+    navigate(`/collections/${address}`);
   };
 
   const copyJson = () => {
@@ -167,7 +167,7 @@ export function Collections() {
   const isOnCorrectNetwork = chainId === BASE_SEPOLIA_CHAIN_ID;
 
   return (
-    <div className="relative z-10 max-w-6xl mx-auto pt-8">
+    <div className="relative z-10 max-w-7xl mx-auto pt-8">
     <div className="text-center mb-12">
       <div className="flex items-center justify-center mb-6">
           <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-600 rounded-2xl flex items-center justify-center mr-4">

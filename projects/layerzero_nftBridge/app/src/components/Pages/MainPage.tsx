@@ -1,4 +1,3 @@
-// MainPage.tsx (fully updated)
 import { useState, useEffect } from "react";
 import { useAppKitAccount, useAppKitNetwork } from "@reown/appkit/react";
 import { useWalletClient, usePublicClient, useSwitchChain } from "wagmi";
@@ -7,72 +6,75 @@ import { NFT } from "./utils/types/types";
 import { fetchNFTs } from "./utils/nftUtils";
 import { ChainDropdown } from "../Common/NetworkDropdown";
 import {
-approveNFT,
-bridgeNFT,
-registerCollection,
-checkIsApproved,
-checkIsSupported,
+  approveNFT,
+  bridgeNFT,
+  registerCollection,
+  checkIsApproved,
+  checkIsSupported,
 } from "./utils/bridge/bridgeUtils";
 import {
-CONFLUX_CHAIN_ID,
-BASE_CHAIN_ID,
-ETH_SEPOLIA_CHAIN_ID,
-BASE_SEPOLIA_CHAIN_ID,
-CONFLUX_BRIDGE_ADDRESS,
-BASE_BRIDGE_ADDRESS,
-ETH_SEPOLIA_BRIDGE_ADDRESS,
-BASE_SEPOLIA_BRIDGE_ADDRESS,
+  CONFLUX_CHAIN_ID,
+  BASE_CHAIN_ID,
+  ETH_SEPOLIA_CHAIN_ID,
+  BASE_SEPOLIA_CHAIN_ID,
+  CONFLUX_BRIDGE_ADDRESS,
+  BASE_BRIDGE_ADDRESS,
+  ETH_SEPOLIA_BRIDGE_ADDRESS,
+  BASE_SEPOLIA_BRIDGE_ADDRESS,
 } from "./utils/constants";
 import { ArrowLeftRight, Image as ImageIcon, Check, CheckCircle, X, Loader2, Clock, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { fetchLzMessageStatus, LzMessageStatus, pollLzStatus } from "./utils/bridge/layerZeroScanUtils";
+import { useNavigate } from "react-router-dom";
+
 export function MainPage() {
-const { address, isConnected } = useAppKitAccount();
-const { chainId } = useAppKitNetwork();
-const { data: walletClient } = useWalletClient();
-const publicClient = usePublicClient();
-const { switchChainAsync } = useSwitchChain();
-const [ready, setReady] = useState(false);
-const [tokenId, setTokenId] = useState("");
-const [recipient, setRecipient] = useState("");
-const [useCustomRecipient, setUseCustomRecipient] = useState(false);
-const [txStatus, setTxStatus] = useState("");
-const [isApproved, setIsApproved] = useState(false);
-const [isApproving, setIsApproving] = useState(false);
-const [isBridging, setIsBridging] = useState(false);
-const [showNFTModal, setShowNFTModal] = useState(false);
-const [nfts, setNfts] = useState<NFT[]>([]);
-const [isLoadingNfts, setIsLoadingNfts] = useState(false);
-const [selectedNFT, setSelectedNFT] = useState<NFT | null>(null);
-const [isSupported, setIsSupported] = useState(true);
-const [isRegistering, setIsRegistering] = useState(false);
-const [tokenContractAddress, setTokenContractAddress] = useState("");
-const [destinationChainId, setDestinationChainId] = useState<number | null>(null);
-const [bridgeStatus, setBridgeStatus] = useState<LzMessageStatus["status"] | null>(null);
-const [estimatedRemainingMs, setEstimatedRemainingMs] = useState<number | null>(null);
-const [dstTxHash, setDstTxHash] = useState<string | null>(null);
-const [pollInterval, setPollInterval] = useState<NodeJS.Timeout | null>(null);
-const [bridgingTxHash, setBridgingTxHash] = useState<string | null>(null);
-useEffect(() => {
-const initialize = async () => {
-if (isConnected && address && walletClient && publicClient) {
-setReady(true);
-setRecipient(address);
-if (
-![
-CONFLUX_CHAIN_ID,
-BASE_CHAIN_ID,
-ETH_SEPOLIA_CHAIN_ID,
-BASE_SEPOLIA_CHAIN_ID,
+  const { address, isConnected } = useAppKitAccount();
+  const { chainId } = useAppKitNetwork();
+  const { data: walletClient } = useWalletClient();
+  const publicClient = usePublicClient();
+  const { switchChainAsync } = useSwitchChain();
+  const navigate = useNavigate();
+  const [ready, setReady] = useState(false);
+  const [tokenId, setTokenId] = useState("");
+  const [recipient, setRecipient] = useState("");
+  const [useCustomRecipient, setUseCustomRecipient] = useState(false);
+  const [txStatus, setTxStatus] = useState("");
+  const [isApproved, setIsApproved] = useState(false);
+  const [isApproving, setIsApproving] = useState(false);
+  const [isBridging, setIsBridging] = useState(false);
+  const [showNFTModal, setShowNFTModal] = useState(false);
+  const [nfts, setNfts] = useState<NFT[]>([]);
+  const [isLoadingNfts, setIsLoadingNfts] = useState(false);
+  const [selectedNFT, setSelectedNFT] = useState<NFT | null>(null);
+  const [isSupported, setIsSupported] = useState(true);
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [tokenContractAddress, setTokenContractAddress] = useState("");
+  const [destinationChainId, setDestinationChainId] = useState<number | null>(null);
+  const [bridgeStatus, setBridgeStatus] = useState<LzMessageStatus["status"] | null>(null);
+  const [estimatedRemainingMs, setEstimatedRemainingMs] = useState<number | null>(null);
+  const [dstTxHash, setDstTxHash] = useState<string | null>(null);
+  const [pollInterval, setPollInterval] = useState<NodeJS.Timeout | null>(null);
+  const [bridgingTxHash, setBridgingTxHash] = useState<string | null>(null);
+  useEffect(() => {
+    const initialize = async () => {
+      if (isConnected && address && walletClient && publicClient) {
+        setReady(true);
+        setRecipient(address);
+        if (
+          ![
+            CONFLUX_CHAIN_ID,
+            BASE_CHAIN_ID,
+            ETH_SEPOLIA_CHAIN_ID,
+            BASE_SEPOLIA_CHAIN_ID,
           ].includes(chainId || 0)
         ) {
-setTxStatus("Please switch to a supported network");
-setIsApproved(false);
+          setTxStatus("Please switch to a supported network");
+          setIsApproved(false);
         } else {
-setTxStatus("");
-if (!destinationChainId) {
-setDestinationChainId(
-chainId === CONFLUX_CHAIN_ID
-? BASE_CHAIN_ID
+          setTxStatus("");
+          if (!destinationChainId) {
+            setDestinationChainId(
+              chainId === CONFLUX_CHAIN_ID
+                ? BASE_CHAIN_ID
                 : chainId === BASE_CHAIN_ID
                 ? CONFLUX_CHAIN_ID
                 : chainId === ETH_SEPOLIA_CHAIN_ID
@@ -141,6 +143,17 @@ chainId === CONFLUX_CHAIN_ID
       };
     }
   }, [bridgingTxHash, chainId, destinationChainId, pollInterval]);
+
+  // Redirect after successful bridging
+  useEffect(() => {
+    if (bridgeStatus === "delivered" && bridgingTxHash) {
+      const timer = setTimeout(() => {
+        navigate(`/history/${bridgingTxHash}`);
+      }, 3000); // Optional delay to show success message
+      return () => clearTimeout(timer);
+    }
+  }, [bridgeStatus, bridgingTxHash, navigate]);
+
   const getBridgeAddress = (id: number): Address => {
     switch (id) {
       case CONFLUX_CHAIN_ID:
@@ -511,81 +524,72 @@ chainId === CONFLUX_CHAIN_ID
                   )}
                 </button>
               )}
-              <button
-                onClick={handleApproveClick}
-                disabled={
-                  !ready ||
-                  !tokenId ||
-                  !isSupported ||
-                  !tokenContractAddress ||
-                  isApproved ||
-                  isApproving
-                }
-                className={`w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center justify-center ${
-                  !ready ||
-                  !tokenId ||
-                  !isSupported ||
-                  !tokenContractAddress ||
-                  isApproved ||
-                  isApproving
-                    ? "opacity-50 cursor-not-allowed hover:scale-100"
-                    : ""
-                }`}
-              >
-                {isApproving ? (
-                  <>
-                    <Loader2 className="h-5 w-5 mr-3 animate-spin" />
-                    Approving...
-                  </>
-                ) : isApproved ? (
-                  <>
-                    <Check className="w-5 h-5 mr-3" />
-                    NFT Approved
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle className="w-5 h-5 mr-3" />
-                    Approve NFT
-                  </>
-                )}
-              </button>
-              <button
-                onClick={handleBridgeClick}
-                disabled={
-                  !ready ||
-                  !tokenId ||
-                  !recipient ||
-                  !isApproved ||
-                  !isSupported ||
-                  !tokenContractAddress ||
-                  isBridging ||
-                  !destinationChainId
-                }
-                className={`w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center justify-center ${
-                  !ready ||
-                  !tokenId ||
-                  !recipient ||
-                  !isApproved ||
-                  !isSupported ||
-                  !tokenContractAddress ||
-                  isBridging ||
-                  !destinationChainId
-                    ? "opacity-50 cursor-not-allowed hover:scale-100"
-                    : ""
-                }`}
-              >
-                {isBridging ? (
-                  <>
-                    <Loader2 className="h-5 w-5 mr-3 animate-spin" />
-                    Bridging NFT...
-                  </>
-                ) : (
-                  <>
-                    <span className="mr-3">🌉</span>
-                    Bridge to {targetChain.name}
-                  </>
-                )}
-              </button>
+              {isSupported && !isApproved && (
+                <button
+                  onClick={handleApproveClick}
+                  disabled={
+                    !ready ||
+                    !tokenId ||
+                    !tokenContractAddress ||
+                    isApproving
+                  }
+                  className={`w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center justify-center ${
+                    !ready ||
+                    !tokenId ||
+                    !tokenContractAddress ||
+                    isApproving
+                      ? "opacity-50 cursor-not-allowed hover:scale-100"
+                      : ""
+                  }`}
+                >
+                  {isApproving ? (
+                    <>
+                      <Loader2 className="h-5 w-5 mr-3 animate-spin" />
+                      Approving...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="w-5 h-5 mr-3" />
+                      Approve NFT
+                    </>
+                  )}
+                </button>
+              )}
+              {isSupported && isApproved && (
+                <button
+                  onClick={handleBridgeClick}
+                  disabled={
+                    !ready ||
+                    !tokenId ||
+                    !recipient ||
+                    !tokenContractAddress ||
+                    isBridging ||
+                    !destinationChainId
+                  }
+                  className={`w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center justify-center ${
+                    !ready ||
+                    !tokenId ||
+                    !recipient ||
+                    !tokenContractAddress ||
+                    isBridging ||
+                    !destinationChainId
+                      ? "opacity-50 cursor-not-allowed hover:scale-100"
+                      : ""
+                  }`}
+                >
+                  {isBridging ? (
+                    <>
+                      <Loader2 className="h-5 w-5 mr-3 animate-spin" />
+                      Bridging NFT...
+                    </>
+                  ) : (
+                    <>
+                      <span className="mr-3">🌉</span>
+                      Bridge to {targetChain.name}
+                    </>
+                  )}
+                </button>
+              )}
             </div>
             {txStatus && (
               <div
@@ -662,7 +666,7 @@ chainId === CONFLUX_CHAIN_ID
             )}
             {bridgeStatus === "delivered" && (
               <div className="mt-4 p-4 bg-green-500/10 border border-green-500/20 rounded-2xl">
-                <p className="text-green-300 text-center text-sm">NFT bridged and delivered! Check destination chain.</p>
+                <p className="text-green-300 text-center text-sm">NFT bridged and delivered! Check destination chain. Redirecting to history...</p>
               </div>
             )}
             {bridgeStatus === "failed" && (

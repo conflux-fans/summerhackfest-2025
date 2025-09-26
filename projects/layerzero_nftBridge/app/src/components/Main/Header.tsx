@@ -55,7 +55,7 @@ export function Header() {
             </div>
           </RouterNavLink>
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-8">
+          <nav className="hidden lg:flex items-center space-x-4">
             {mobileNavItems.slice(0, 4).map((item) =>
               item.external ? (
                 <a

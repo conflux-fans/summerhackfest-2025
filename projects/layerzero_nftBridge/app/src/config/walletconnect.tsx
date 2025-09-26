@@ -95,7 +95,6 @@ createAppKit({
   themeMode: 'light',
   themeVariables: {
     '--w3m-font-family': 'system-ui, sans-serif',
-    '--w3m-border-radius-master': '0.375rem',
   },
   features: {
     analytics: true,

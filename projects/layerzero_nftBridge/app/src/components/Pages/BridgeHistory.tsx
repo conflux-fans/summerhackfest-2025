@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useAppKitAccount, useAppKitNetwork } from "@reown/appkit/react";
 import { usePublicClient } from "wagmi";
+import { useNavigate } from "react-router-dom";
 import {
   CONFLUX_CHAIN_ID,
   BASE_CHAIN_ID,
@@ -17,6 +18,7 @@ import {
   CheckCircle2,
   ArrowRight,
   Loader2,
+  Eye,
 } from "lucide-react";
 import {
   fetchLzMessages,
@@ -26,6 +28,7 @@ import confluxLogo from "../../assets/logos/conflux.svg";
 import baseLogo from "../../assets/logos/base.svg";
 import ethereumLogo from "../../assets/logos/ethereum.svg";
 import baseSepoliaLogo from "../../assets/logos/base-sepolia.svg";
+
 interface Message {
   pathway: {
     srcEid: number;
@@ -47,14 +50,17 @@ interface Message {
   };
   guid: string;
 }
+
 export function BridgeHistory() {
   const { address, isConnected } = useAppKitAccount();
   const { chainId } = useAppKitNetwork();
   const publicClient = usePublicClient();
+  const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [txStatus, setTxStatus] = useState("");
   const [ready, setReady] = useState(false);
+
   useEffect(() => {
     if (isConnected && address && chainId) {
       setReady(true);
@@ -64,6 +70,7 @@ export function BridgeHistory() {
       setTxStatus("Please connect wallet to view history");
     }
   }, [isConnected, address, chainId]);
+
   const fetchHistory = async (addr: string, chId: number) => {
     setIsLoading(true);
     setTxStatus("");
@@ -81,6 +88,11 @@ export function BridgeHistory() {
       setIsLoading(false);
     }
   };
+
+  const handleViewDetails = (txHash: string) => {
+    navigate(`/history/${txHash}`);
+  };
+
   const getStatusIcon = (statusName: string) => {
     if (statusName === "DELIVERED") return <CheckCircle2 className="w-4 h-4" />;
     if (
@@ -97,6 +109,7 @@ export function BridgeHistory() {
       return <AlertCircle className="w-4 h-4" />;
     return <Clock className="w-4 h-4 animate-spin" />;
   };
+
   const getStatusColor = (statusName: string) => {
     if (statusName === "DELIVERED")
       return "bg-green-500/20 text-green-300 border-green-500/30";
@@ -114,6 +127,7 @@ export function BridgeHistory() {
       return "bg-red-500/20 text-red-300 border-red-500/30";
     return "bg-yellow-500/20 text-yellow-300 border-yellow-500/30";
   };
+
   const getExplorerUrl = (chId: number, txHash: string) => {
     switch (chId) {
       case ETH_SEPOLIA_CHAIN_ID:
@@ -128,7 +142,9 @@ export function BridgeHistory() {
         return `#`;
     }
   };
+
   const getChainName = (eid: number) => EID_TO_NAME[eid] || "Unknown";
+
   const getChainLogo = (eid: number) => {
     const chainId = EID_TO_CHAIN[eid] || 0;
     switch (chainId) {
@@ -144,6 +160,7 @@ export function BridgeHistory() {
         return "";
     }
   };
+
   return (
     <div className="min-h-screen p-4">
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -151,7 +168,7 @@ export function BridgeHistory() {
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
         <div className="absolute top-3/4 left-1/2 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-2000"></div>
       </div>
-      <div className="relative z-10 max-w-6xl mx-auto pt-8">
+      <div className="relative z-10 max-w-7xl mx-auto pt-8">
         <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-6">
             <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-600 rounded-2xl flex items-center justify-center mr-4">
@@ -193,6 +210,7 @@ export function BridgeHistory() {
                     <th className="py-3 px-4">Dest Tx</th>
                     <th className="py-3 px-4">Status</th>
                     <th className="py-3 px-4">Time</th>
+                    <th className="py-3 px-4">Details</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -268,6 +286,15 @@ export function BridgeHistory() {
                         </td>
                         <td className="py-4 px-4 text-sm text-gray-400">
                           {time}
+                        </td>
+                        <td className="py-4 px-4">
+                          <button
+                            onClick={() => handleViewDetails(msg.source.tx.txHash)}
+                            className="bg-gradient-to-r cursor:pointer from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-2 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 flex items-center gap-2"
+                          >
+                            <Eye className="w-4 h-4" />
+                            View
+                          </button>
                         </td>
                       </tr>
                     );
