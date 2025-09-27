@@ -245,7 +245,7 @@ git clone https://github.com/0xfdbu/summerhackfest-2025.git
 
 **Contract setup instructions**
 ```bash
-https://github.com/0xfdbu/summerhackfest-2025/blob/main/projects/layerzero_nftBridge/lz-new/README.md
+https://github.com/0xfdbu/summerhackfest-2025/blob/main/projects/layerzero_nftBridge/contracts/README.md
 ```
 
 **Frontend setup instructions**
@@ -274,7 +274,7 @@ Open: [http://localhost:5173](http://localhost:5173)
 
 ```bash
 # Run contract tests
-cd lz-new
+cd contracts
 npx hardhat compile
 npx hardhat test
 ```
