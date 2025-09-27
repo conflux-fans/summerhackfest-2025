@@ -21,7 +21,7 @@ const mobileNavItems = [
   { name: "History", to: "/history", icon: <Clock size={18} /> },
   {
     name: "Audit Report",
-    to: "https://github.com/0xfdbu/summerhackfest-2025/blob/main/projects/layerzero_AstrumGate/Audit.md",
+    to: "https://github.com/0xfdbu/summerhackfest-2025/blob/main/projects/layerzero_nftBridge/Audit.md",
     icon: <FileText size={18} />,
     external: true, // Flag for external link
   },

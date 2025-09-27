@@ -1,6 +1,6 @@
-# L0 NftBridge
+# AstrumGate
 
-> **A cross-chain NFT bridge built on LayerZero, enabling seamless transfer of ERC721 tokens between Conflux and Base networks.**
+> **A symmetric cross-chain NFT bridge built on LayerZero, enabling seamless transfer of ERC721 tokens between Conflux, Base, and Arbitrum networks, with full metadata support, dynamic wrappers, and an integrated NFT collection factory.**
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Conflux](https://img.shields.io/badge/built%20on-Conflux-blue)](https://confluxnetwork.org)
@@ -10,16 +10,19 @@
 
 ## 🎯 Overview
 
-**L0 NftBridge** is a proof-of-concept cross-chain NFT bridge between **Conflux eSpace** and **Base**.  
-It enables NFT projects on Conflux to access the **$15.54B TVL liquidity on Base (as of writing)** and expand NFT utility beyond a single chain.  
+**AstrumGate** is an advanced cross-chain NFT bridge between **Conflux eSpace**, **Base**, and **Arbitrum**.  
+It enables NFT projects on Conflux to access the **$14.8B TVL liquidity on Base** and **$19.97B TVL on Arbitrum (as of writing)** and expand NFT utility beyond a single chain with symmetric bridging capabilities.  
 
-The project demonstrates how **LayerZero-powered interoperability** can unlock new opportunities for NFT projects.  
+The project leverages **LayerZero-powered interoperability** to unlock new opportunities for NFT projects, including dynamic support for any ERC721 collection, automatic wrapper deployment for foreign NFTs, full metadata bridging (name, symbol, tokenURI), batch operations, and an NFT collection factory for easy creation and management of collections.
 
+Key enhancements in this updated version:
+- Symmetric bridging (works identically on all chains).
+- Full metadata support for seamless NFT representation across chains.
+- Integrated NFT factory for creating, minting, and managing collections (with batch mint/burn).
+- Bridge history tracking in the frontend.
+- Dynamic registration and handling of native/wrapped collections without hardcoding.
 
-⚠️ This is **not production-ready**:
-- Metadata is not yet passed between chains  
-- NFT minting feature is experimental (metadata not created correctly)  
-- Frontend lacks LayerZero explorer integrations (fees, bridge time, etc.)
+This version is a robust proof-of-concept, ready for demonstration and further production hardening.
 
 ---
 
@@ -43,7 +46,7 @@ The project demonstrates how **LayerZero-powered interoperability** can unlock n
 ## 🚀 Problem Statement
 
 NFT ecosystems are siloed by design. On Conflux, NFT projects:  
-- Cannot reach the liquidity available on other chains (e.g., Base’s $15.54B TVL)  
+- Cannot reach the liquidity available on other chains (e.g., Base’s $14.8B TVL, Arbitrum’s $19.97B TVL)  
 - Have limited cross-chain utility and exposure  
 - Rely on centralized bridges or exchanges  
 
@@ -53,73 +56,83 @@ This isolation reduces NFT adoption and market opportunities.
 
 ## 💡 Solution
 
-L0 NftBridge provides a **permissionless ERC721 cross-chain bridge**:  
-- 🌉 **Bridge NFTs** from Conflux eSpace to Base and back  
-- 🔗 **Dynamic Adapter** — works with multiple NFT contracts without hardcoding  
-- 🧾 **Proof-of-Concept** for LayerZero’s omnichain NFT interoperability  
+AstrumGate provides a **permissionless, symmetric ERC721 cross-chain bridge**:  
+- 🌉 **Symmetric Bridging** of NFTs between Conflux eSpace, Base, and Arbitrum (lock/unlock natives, mint/burn wrappers).  
+- 🔗 **Dynamic Support** for any ERC721 contract with automatic registration and wrapper deployment.  
+- 🏭 **NFT Collection Factory** for creating custom collections with batch minting/burning.  
+- 🧾 **Full Metadata Bridging** (collection name/symbol, per-token URIs) for perfect cross-chain representation.  
+- 📜 **Bridge History** tracking in the frontend for user transparency.  
 
 **Unique aspects:**
-- Designed specifically for **Conflux eSpace**  
-- Showcases how Conflux projects can expand into Base’s liquidity pools  
-- Lightweight prototype ready for hackathon demonstration  
+- Designed specifically for **Conflux eSpace** with expansion to Base’s and Arbitrum’s liquidity.  
+- Handles collections originating from any chain dynamically.  
+- Lightweight, hackathon-ready prototype with enhanced reliability.
 
 ---
 
 ## ⚡ Conflux Integration
 
-- [x] **eSpace** – Bridge contracts deployed on eSpace  
-- [ ] **Core Space** – Not used  
-- [ ] **Cross-Space Bridge** – Not used in this POC  
-- [ ] **Gas Sponsorship** – Not implemented  
-- [ ] **Built-in Contracts** – Not used  
-- [ ] **Tree-Graph Consensus** – Inherited from eSpace  
+- [x] **eSpace** – Bridge and factory contracts deployed on eSpace.  
+- [ ] **Core Space** – Not used.  
+- [ ] **Cross-Space Bridge** – Not used in this POC.  
+- [ ] **Gas Sponsorship** – Not implemented.  
+- [ ] **Built-in Contracts** – Not used.  
+- [ ] **Tree-Graph Consensus** – Inherited from eSpace.  
 
 ### Partner Integrations
-- [x] **LayerZero** – Cross-chain messaging layer  
-- [ ] **Privy** – Not used  
-- [ ] **Pyth Network** – Not used  
-- [ ] **Other** – N/A  
+- [x] **LayerZero** – Cross-chain messaging layer.  
+- [ ] **Privy** – Not used.  
+- [ ] **Pyth Network** – Not used.  
+- [ ] **Other** – N/A.  
 
 ---
 
 ## ✨ Features
 
 ### Core Features
-- 🌉 **Cross-chain NFT Bridging** between Conflux and Base  
-- 🔗 **Dynamic Support** for multiple ERC721 contracts  
-- ⚡ **Hackathon-ready demo** with frontend + contracts  
+- 🌉 **Symmetric Cross-chain NFT Bridging** between Conflux eSpace, Base, and Arbitrum (supports multiple tokens in one transaction).  
+- 🔗 **Dynamic Token Support** with permissionless registration and automatic wrapper deployment.  
+- 🏭 **NFT Collection Factory** for creating collections, minting/batch minting, burning/batch burning.  
+- 🧾 **Full Metadata Support** (name, symbol, tokenURI passed across chains).  
+- 📜 **Bridge History** viewing in the frontend.  
+- ⚡ **Hackathon-ready demo** with frontend + contracts.  
 
 ### Current Limitations
-- ❌ Metadata (name, symbol, tokenURI) not passed  
-- ❌ NFT minting feature unreliable (test/demo only)  
-- ❌ No UI support for fees or bridge time from LayerZero  
+- No UI integration for LayerZero fees or bridge time estimates (planned for future).  
 
 ### Future Roadmap
-- ✅ Metadata bridging  
-- ✅ Stable NFT minting  
-- ✅ Frontend with LayerZeroScan integrations (fees, bridge tracking)  
-- ✅ Mainnet-ready deployment  
+- ✅ Metadata bridging (completed).  
+- ✅ Reliable NFT minting with factory and batch support (completed).  
+- ✅ Symmetric bridging and dynamic wrappers (completed).  
+- ⏳ Frontend enhancements for LayerZeroScan (fees, tracking).  
+- ⏳ Mainnet-ready deployment with audits.  
 
 ---
 
 ## 🛠️ Technology Stack
 
 ### Frontend
-- **Framework**: React + TypeScript + Vite  
-- **Web3 Integration**: ethers.js  
-- **Hosting**: [Vercel Demo](https://summerhackfest-2025-sooty.vercel.app/)  
+- **Framework**: React + TypeScript + Vite.  
+- **Web3 Integration**: ethers.js.  
+- **Hosting**: [Vercel Demo](https://summerhackfest-2025-sooty.vercel.app/).  
 
 ### Blockchain
-- **Networks**: Conflux eSpace, Base  
-- **Smart Contracts**: Solidity  
-- **Framework**: Hardhat  
+- **Networks**: Conflux eSpace, Base, Arbitrum.  
+- **Smart Contracts**: Solidity.  
+- **Framework**: Hardhat.  
+- **Libraries**: OpenZeppelin (ERC721, Ownable, Clones).  
 
 ### External APIs
-- Etherscan v2 API (loading NFTs by contract address)
-- Espace conflux scan API (loading NFTs by contract address)
+- Etherscan v2 API (loading NFTs by contract address).  
+- eSpace Conflux Scan API (loading NFTs by contract address).  
+- Arbiscan API (loading NFTs by contract address).  
+- LayerZero for cross-chain messaging.  
+
 ---
 
 ## 🏗️ Architecture
+
+The architecture is symmetric, with `DynamicONFTBridge` deployed on Conflux eSpace, Base, and Arbitrum. Native collections are locked/unlocked on their home chain, while wrappers are minted/burned on foreign chains. The `NFTCollectionFactory` enables easy creation of native collections on Conflux.
 
 ```
     ┌────────────────────────────┐
@@ -127,32 +140,34 @@ L0 NftBridge provides a **permissionless ERC721 cross-chain bridge**:
     │    (React + Vite + ethers) │
     └─────────────▲──────────────┘
                   │
-                  │ User tx / UI
+                  │ User tx / UI (incl. history)
                   │
     ┌─────────────┴──────────────┐
-    │ Conflux eSpace (Origin)    │
+    │ Conflux/Base/Arbitrum      │
+    │ (Origin Chain)             │
     │                            │
-    │ DynamicConfluxONFTAdapter  │
-    │                            │
+    │ DynamicONFTBridge          │
+    │ (Lock native or Burn wrap) │
     └─────────────┬──────────────┘
                   │
-                  │ LayerZero Msg
+                  │ LayerZero Msg (with metadata)
                   ▼
     ┌─────────────┴──────────────┐
     │        LayerZero            │
     │    Messaging Relayer/ULN    │
     └─────────────┬──────────────┘
                   │
-                  │ LayerZero Msg
+                  │ LayerZero Msg (with metadata)
                   ▼
     ┌─────────────┴──────────────┐
-    │ Base (Destination)         │
+    │ Conflux/Base/Arbitrum      │
+    │ (Destination Chain)        │
     │                            │
-    │ DynamicWrappedONFT         │
-    │                            │
+    │ DynamicONFTBridge          │
+    │ (Unlock native or Mint wrap)│
     └─────────────┬──────────────┘
                   │
-                  │ Mint wrapped NFT
+                  │ Transfer/Mint NFT
                   ▼
           ┌───────┴────────┐
           │    Recipient   │
@@ -161,78 +176,63 @@ L0 NftBridge provides a **permissionless ERC721 cross-chain bridge**:
 
 ```
 
-## 🔄 Reverse Flow (Base → Conflux)
-
+### NFT Factory Flow (on Conflux)
 ```
-┌────────────────────────────┐
-│          Frontend          │
-│    (React + Vite + ethers) │
-└─────────────▲──────────────┘
-              │
-              │ User tx / UI
-              │
-┌─────────────┴──────────────┐
-│ Base (Origin)              │
-│                            │
-│ DynamicWrappedONFT         │
-│ (Burn wrapped NFT)         │
-└─────────────┬──────────────┘
-              │
-              │ LayerZero Msg
-              ▼
-┌─────────────┴──────────────┐
-│        LayerZero            │
-│    Messaging Relayer/ULN    │
-└─────────────┬──────────────┘
-              │
-              │ LayerZero Msg
-              ▼
-┌─────────────┴──────────────┐
-│ Conflux eSpace (Destination)│
-│                             │
-│ DynamicConfluxONFTAdapter   │
-│ (Unlock original NFT)       │
-└─────────────┬──────────────┘
-              │
-              │ Transfer original NFT
-              ▼
-      ┌───────┴────────┐
-      │    Recipient   │
-      │ (User wallet)  │
-      └────────────────┘
+    ┌────────────────────────────┐
+    │          Frontend          │
+    └─────────────▲──────────────┘
+                  │
+                  │ Create/Mint
+                  │
+    ┌─────────────┴──────────────┐
+    │ NFTCollectionFactory       │
+    │ (Deploy clone via Clones)  │
+    └─────────────┬──────────────┘
+                  │
+                  │ Initialize/Mint
+                  ▼
+    ┌─────────────┴──────────────┐
+    │ BaseNFT (Cloned Collection)│
+    │ (ERC721 with URI storage)  │
+    └─────────────────────────────┘
 ```
 
 **Flow:**
-1. User connects wallet in frontend  
-2. User selects NFT + destination chain 
-3. Whitelist if the first time collection is being bridged.
-4. Grant permission for nft transfer (approval)
-5. Sign the bridge transaction
-6. Contract on Conflux debits NFT and sends message via LayerZero  
-7. Destination contract on Base credits NFT to user  
+1. User connects wallet in frontend.  
+2. (Optional) Create NFT collection via factory (name, symbol, image, contractURI).  
+3. Mint/batch mint NFTs to the collection.  
+4. Select NFT(s), destination chain, and bridge.  
+5. Approve NFT transfer if needed.  
+6. Sign the bridge transaction (via `bridgeSend`).  
+7. Origin bridge locks/burns NFT and sends LayerZero message with metadata.  
+8. Destination bridge unlocks/mints NFT (deploying wrapper if first time).  
+9. View bridge history in frontend.  
 
 ---
 
 ## 📄 Smart Contracts
 
+### Key Contracts
+- **NFTCollectionFactory**: Factory for creating and managing ERC721 collections using clones. Supports mint, batchMint, burn, batchBurn.  
+- **BaseNFT**: Cloned ERC721 implementation with URI storage, collection metadata.  
+- **DynamicONFTBridge**: Symmetric bridge contract for cross-chain transfers, handling natives and wrappers dynamically.  
+- **WrappedONFT**: Wrapped ERC721 for foreign NFTs, with metadata support.  
+
 ### Deployed Addresses
-
-```
-DynamicConfluxONFTAdapter (Conflux original): 0x890C3dEc7d958bBCd5D4fcd308F6b04946f30ada
-
-DynamicWrappedONFT (Base): 0xcF394722e8fF94579eC98BA0D11309F7E888a029
-
-Nftminter (just for tests - broken metadata..) (Conflux): 0xD9Ed0B00Aa868Cd2E7aa4198C7D792D3aF9ec61d
-```
+- DynamicONFTBridge (Conflux eSpace): 0x8078EFb3CEe419Abde856B6F5f470CC9d8971319  
+- DynamicONFTBridge (Base): 0xd97deC9D62011e63AD3Bd27B51E33c8df3Ac44Cf  
+- DynamicONFTBridge (Arbitrum): 0x16dED18bd0ead69b331B0222110F74b5716627f8  
+- NFTCollectionFactory (Conflux eSpace): 0x47fC91Df5266456BAc2de008A4A4DB7Ae532c5C8  
+- WrappedONFT Implementation: Deployed internally by bridge.  
 
 ---
 
 ## 📋 Prerequisites
 
-- Node.js (>= 18)
-- npm or yarn
-- Git
-- Fluent Wallet or MetaMask for eSpace - (Rabby is recommended due to native multichain support)
+- Node.js (>= 18)  
+- npm or yarn  
+- Git  
+- Fluent Wallet or MetaMask for eSpace (Rabby recommended for multichain support)  
 
 ---
 
@@ -253,18 +253,20 @@ https://github.com/0xfdbu/summerhackfest-2025/blob/main/projects/layerzero_nftBr
 https://github.com/0xfdbu/summerhackfest-2025/blob/main/projects/layerzero_nftBridge/app/README.md
 ```
 
-
 Open: [http://localhost:5173](http://localhost:5173)
 
 ---
 
 ## 📱 Usage
 
-1. Connect your wallet (Fluent / MetaMask) - (Rabby is recommended due to native multichain support)
-2. Select NFT and target chain
-3. Approve & send transaction
-4. Wait for LayerZero delivery
-5. NFT appears on destination chain
+1. Connect your wallet (Fluent / MetaMask / Rabby).  
+2. Create a new NFT collection via the factory if needed.  
+3. Mint or batch mint NFTs to your collection.  
+4. Select NFT(s) and target chain (Conflux, Base, or Arbitrum).  
+5. Approve and send the bridge transaction.  
+6. Wait for LayerZero delivery.  
+7. NFT appears on destination chain with full metadata.  
+8. Check bridge history in the frontend for past transfers.
 
 ---
 
@@ -274,34 +276,33 @@ Open: [http://localhost:5173](http://localhost:5173)
 # Run contract tests
 cd lz-new
 npx hardhat compile
+npx hardhat test
 ```
 
 ---
 
 ## 🚧 Known Issues & Limitations
 
-- Metadata not passed between chains
-- NFT mint unreliable
-- Frontend lacks LayerZeroScan integration for fees/time
+- Frontend lacks LayerZero fee/time estimates (use LayerZeroScan manually).  
+- Batch bridging supports multiple tokens but requires gas optimization for large batches.
 
 ---
 
 ## 🗺️ Roadmap
 
 **Phase 1 (Hackathon) ✅**
-- Core contracts deployed
-- Demo frontend built
-- Proof-of-concept live
+- Core contracts deployed.  
+- Demo frontend built.  
+- Proof-of-concept live with symmetric bridging.  
 
-**Phase 2 (Post-Hackathon)**
-- Add metadata bridging
-- Improve minting reliability
-- UI support for fees + bridge time
+**Phase 2 (Hackathon-Time-Extension) ✅**
+- Metadata bridging.  
+- Reliable minting with factory.  
+- Bridge history in frontend.  
 
 **Phase 3 (Future)**
-- Security audit
-- Production deployment
-- Mainnet launch
+- More Security audits.  
+- Vast explorer with many features.
 
 ---
 
@@ -320,15 +321,15 @@ MIT License – see the LICENSE file for details.
 
 ## ⭐ Acknowledgments
 
-- Conflux Hackathon
-- Conflux Network — hosting and platform
-- Conflux Team — technical guidance
-- Community — feedback and encouragement
+- Conflux Hackathon  
+- Conflux Network — hosting and platform  
+- Conflux Team — technical guidance  
+- Community — feedback and encouragement  
 
-**Third-Party Tools**
-- LayerZero Labs — cross-chain messaging
-- OpenZeppelin — ERC721 contracts
-- Vercel — hosting
+**Third-Party Tools**  
+- LayerZero Labs — cross-chain messaging  
+- OpenZeppelin — ERC721 contracts and utilities  
+- Vercel — hosting  
 
 Built with ❤️ for Code Without Borders – SummerHackfest 2025
 
