@@ -21,7 +21,7 @@ const mobileNavItems = [
   { name: "History", to: "/history", icon: <Clock size={18} /> },
   {
     name: "Audit Report",
-    to: "https://github.com/0xfdbu/summerhackfest-2025/blob/main/projects/layerzero_nftBridge/Audit.md",
+    to: "https://github.com/0xfdbu/summerhackfest-2025/blob/main/projects/layerzero_AstrumGate/Audit.md",
     icon: <FileText size={18} />,
     external: true, // Flag for external link
   },
@@ -41,17 +41,10 @@ export function Header() {
             to="/"
             className="group flex items-center space-x-3 hover:scale-105 transition-all duration-300"
           >
-            <div className="relative">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30">
-                <span className="text-white font-bold text-lg">L0</span>
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-400 to-pink-600 rounded-xl opacity-30 group-hover:animate-ping"></div>
-            </div>
             <div className="hidden sm:block">
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
-                NftBridge
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
+                AstrumGate
               </h1>
-              <p className="text-gray-400 text-xs">NFT Ecosystem</p>
             </div>
           </RouterNavLink>
           {/* Desktop Navigation */}
@@ -132,14 +125,10 @@ export function Header() {
               <div className="p-6 border-b border-white/10">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-600 rounded-lg flex items-center justify-center">
-                      <span className="text-white font-bold">L0</span>
-                    </div>
                     <div>
                       <h2 className="text-white font-bold text-lg">
-                        NftBridge
+                        AstrumGate
                       </h2>
-                      <p className="text-gray-400 text-xs">Mobile Navigation</p>
                     </div>
                   </div>
                   <button

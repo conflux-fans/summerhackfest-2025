@@ -9,6 +9,7 @@ import {
   Image as ImageIcon,
   ArrowLeft,
   Copy,
+  Upload,
 } from "lucide-react";
 import { WalletConnectButton } from "../Buttons/WalletConnect";
 import { batchMintNFT } from "./utils/collections/contract"; // Assuming this function is implemented in utils
@@ -210,6 +211,24 @@ export function BatchMint() {
     }
   };
 
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && file.type === "application/json") {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target?.result as string;
+        setBatchJson(text);
+      };
+      reader.onerror = (err) => {
+        console.error("File read error:", err);
+        setParseError("Failed to read JSON file.");
+      };
+      reader.readAsText(file);
+    } else {
+      setParseError("Please upload a valid JSON file.");
+    }
+  };
+
   const copyJson = () => {
     navigator.clipboard.writeText(generatedJson);
     setIsCopied(true);
@@ -259,6 +278,22 @@ export function BatchMint() {
                   className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-all min-h-[300px] font-mono text-sm"
                 />
                 {parseError && <p className="text-red-300 mt-2">{parseError}</p>}
+                <div className="mt-2">
+                  <label
+                    htmlFor="json-upload"
+                    className="cursor-pointer bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 font-medium py-2 px-4 rounded-2xl transition-all flex items-center justify-center text-sm inline-flex"
+                  >
+                    <Upload className="w-3 h-3 mr-2" />
+                    Upload JSON File
+                  </label>
+                  <input
+                    id="json-upload"
+                    type="file"
+                    accept=".json"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                </div>
               </div>
             </div>
             <div className="space-y-6">
