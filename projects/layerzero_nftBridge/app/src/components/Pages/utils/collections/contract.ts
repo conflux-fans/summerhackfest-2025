@@ -1,5 +1,5 @@
 // Contract.ts
-import { PublicClient, WalletClient, parseEventLogs } from 'viem';
+import { PublicClient, WalletClient, parseEventLogs, ContractFunctionRevertedError } from 'viem';
 import { COLLECTION_ABI } from '../abi/collectionAbi';
 import { NFT_MANAGER_CONFLUX } from '../constants';
 import { getIpfsUrl } from './ipfs';
@@ -12,7 +12,7 @@ interface NFTMetadata {
 }
 
 export async function fetchUserCollections(
-  address: string,
+  address: `0x${string}`,
   publicClient: PublicClient,
   setCollections: (collections: { address: string; name: string; symbol: string; image: string }[]) => void,
   setSelectedCollection: (address: string) => void,
@@ -26,7 +26,6 @@ export async function fetchUserCollections(
       functionName: 'getUserCollections',
       args: [address],
     }) as `0x${string}`[];
-
     const userCollections = [];
     for (const collAddress of collectionAddresses) {
       try {
@@ -35,21 +34,17 @@ export async function fetchUserCollections(
           abi: COLLECTION_ABI,
           functionName: 'name',
         }) as string;
-
         const symbol = await publicClient.readContract({
           address: collAddress,
           abi: COLLECTION_ABI,
           functionName: 'symbol',
         }) as string;
-
         const imageCid = await publicClient.readContract({
           address: collAddress,
           abi: COLLECTION_ABI,
           functionName: 'collectionImage',
         }) as string;
-
         const image = imageCid ? getIpfsUrl(imageCid.replace('ipfs://', '')) : 'https://via.placeholder.com/150?text=Collection+Image';
-
         userCollections.push({ address: collAddress, name, symbol, image });
       } catch (err) {
         console.error(`Failed to fetch details for collection ${collAddress}:`, err);
@@ -74,26 +69,20 @@ export async function createCollection(
   setTxStatus: (status: string) => void
 ) {
   setTxStatus('Preparing collection creation transaction...');
-
   const collectionImageUri = collectionImageCid ? `ipfs://${collectionImageCid}` : '';
   const contractUri = collectionMetadataCid ? `ipfs://${collectionMetadataCid}` : '';
-
   const hash = await walletClient.writeContract({
     address: NFT_MANAGER_CONFLUX,
     abi: COLLECTION_ABI,
     functionName: 'createCollection',
     args: [name, symbol, collectionImageUri, contractUri],
   });
-
   setTxStatus('Transaction sent! Waiting for confirmation...');
-
   const receipt = await publicClient.waitForTransactionReceipt({ hash });
-
   if (receipt.status === 'reverted') {
     setTxStatus('Transaction reverted. Please check the parameters and try again.');
     return;
   }
-
   const newCollectionAddress = receipt.logs
     .map((log) => {
       try {
@@ -107,7 +96,6 @@ export async function createCollection(
       }
     })
     .find((addr) => addr) as `0x${string}`;
-
   if (newCollectionAddress) {
     setSelectedCollection(newCollectionAddress);
     const image = collectionImageCid
@@ -124,8 +112,8 @@ export async function createCollection(
 }
 
 export async function fetchNfts(
-  collAddress: string,
-  address: string,
+  collAddress: `0x${string}`,
+  address: `0x${string}`,
   publicClient: PublicClient,
   setNfts: (nfts: { tokenId: string; uri: string; image: string; name?: string }[]) => void,
   setTxStatus: (status: string) => void
@@ -138,28 +126,24 @@ export async function fetchNfts(
       functionName: 'getCollectionNFTs',
       args: [collAddress],
     }) as bigint[];
-
     const nftList: { tokenId: string; uri: string; image: string; name?: string }[] = [];
     for (const tokenId of tokenIds) {
       try {
         const owner = await publicClient.readContract({
-          address: collAddress as `0x${string}`,
+          address: collAddress,
           abi: COLLECTION_ABI,
           functionName: 'ownerOf',
           args: [tokenId],
         }) as `0x${string}`;
-
         if (owner.toLowerCase() === address.toLowerCase()) {
           const uri = await publicClient.readContract({
-            address: collAddress as `0x${string}`,
+            address: collAddress,
             abi: COLLECTION_ABI,
             functionName: 'tokenURI',
             args: [tokenId],
           }) as string;
-
           let image = 'https://via.placeholder.com/150?text=NFT+Image';
           let name = `Token #${tokenId}`;
-
           if (uri.startsWith('ipfs://')) {
             try {
               const response = await fetch(getIpfsUrl(uri.replace('ipfs://', '')));
@@ -214,7 +198,6 @@ export async function fetchNfts(
               console.error(`Failed to parse base64 metadata for token ${tokenId}:`, err);
             }
           }
-
           nftList.push({ tokenId: tokenId.toString(), uri, image, name });
         }
       } catch (err) {
@@ -231,52 +214,120 @@ export async function fetchNfts(
 export async function mintNFT(
   walletClient: WalletClient,
   publicClient: PublicClient,
-  collectionAddress: string,
-  address: string,
+  collectionAddress: `0x${string}`,
+  address: `0x${string}`,
   tokenUri: string,
   setNfts: (nfts: { tokenId: string; uri: string; image: string; name?: string }[]) => void,
-  fetchNfts: (collAddress: string, address: string, publicClient: PublicClient, setNfts: any, setTxStatus: any) => void,
+  fetchNfts: (collAddress: `0x${string}`, address: `0x${string}`, publicClient: PublicClient, setNfts: any, setTxStatus: any) => void,
   setTxStatus: (status: string) => void
 ) {
   setTxStatus('Preparing mint transaction...');
-
   const uri = tokenUri;
-
-  const hash = await walletClient.writeContract({
-    address: NFT_MANAGER_CONFLUX,
-    abi: COLLECTION_ABI,
-    functionName: 'mintNFT',
-    args: [collectionAddress, address, uri],
-  });
-
-  setTxStatus('Transaction sent! Waiting for confirmation...');
-
-  const receipt = await publicClient.waitForTransactionReceipt({ hash });
-
-  if (receipt.status === 'reverted') {
-    setTxStatus('Transaction reverted on chain. Possible reasons: you may not be the owner of the collection, invalid URI, or other contract requirements not met.');
-    return;
+  try {
+    const estimatedGas = await publicClient.estimateContractGas({
+      address: NFT_MANAGER_CONFLUX,
+      abi: COLLECTION_ABI,
+      functionName: 'mintNFT',
+      args: [collectionAddress, address, uri],
+      account: address,
+    });
+    const hash = await walletClient.writeContract({
+      address: NFT_MANAGER_CONFLUX,
+      abi: COLLECTION_ABI,
+      functionName: 'mintNFT',
+      args: [collectionAddress, address, uri],
+      gas: estimatedGas * 12n / 10n, // 20% extra
+    });
+    setTxStatus('Transaction sent! Waiting for confirmation...');
+    const receipt = await publicClient.waitForTransactionReceipt({ hash });
+    if (receipt.status === 'reverted') {
+      setTxStatus('Transaction reverted on chain. Possible reasons: you may not be the owner of the collection, invalid URI, or other contract requirements not met.');
+      return;
+    }
+    const parsedLogs = parseEventLogs({
+      abi: COLLECTION_ABI,
+      logs: receipt.logs,
+    });
+    const mintedEvent = parsedLogs.find((log) => log.eventName === 'NFTMinted');
+    if (mintedEvent) {
+      const tokenId = mintedEvent.args.tokenId.toString();
+      setTxStatus(`🎉 NFT minted successfully! Token ID: ${tokenId}`);
+    } else {
+      setTxStatus('Failed to parse token ID from transaction');
+    }
+    fetchNfts(collectionAddress, address, publicClient, setNfts, setTxStatus);
+  } catch (err) {
+    console.error('Minting error:', err);
+    setTxStatus(`Failed to mint NFT: ${err?.message || "Unknown error"}`);
   }
+}
 
-  const mintedTokenId = receipt.logs
-    .map((log) => {
-      try {
-        const parsed = parseEventLogs({
-          abi: COLLECTION_ABI,
-          logs: [log],
-        })[0];
-        return parsed.eventName === 'NFTMinted' ? parsed.args.tokenId.toString() : null;
-      } catch {
-        return null;
+export async function batchMintNFT(
+  walletClient: WalletClient,
+  publicClient: PublicClient,
+  collectionAddress: `0x${string}`,
+  address: `0x${string}`,
+  uris: string[],
+  setTxStatus: (status: string) => void
+) {
+  try {
+    setTxStatus('Simulating batch mint transaction...');
+    // Simulate to catch revert reasons early
+    await publicClient.simulateContract({
+      address: NFT_MANAGER_CONFLUX,
+      abi: COLLECTION_ABI,
+      functionName: 'batchMintNFT',
+      args: [collectionAddress, address, uris],
+      account: address,
+    });
+    setTxStatus('Simulation successful. Estimating gas...');
+    const estimatedGas = await publicClient.estimateContractGas({
+      address: NFT_MANAGER_CONFLUX,
+      abi: COLLECTION_ABI,
+      functionName: 'batchMintNFT',
+      args: [collectionAddress, address, uris],
+      account: address,
+    });
+    setTxStatus('Gas estimated. Preparing to send transaction...');
+    const hash = await walletClient.writeContract({
+      address: NFT_MANAGER_CONFLUX,
+      abi: COLLECTION_ABI,
+      functionName: 'batchMintNFT',
+      args: [collectionAddress, address, uris],
+      gas: estimatedGas * 12n / 10n, // 20% extra gas
+    });
+    setTxStatus('Transaction sent! Waiting for confirmation...');
+    const receipt = await publicClient.waitForTransactionReceipt({ hash });
+    if (receipt.status === 'reverted') {
+      setTxStatus('Transaction reverted on chain. Possible reasons: you may not be the owner of the collection, invalid URIs, or other contract requirements not met.');
+      return;
+    }
+    const parsedLogs = parseEventLogs({
+      abi: COLLECTION_ABI,
+      logs: receipt.logs,
+    });
+    const batchMintedEvent = parsedLogs.find((log) => log.eventName === 'NFTBatchMinted');
+    if (batchMintedEvent) {
+      const tokenIds = batchMintedEvent.args.tokenIds.map(id => id.toString()).join(', ');
+      setTxStatus(`🎉 Batch NFTs minted successfully! Token IDs: ${tokenIds}`);
+    } else {
+      setTxStatus('Failed to parse batch mint details from transaction');
+    }
+    // Optionally, refetch NFTs here if needed
+  } catch (err: any) {
+    console.error('Batch minting error:', err);
+    let errorMessage = `Failed to batch mint NFTs: ${err?.message || "Unknown error"}`;
+    if (err instanceof ContractFunctionRevertedError) {
+      let revertReason = err.shortMessage || 'Unknown revert reason';
+      if (err.data && err.data.errorName === 'Error' && err.data.args && err.data.args.length > 0) {
+        revertReason = err.data.args[0] as string;
+      } else if (err.details) {
+        revertReason = err.details;
       }
-    })
-    .find((id) => id);
-
-  if (mintedTokenId) {
-    setTxStatus(`🎉 NFT minted successfully! Token ID: ${mintedTokenId}`);
-  } else {
-    setTxStatus('Failed to parse token ID from transaction');
+      errorMessage = `Transaction reverted: ${revertReason}`;
+    } else if (err.name === 'EstimateGasExecutionError') {
+      errorMessage = `Gas estimation failed: ${err.shortMessage || 'Possibly due to high gas requirements or contract error'}`;
+    }
+    setTxStatus(errorMessage);
   }
-
-  fetchNfts(collectionAddress, address, publicClient, setNfts, setTxStatus);
 }
