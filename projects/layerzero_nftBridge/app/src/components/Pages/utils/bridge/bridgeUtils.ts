@@ -7,18 +7,20 @@ BRIDGE_ABI,
 import {
 CONFLUX_BRIDGE_ADDRESS,
 BASE_BRIDGE_ADDRESS,
-ETH_SEPOLIA_BRIDGE_ADDRESS,
-BASE_SEPOLIA_BRIDGE_ADDRESS,
+// ETH_SEPOLIA_BRIDGE_ADDRESS,
+// BASE_SEPOLIA_BRIDGE_ADDRESS,
+ARBITRUM_BRIDGE_ADDRESS,
 CONFLUX_CHAIN_ID,
 BASE_CHAIN_ID,
-ETH_SEPOLIA_CHAIN_ID,
-BASE_SEPOLIA_CHAIN_ID,
+// ETH_SEPOLIA_CHAIN_ID,
+// BASE_SEPOLIA_CHAIN_ID,
+ARBITRUM_CHAIN_ID,
 CONFLUX_EID,
 BASE_EID,
-ETH_SEPOLIA_EID,
-BASE_SEPOLIA_EID
+// ETH_SEPOLIA_EID,
+// BASE_SEPOLIA_EID,
+ARBITRUM_EID
 } from "../constants";
-export type BridgeDirection = 'toBase' | 'toConflux' | 'toBaseSepolia' | 'toEthSepolia';
 interface ChainConfig {
 bridgeAddress: Address;
 eid: number;
@@ -26,26 +28,16 @@ eid: number;
 const chainConfigs: Record<number, ChainConfig> = {
 [CONFLUX_CHAIN_ID]: { bridgeAddress: CONFLUX_BRIDGE_ADDRESS, eid: CONFLUX_EID },
 [BASE_CHAIN_ID]: { bridgeAddress: BASE_BRIDGE_ADDRESS, eid: BASE_EID },
-[ETH_SEPOLIA_CHAIN_ID]: { bridgeAddress: ETH_SEPOLIA_BRIDGE_ADDRESS, eid: ETH_SEPOLIA_EID },
-[BASE_SEPOLIA_CHAIN_ID]: { bridgeAddress: BASE_SEPOLIA_BRIDGE_ADDRESS, eid: BASE_SEPOLIA_EID },
-};
-const directionToDstChainIdMap: Record<BridgeDirection, number> = {
-'toBase': BASE_CHAIN_ID,
-'toConflux': CONFLUX_CHAIN_ID,
-'toBaseSepolia': BASE_SEPOLIA_CHAIN_ID,
-'toEthSepolia': ETH_SEPOLIA_CHAIN_ID,
-};
-const directionToSrcChainIdMap: Record<BridgeDirection, number> = {
-'toBase': CONFLUX_CHAIN_ID,
-'toConflux': BASE_CHAIN_ID,
-'toBaseSepolia': ETH_SEPOLIA_CHAIN_ID,
-'toEthSepolia': BASE_SEPOLIA_CHAIN_ID,
+// [ETH_SEPOLIA_CHAIN_ID]: { bridgeAddress: ETH_SEPOLIA_BRIDGE_ADDRESS, eid: ETH_SEPOLIA_EID },
+// [BASE_SEPOLIA_CHAIN_ID]: { bridgeAddress: BASE_SEPOLIA_BRIDGE_ADDRESS, eid: BASE_SEPOLIA_EID },
+[ARBITRUM_CHAIN_ID]: { bridgeAddress: ARBITRUM_BRIDGE_ADDRESS, eid: ARBITRUM_EID },
 };
 const chainNames: Record<number, string> = {
 [CONFLUX_CHAIN_ID]: 'Conflux',
 [BASE_CHAIN_ID]: 'Base',
-[ETH_SEPOLIA_CHAIN_ID]: 'Ethereum Sepolia',
-[BASE_SEPOLIA_CHAIN_ID]: 'Base Sepolia',
+// [ETH_SEPOLIA_CHAIN_ID]: 'Ethereum Sepolia',
+// [BASE_SEPOLIA_CHAIN_ID]: 'Base Sepolia',
+[ARBITRUM_CHAIN_ID]: 'Arbitrum',
 };
 interface BridgeParams {
 walletClient: WalletClient;
@@ -121,7 +113,7 @@ account: Address;
 value?: bigint;
   },
 bufferPercent: number = 15, // Reduced from 20 for optimization
-defaultGas: bigint = 500000n 
+defaultGas: bigint = 750000n
 ): Promise<bigint> {
 try {
 const gasEstimate = await publicClient.estimateContractGas(config);
@@ -313,10 +305,10 @@ setIsRegistering(false);
 return { status: "failed", txHash: null };
   }
 }
-// General bridging (handles both directions)
+// General bridging (handles any supported source to destination)
 export async function bridgeNFT(
 params: BridgeParams,
-direction: BridgeDirection
+dstChainId: number
 ): Promise<{ status: "success" | "reverted" | "failed"; txHash: Hash | null }> {
 const { walletClient, publicClient, tokenIds, localTokenAddress, recipient, isApproved, setTxStatus, setIsApproved, setTokenIds, setIsBridging } = params;
 if (!walletClient || !publicClient || !recipient || !tokenIds.length || !localTokenAddress) {
@@ -337,16 +329,22 @@ return { status: "failed", txHash: null };
   }
 setIsBridging(true);
 try {
-const chainId = walletClient.chain.id;
-const expectedChainId = directionToSrcChainIdMap[direction];
-const dstChainId = directionToDstChainIdMap[direction];
-const bridgeAddress = chainConfigs[expectedChainId].bridgeAddress;
-const dstEid = chainConfigs[dstChainId].eid;
-const expectedPeer = chainConfigs[dstChainId].bridgeAddress;
-if (chainId !== expectedChainId) {
-setTxStatus(`Switch to ${chainNames[expectedChainId]}`);
+const srcChainId = walletClient.chain?.id;
+if (!srcChainId || !chainConfigs[srcChainId]) {
+setTxStatus('Unsupported source chain');
 return { status: "failed", txHash: null };
     }
+if (srcChainId === dstChainId) {
+setTxStatus('Source and destination cannot be the same');
+return { status: "failed", txHash: null };
+    }
+if (!chainConfigs[dstChainId]) {
+setTxStatus('Unsupported destination chain');
+return { status: "failed", txHash: null };
+    }
+const bridgeAddress = chainConfigs[srcChainId].bridgeAddress;
+const dstEid = chainConfigs[dstChainId].eid;
+const expectedPeer = chainConfigs[dstChainId].bridgeAddress;
 // Batch ownership check
 for (const tokenId of tokenIds) {
 const owner = await publicClient.readContract({
@@ -388,10 +386,10 @@ args: [dstEid],
     }) as `0x${string}`;
 const expectedPeerHex = pad(expectedPeer, { size: 32 }) as `0x${string}`;
 if (peer.toLowerCase() !== expectedPeerHex.toLowerCase()) {
-setTxStatus('Peer mismatch');
+setTxStatus('Peer not set');
 return { status: "failed", txHash: null };
     }
-const gas = BigInt(500000 * tokenIds.length); // Increased from 300000 to handle wrapper deployment + mint; scale with batch size
+const gas = BigInt(750000 * tokenIds.length); // Increased from 300000 to handle wrapper deployment + mint; scale with batch size
 const options = buildOptions(gas);
 const fee = await publicClient.readContract({
 address: bridgeAddress,
