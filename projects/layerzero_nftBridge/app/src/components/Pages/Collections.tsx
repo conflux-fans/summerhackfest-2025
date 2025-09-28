@@ -195,7 +195,7 @@ export function Collections() {
               <Palette className="w-10 h-10 text-white" />
             </span>
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent ">
+          <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent py-2">
             Collections
           </h1>
         </div>
