@@ -1,0 +1,3 @@
+[submodule "projects/FluxSub"]
+	path = projects/FluxSub
+	url = https://github.com/mathiaspellegrin/FluxSub.git
