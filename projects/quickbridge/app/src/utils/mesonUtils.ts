@@ -6,10 +6,6 @@ export const TOKEN_CONTRACTS = {
   usdc: {
     base: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913',
     conflux: '0x6963efed0ab40f6c3d7bda44a05dcf1437c44372',
-  },
-  usdt: {
-    base: '0xfde4c96c8593536e31f229ea8f37b2ada969c343',
-    conflux: '0xfe97e85d13abd9c1c33384e796f10b73905637ce',
   }
 };
 // Meson contract address (same on all EVM chains via CREATE2 deployment)

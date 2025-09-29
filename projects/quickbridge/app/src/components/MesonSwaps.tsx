@@ -14,8 +14,7 @@ const NETWORKS = [
   { chainId: 1030, id: 'conflux', name: 'Conflux eSpace', symbol: 'CFX', color: 'from-green-400 to-green-600', slug: 'cfx', image: confluxImg },
 ];
 const TOKENS = [
-  { id: 'usdc', name: 'USDC', image: usdcImg },
-  { id: 'usdt', name: 'USDT', image: usdtImg }
+  { id: 'usdc', name: 'USDC', image: usdcImg }
 ];
 function MesonSwaps() {
   const { address, isConnected } = useAccount();
