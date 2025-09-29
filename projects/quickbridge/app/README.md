@@ -1,73 +1,43 @@
-# React + TypeScript + Vite
+# QuickBridge Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React-based dApp for cross-chain token swaps using Meson protocol on Conflux eSpace. Features wallet integration (wagmi), real-time status polling (@tanstack/react-query), and Tailwind-styled UI.
 
-Currently, two official plugins are available:
+## Tech Stack
+- **Framework**: React 19 + Vite 7
+- **Web3**: wagmi 2 + viem 2 + @mesonfi/to 2
+- **Styling**: Tailwind CSS 4
+- **Routing**: React Router 7
+- **Icons**: Lucide React
+- **State**: React Query 5
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Setup
+1. **Clone & Install**  
+   ```bash
+   git clone https://github.com/0xfdbu/summerhackfest-2025.git
+   cd projects/quickbridge/app
+   npm install
+   ```
 
-## React Compiler
+2. **Dev Server**  
+   ```bash
+   npm run dev
+   ```  
+   Open `http://localhost:5173`.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+3. **Build**  
+   ```bash
+   npm run build
+   ```
 
-## Expanding the ESLint configuration
+## Usage
+- Connect wallet via AppKit.
+- Navigate to `/bridge` for swaps.
+- Track at `/swap/{txid}` with auto-polling.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Scripts
+- `dev`: Vite dev server.
+- `build`: TypeScript + Vite build.
+- `lint`: ESLint check.
+- `preview`: Vite preview.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+For issues: [GitHub](https://github.com/0xfdbu/summerhackfest-2025/issues). MIT License.

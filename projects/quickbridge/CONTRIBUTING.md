@@ -11,12 +11,12 @@ This project adheres to the [Contributor Covenant Code of Conduct](CODE_OF_CONDU
 To contribute, follow these steps:
 
 1. **Fork the Repository**  
-   Fork the main repo ([github.com/0xfdbu/meson-integration](https://github.com/0xfdbu/meson-integration)) to your GitHub account.
+   Fork the main repo ([github.com/0xfdbu/summerhackfest-2025](https://github.com/0xfdbu/summerhackfest-2025)) to your GitHub account.
 
 2. **Clone Your Fork**  
    ```bash
-   git clone https://github.com/YOUR_USERNAME/meson-integration.git
-   cd quickbridge/app
+   git clone https://github.com/0xfdbu/summerhackfest-2025.git
+   cd projects/quickbridge/app
    ```
 
 3. **Install Dependencies**  
@@ -84,7 +84,7 @@ Key files to know:
 
 ## Reporting Bugs & Feature Requests
 
-- Use the [GitHub Issues](https://github.com/0xfdbu/meson-integration/issues) page.
+- Use the [GitHub Issues](https://github.com/0xfdbu/summerhackfest-2025/issues) page.
 - For bugs: Include reproduction steps, expected vs. actual behavior, and browser/wallet details.
 - For features: Describe the use case, potential impact, and any Meson/Conflux integration notes.
 
