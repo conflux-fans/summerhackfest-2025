@@ -200,7 +200,7 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 - Write meaningful commit messages
 ## 📄 License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-## 🙏 Acknowledgments
+##  Acknowledgments
 ### Conflux Hackathon
 - **Conflux Network** - For hosting the hackathon and providing the platform
 - **Conflux Team** - For technical support and mentorship
