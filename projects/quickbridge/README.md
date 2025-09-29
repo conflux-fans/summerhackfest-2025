@@ -100,8 +100,8 @@ Before you begin, ensure you have the following installed:
 ## 🚀 Installation & Setup
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/0xfdbu/meson-integration.git
-cd meson-integration/quickbridge/app
+git clone https://github.com/0xfdbu/summerhackfest-2025.git
+cd projects/quickbridge/app
 ```
 ### 2. Install Dependencies
 ```bash
@@ -119,18 +119,18 @@ Your application should now be running at `http://localhost:5173`
 ## 📱 Usage
 ### Getting Started
 1. **Connect Wallet**
-   - Open the application in your browser
-   - Click "Connect Wallet" button
-   - Select your preferred wallet (Fluent/MetaMask)
-   - Approve the connection
+- Open the application in your browser
+- Click "Connect Wallet" button
+- Select your preferred wallet (Fluent/MetaMask)
+- Approve the connection
 2. **Initiate Swap**
-   - Navigate to /bridge
-   - Select from/to chains (e.g., Base USDC to Conflux USDC)
-   - Enter amount and confirm tx
-   - View tx hash for status page
+- Navigate to /bridge
+- Select from/to chains (e.g., Base USDC to Conflux USDC)
+- Enter amount and confirm tx
+- View tx hash for status page
 3. **Track Status**
-   - Go to /swap/{txid}
-   - Watch timeline update in real-time
+- Go to /swap/{txid}
+- Watch timeline update in real-time
 ### Example Workflows
 #### Workflow 1: Base to Conflux Swap
 ```
@@ -200,25 +200,22 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 - Write meaningful commit messages
 ## 📄 License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-##  Acknowledgments
+## Acknowledgments
 ### Conflux Hackathon
 - **Conflux Network** - For hosting the hackathon and providing the platform
 - **Conflux Team** - For technical support and mentorship
 - **Community** - For feedback and encouragement
-### Third-Party Libraries
-- **@mesonfi/to** - Cross-chain swap protocol integration
-- **wagmi** - Wallet and chain abstraction
 ## 📞 Contact & Support
 ### Team Contact
 - **Discord**: [syv_dev]
 - **GitHub**: [Team Lead Profile](https://github.com/0xfdbu)
 ### Project Links
-- **GitHub**: [https://github.com/0xfdbu/meson-integration](https://github.com/0xfdbu/meson-integration)
+- **GitHub**: [https://github.com/0xfdbu/summerhackfest-2025/tree/main/projects/quickbridge](https://github.com/0xfdbu/summerhackfest-2025/tree/main/projects/quickbridge)
 - **Demo**: [https://meson-integration.vercel.app/](https://meson-integration.vercel.app/)
 - **Documentation**: [https://docs.meson-conflux-bridge.com](https://docs.meson-conflux-bridge.com)
 ### Support
-- **Issues**: [GitHub Issues](https://github.com/0xfdbu/meson-integration/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/0xfdbu/meson-integration/discussions)
+- **Issues**: [GitHub Issues](https://github.com/0xfdbu/summerhackfest-2025/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/0xfdbu/summerhackfest-2025/discussions)
 ---
 **Built with ❤️ for the Code Without Borders - SummerHackfest 2025**
 *Thank you for checking out our project! We hope it contributes to the growth and innovation of the Conflux ecosystem.*
