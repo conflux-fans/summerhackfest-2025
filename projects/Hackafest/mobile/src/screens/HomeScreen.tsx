@@ -100,10 +100,10 @@ export default function HomeScreen({ navigation }: any) {
           <View style={styles.actionsGrid}>
             <TouchableOpacity
               style={styles.actionButton}
-              onPress={() => navigation.navigate('QRScanner')}
+              onPress={() => navigation.navigate('CodeInput', { type: 'connect' })}
             >
-              <Ionicons name="qr-code" size={24} color="#22D3EE" />
-              <Text style={styles.actionText}>Scan QR</Text>
+              <Ionicons name="keypad" size={24} color="#22D3EE" />
+              <Text style={styles.actionText}>Enter Code</Text>
             </TouchableOpacity>
             
             <TouchableOpacity

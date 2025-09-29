@@ -1,6 +1,8 @@
 export type RootStackParamList = {
   Main: undefined;
-  QRScanner: undefined;
+  CodeInput: {
+    type: 'connect' | 'verify';
+  };
   NFTDetail: {
     nft: {
       id: string;

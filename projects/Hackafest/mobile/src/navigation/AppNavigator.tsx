@@ -9,7 +9,7 @@ import WalletScreen from '../screens/WalletScreen';
 import VerificationScreen from '../screens/VerificationScreen';
 import EventsScreen from '../screens/EventsScreen';
 import SettingsScreen from '../screens/SettingsScreen';
-import QRScannerScreen from '../screens/QRScannerScreen';
+import CodeInputScreen from '../screens/CodeInputScreen';
 import NFTDetailScreen from '../screens/NFTDetailScreen';
 
 // Types
@@ -118,10 +118,10 @@ export default function AppNavigator() {
         options={{ headerShown: false }}
       />
       <Stack.Screen 
-        name="QRScanner" 
-        component={QRScannerScreen}
+        name="CodeInput" 
+        component={CodeInputScreen}
         options={{ 
-          title: 'Scan QR Code',
+          title: 'Enter Code',
           presentation: 'modal'
         }}
       />

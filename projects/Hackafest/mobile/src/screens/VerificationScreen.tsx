@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   Alert,
   TextInput,
-  Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -22,8 +21,6 @@ export default function VerificationScreen({ navigation }: any) {
   const [selectedNFT, setSelectedNFT] = useState<NFT | null>(null);
   const [eventName, setEventName] = useState('');
   const [location, setLocation] = useState('');
-  const [sessionCode, setSessionCode] = useState('');
-  const [showSessionModal, setShowSessionModal] = useState(false);
   const [verificationResult, setVerificationResult] = useState<VerificationResult | null>(null);
 
   const handleVerifyOwnership = async () => {
@@ -65,43 +62,15 @@ export default function VerificationScreen({ navigation }: any) {
     }
   };
 
-  const handleSessionCodeVerify = async () => {
-    if (!sessionCode.trim()) {
-      Alert.alert('Error', 'Please enter a session code');
-      return;
+  const generateCode = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    for (let i = 0; i < 6; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-
-    // Simulate session code verification
-    const isValid = sessionCode === '123456' || sessionCode === '654321';
-    
-    if (isValid) {
-      const result: VerificationResult = {
-        success: true,
-        eventName: 'Session Code Verification',
-        location: 'Mobile App',
-        timestamp: new Date().toISOString(),
-        method: 'qr-code'
-      };
-      
-      setVerificationResult(result);
-      setShowSessionModal(false);
-      
-      await sendLocalNotification(
-        'Session Code Verified!',
-        'Your session code has been verified successfully.'
-      );
-      
-      Alert.alert('Success', 'Session code verified successfully!');
-    } else {
-      Alert.alert('Error', 'Invalid session code. Please try again.');
-    }
-  };
-
-  const generateSessionCode = () => {
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
     Alert.alert(
-      'Session Code Generated',
-      `Your session code: ${code}\n\nThis code expires in 1 hour. Share it with the verifier.`,
+      '6-Character Code Generated',
+      `Your verification code: ${code}\n\nThis code expires in 1 hour. Share it with the verifier.`,
       [{ text: 'OK' }]
     );
   };
@@ -206,38 +175,38 @@ export default function VerificationScreen({ navigation }: any) {
             </TouchableOpacity>
           </View>
 
-          {/* Session Code Verification */}
+          {/* 5-Digit Code Verification */}
           <View style={styles.methodCard}>
             <View style={styles.methodHeader}>
-              <Ionicons name="qr-code" size={24} color="#22C55E" />
-              <Text style={styles.methodTitle}>Session Code</Text>
+              <Ionicons name="keypad" size={24} color="#22C55E" />
+              <Text style={styles.methodTitle}>6-Character Code</Text>
             </View>
             <Text style={styles.methodDescription}>
-              Verify using a 6-digit session code provided by the organizer
+              Verify using a 6-character code provided by the event organizer
             </Text>
             
             <TouchableOpacity
               style={styles.sessionButton}
-              onPress={() => setShowSessionModal(true)}
+              onPress={() => navigation.navigate('CodeInput', { type: 'verify' })}
             >
               <Ionicons name="keypad" size={20} color="#22C55E" />
-              <Text style={styles.sessionButtonText}>Enter Session Code</Text>
+              <Text style={styles.sessionButtonText}>Enter 6-Character Code</Text>
             </TouchableOpacity>
           </View>
 
-          {/* Generate Session Code */}
+          {/* Generate 6-Character Code */}
           <View style={styles.methodCard}>
             <View style={styles.methodHeader}>
               <Ionicons name="add-circle" size={24} color="#F59E0B" />
               <Text style={styles.methodTitle}>Generate Code</Text>
             </View>
             <Text style={styles.methodDescription}>
-              Generate a session code to share with verifiers
+              Generate a 6-character code to share with verifiers
             </Text>
             
             <TouchableOpacity
               style={styles.generateButton}
-              onPress={generateSessionCode}
+              onPress={generateCode}
             >
               <Ionicons name="refresh" size={20} color="#F59E0B" />
               <Text style={styles.generateButtonText}>Generate Code</Text>
@@ -279,67 +248,6 @@ export default function VerificationScreen({ navigation }: any) {
           </View>
         )}
 
-        {/* Session Code Modal */}
-        <Modal
-          visible={showSessionModal}
-          transparent
-          animationType="slide"
-          onRequestClose={() => setShowSessionModal(false)}
-        >
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Enter Session Code</Text>
-                <TouchableOpacity
-                  onPress={() => setShowSessionModal(false)}
-                >
-                  <Ionicons name="close" size={24} color="#AAB7C4" />
-                </TouchableOpacity>
-              </View>
-              
-              <Text style={styles.modalDescription}>
-                Enter the 6-digit session code provided by the event organizer
-              </Text>
-              
-              <TextInput
-                style={styles.sessionCodeInput}
-                value={sessionCode}
-                onChangeText={(text) => setSessionCode(text.replace(/\D/g, '').slice(0, 6))}
-                placeholder="123456"
-                placeholderTextColor="#AAB7C4"
-                keyboardType="numeric"
-                maxLength={6}
-                textAlign="center"
-                fontSize={24}
-                letterSpacing={4}
-              />
-              
-              <View style={styles.modalButtons}>
-                <TouchableOpacity
-                  style={styles.modalCancelButton}
-                  onPress={() => setShowSessionModal(false)}
-                >
-                  <Text style={styles.modalCancelText}>Cancel</Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity
-                  style={[
-                    styles.modalVerifyButton,
-                    sessionCode.length !== 6 && styles.modalVerifyButtonDisabled
-                  ]}
-                  onPress={handleSessionCodeVerify}
-                  disabled={sessionCode.length !== 6}
-                >
-                  <Text style={styles.modalVerifyText}>Verify</Text>
-                </TouchableOpacity>
-              </View>
-              
-              <Text style={styles.modalHint}>
-                Demo: Try codes 123456 or 654321
-              </Text>
-            </View>
-          </View>
-        </Modal>
       </ScrollView>
     </SafeAreaView>
   );
