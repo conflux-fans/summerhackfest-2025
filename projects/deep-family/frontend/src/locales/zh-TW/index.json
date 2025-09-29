@@ -1,0 +1,931 @@
+{
+  "navigation": {
+    "home": "首頁",
+    "familyTree": "族譜",
+    "search": "搜尋",
+    "people": "人物",
+    "actions": "操作"
+  },
+  "home": {
+    "title": "去中心化數位族譜",
+    "subtitle": "零知識隱私守護 · 口令鹽化去連結 · 多版本譜系共存 · NFT 價值沉澱 · 經濟激勵驅動",
+    "exploreFamilyTree": "探索族譜",
+    "addPerson": "添加人物",
+    "search": "搜尋",
+    "blockchainActions": "添加人物",
+    "configSettings": "配置連接設定",
+    "tagStrip": {
+      "protocol": "去中心化",
+      "incentive": "激勵循環",
+      "nft": "NFT", 
+      "zk": "ZK"
+    },
+    "coreValue": {
+      "title": "核心使命",
+      "description": "構建永久可信的全球數位族譜基礎設施"
+    },
+    "valueProps": {
+      "title": "核心價值主張",
+      "subtitle": "構建多維度可信譜系生態，實現從資訊探索到價值確認的自然演進",
+      "zkPrivacy": {
+        "title": "零知識隱私",
+        "description": "使用Groth16證明私密提交家族成員，驗證結構正確性的同時隱藏敏感資訊"
+      },
+      "saltedUnlinkability": {
+        "title": "口令鹽化去連結性",
+        "description": "獨有口令防止身份推理和污染攻擊，確保每個身份雜湊的唯一性和安全性"
+      },
+      "dualTreeModels": {
+        "title": "雙樹模式",
+        "description": "支援公開協作樹和私有保護樹，滿足不同場景下的族譜構建需求"
+      },
+      "communityEndorsement": {
+        "title": "社群背書",
+        "description": "DEEP代幣背書機制過濾噪聲，形成高品質資料的社群共識"
+      },
+      "nftValueCreation": {
+        "title": "NFT價值創造",
+        "description": "版本 → NFT → 持有人獲得後續背書費用流，激勵高品質資料貢獻"
+      },
+      "storyShardingSealing": {
+        "title": "故事分片與封存",
+        "description": "分片寫入傳記內容 + 雜湊驗證 + 封存後不可篡改，形成永久鏈上檔案"
+      }
+    },
+    "valueSystem": {
+      "title": "雙層網路模型",
+      "subtitle": "第一層 關係層與第二層 價值層的協同設計，實現結構化資料與經濟價值的有機融合",
+      "layer1": {
+        "title": "關係層",
+        "subtitle": "結構與時間序列",
+        "feature1": "人物雜湊管理",
+        "feature1Desc": "基於雜湊的人物標識，支援多版本並存與演化追蹤",
+        "feature2": "版本控制系統",
+        "feature2Desc": "不可篡改的版本歷史，每個版本記錄建立時間與作者",
+        "feature3": "父母-子代拓撲",
+        "feature3Desc": "構建完整的族譜網路拓撲結構與血緣關係鏈",
+        "description": "特性：結構化資料、時間序列、拓撲網路"
+      },
+      "layer2": {
+        "title": "價值層",
+        "subtitle": "經濟激勵與資產化",
+        "feature1": "NFT 資產綁定",
+        "feature1Desc": "特定版本可鑄造為 NFT，承載價值與收益權",
+        "feature2": "背書費用流",
+        "feature2Desc": "背書費用分配給 NFT 持有人，形成持續收益",
+        "feature3": "挖礦獎勵機制",
+        "feature3Desc": "完善雙親引用的版本可獲得 DEEP 代幣獎勵",
+        "description": "特性：經濟激勵、價值發現、可驗證敘事資產化"
+      },
+      "privacyLayer": {
+        "title": "隱私保護層",
+        "description": "基於零知識證明的隱私保護機制，確保敏感資訊的安全性",
+        "feature1": "零知識證明驗證",
+        "feature2": "敏感欄位隱藏",
+        "feature3": "結構正確性驗證"
+      },
+      "valueLayer": {
+        "title": "價值確認層",
+        "description": "透過經濟激勵和共識機制實現資料價值的確認與分配",
+        "feature1": "背書共識機制",
+        "feature2": "NFT 價值綁定",
+        "feature3": "收益權分配"
+      },
+      "flow": {
+        "title": "隱私到價值流程",
+        "description": "從私有雜湊儲存到社群驗證的NFT資產",
+        "step1": "私有提交",
+        "step1Desc": "使用零知識證明添加家族成員",
+        "step2": "公開披露",
+        "step2Desc": "鑄造NFT公開完整傳記資訊"
+      },
+      "advantages": {
+        "title": "運作流程",
+        "subtitle": "五步式價值發現與共識形成機制",
+        "step1": "新增人物版本",
+        "step1Desc": "若雙親均存在 → 獲得挖礦獎勵",
+        "step2": "其他使用者背書",
+        "step2Desc": "支付 DEEP 背書某一版本",
+        "step3": "鑄造版本 NFT",
+        "step3Desc": "背書者可鑄造對應版本的 NFT",
+        "step4": "撰寫故事分片",
+        "step4Desc": "NFT 持有人撰寫/追加人物故事分片",
+        "step5": "故事封存",
+        "step5Desc": "故事封存，形成不可更改的鏈上歷史影像",
+        "conclusion": "價值驅動的協作網路",
+        "conclusionDesc": "透過經濟激勵機制，實現高品質譜系資料的自然累積與價值發現"
+      },
+      "dualModels": {
+        "title": "雙重家族樹模式",
+        "description": "口令加鹽系統支援協作公開樹和抗污染私有樹兩種模式",
+        "public": {
+          "title": "公開協作樹",
+          "description": "共享口令使多個用戶能夠協作構建完整的族譜。",
+          "benefit": "社群協作",
+          "mode": "共享口令模式"
+        },
+        "private": {
+          "title": "私有保護樹",
+          "description": "獨有口令創建完全受保護的族譜，免受污染攻擊和關係破壞。",
+          "benefit": "反污染保護",
+          "mode": "獨有口令模式"
+        }
+      }
+    },
+    "features": {
+      "title": "核心功能",
+      "subtitle": "完整的功能模組支援雙層網路運作",
+      "zkVersion": {
+        "title": "ZK 版本新增",
+        "description": "用零知識證明提交雜湊綁定版本，驗證結構正確性的同時隱藏敏感欄位"
+      },
+      "versionManagement": {
+        "title": "人物版本管理", 
+        "description": "多版本並列，按 父母 / 子代可索引，無法篡改只能新增替代敘述"
+      },
+      "endorsementEconomy": {
+        "title": "背書經濟",
+        "description": "費用隨當前發行獎勵動態浮動，背書篩選優先級，過濾噪聲形成共識"
+      },
+      "personNFT": {
+        "title": "人物 NFT",
+        "description": "綁定特定版本，承載價值與後續收益權，激勵高品質資料貢獻"
+      },
+      "storySharding": {
+        "title": "故事分片",
+        "description": "分片寫入 → 雜湊合成 → 封存為歷史快照，形成可驗證的鏈上檔案"
+      },
+      "versionNotarization": {
+        "title": "版本公證",
+        "description": "無法篡改的版本歷史，只能新增替代敘述，由背書篩選優先級"
+      }
+    },
+    "tokenomics": {
+      "title": "激勵與代幣經濟",
+      "subtitle": "DEEP 代幣驅動的可持續生態激勵機制",
+      "deepToken": {
+        "title": "DEEP 代幣",
+        "description": "多階段遞減挖礦 → 進入穩定發行區間，抗通脹設計"
+      },
+      "supply": {
+        "title": "總量上限",
+        "description": "1000 億枚代幣上限，無預挖，公平啟動"
+      },
+      "mining": {
+        "title": "挖礦觸發",
+        "description": "新增含雙親引用的有效人物版本時觸發挖礦獎勵"
+      },
+      "endorsement": {
+        "title": "背書費用",
+        "description": "等於當前挖礦獎勵，與發行強度自適應耦合"
+      },
+      "distribution": {
+        "title": "費用分配",
+        "description": "NFT 鑄造前歸建立者，NFT 鑄造後歸 NFT 持有人"
+      },
+      "goal": {
+        "title": "經濟目標",
+        "description": "鼓勵高品質結構化補全，抑制刷垃圾與重複噪聲"
+      }
+    },
+    "audience": {
+      "title": "面向角色",
+      "subtitle": "多元化使用者群體的協作生態",
+      "contributors": {
+        "title": "資料貢獻者",
+        "description": "錄入、補全與考證譜系資訊，構建可信的族譜資料網路",
+        "benefit1": "獲得 DEEP 代幣挖礦獎勵",
+        "benefit2": "享受長期背書費用分成"
+      },
+      "researchers": {
+        "title": "族譜研究者", 
+        "description": "追蹤版本演化與分歧，探索家族歷史的多元敘述和真相",
+        "benefit1": "存取完整的版本演化歷史",
+        "benefit2": "發現家族關係網路的隱藏連接"
+      },
+      "developers": {
+        "title": "開發者",
+        "description": "整合智慧合約、前端元件，開發二次應用和知識圖譜系統",
+        "benefit1": "使用完整的智慧合約介面",
+        "benefit2": "構建去中心化族譜生態應用"
+      },
+      "creators": {
+        "title": "敘事創作者",
+        "description": "編寫與封存歷史故事，將家族記憶轉化為可驗證的鏈上檔案",
+        "benefit1": "創作內容獲得永久儲存",
+        "benefit2": "透過故事分片獲得版權保護"
+      }
+    },
+    "contracts": {
+      "title": "智能合約架構",
+      "subtitle": "完整的族譜智能合約系統，涵蓋人物管理、背書系統、NFT鑄造和治理機制",
+      "familyTree": {
+        "feature1": "人物管理系統",
+        "feature2": "背書質押機制",
+        "feature3": "NFT鑄造功能"
+      },
+      "token": {
+        "feature1": "ERC20代幣合約",
+        "feature2": "10個減半階段",
+        "feature3": "總供應量1000億"
+      },
+  "votes": {
+        "feature1": "NFT投票權重",
+        "feature2": "背書挑戰提案",
+        "feature3": "費用調整提案"
+      }
+    },
+    "cta": {
+      "title": "開始構建您的數位族譜",
+      "subtitle": "使用智慧合約構建您的數位族譜，參與去中心化家族記錄系統的建設",
+      "startButton": "開始構建",
+      "exploreButton": "探索族譜",
+      "experience": "立即體驗",
+      "search": "搜尋族譜",
+      "configure": "配置連接",
+      "opensource": "GitHub 開源專案",
+      "free": "開源免費",
+      "license": "MIT 許可證",
+      "privacy": "隱私保護",
+      "security": "安全保障"
+    }
+  },
+  "search": {
+    "title": "搜尋",
+    "query": "查詢",
+    "reset": "重置",
+    "copy": "複製",
+    "copied": "已複製",
+    "copyFailed": "複製失敗",
+    "loading": "查詢中...",
+    "noData": "暫無資料",
+    "prev": "上一頁",
+    "next": "下一頁",
+    "queryFailed": "查詢失敗",
+    "totalResults": "結果總數",
+    "nameQuery": {
+      "title": "按全名查詢",
+      "fullName": "全名",
+      "pageSize": "每頁數量(≤100)",
+      "placeholder": "如：John Smith"
+    },
+    "endorsementQuery": {
+      "title": "背書統計查詢",
+      "personHash": "人物哈希",
+      "placeholder": "0x1234...abcd (64位十六進制)",
+      "version": "版本",
+      "endorsementCount": "背書數",
+      "tokenId": "Token ID"
+    },
+    "uriQuery": {
+      "title": "URI歷史查詢",
+      "tokenId": "Token ID",
+      "placeholder": "請輸入Token ID"
+    },
+    "versionsQuery": {
+      "title": "人物版本查詢",
+      "personHash": "人物哈希",
+      "placeholder": "0x1234...abcd (64位十六進制)",
+      "versionIndex": "版本序號",
+      "creator": "創建者",
+      "addTime": "添加時間",
+      "fatherHash": "父親哈希",
+      "motherHash": "母親哈希",
+      "fatherVersion": "父親版本",
+      "motherVersion": "母親版本",
+      "versionTag": "版本標籤",
+      "metadataCID": "元數據CID",
+      "unknown": "未知",
+      "none": "無"
+    },
+    "storyChunksQuery": {
+      "title": "故事分片查詢",
+      "tokenId": "Token ID",
+      "placeholder": "請輸入NFT Token ID",
+      "chunkIndex": "分片索引",
+      "chunkHash": "分片雜湊",
+      "content": "內容",
+      "timestamp": "時間戳",
+      "lastEditor": "最後編輯者",
+      "contentPreview": "內容預覽",
+      "totalChunks": "總分片數"
+    },
+    "childrenQuery": {
+      "title": "子女查詢",
+      "parentHash": "父母雜湊",
+      "parentVersion": "父母版本",
+      "parentHashPlaceholder": "0x1234...abcd (64位十六進位)",
+      "parentVersionPlaceholder": "請輸入父母版本序號",
+      "childHash": "子女雜湊",
+      "childVersion": "子女版本",
+      "totalChildren": "總子女數"
+    },
+    "hashCalculator": {
+      "title": "本地計算人物哈希",
+      "tip": "💡 提示：使用下面的工具計算人物哈希，然後複製到下方的查詢中使用",
+      "name": "全名",
+      "isBirthBC": "公元前",
+      "birthYear": "出生年",
+      "birthMonth": "1-12",
+      "birthDay": "1-31",
+      "gender": "性別",
+      "genderOptions": {
+        "unknown": "未知",
+        "male": "男性",
+        "female": "女性",
+        "other": "其他"
+      },
+      "birthYearLabel": "出生年",
+      "birthMonthLabel": "月",
+      "birthDayLabel": "日",
+      "passphrase": "口令",
+      "passphrasePlaceholder": "可選：輸入口令以增強隱私保護",
+      "passphraseHelp": {
+        "title": "口令作用說明",
+        "privacy": "🔒 隱私保護",
+        "privacyDesc": "為您的身份雜湊添加額外保護層，防止他人通過姓名和生日推測您的身份。",
+        "optional": "✅ 完全可選",
+        "optionalDesc": "可以留空，但建議使用強口令提升安全性。",
+        "remember": "⚠️ 請牢記",
+        "rememberDesc": "口令無法找回，忘記後將生成不同的身份雜湊。"
+      },
+      "passwordStrength": {
+        "weak": "弱",
+        "medium": "中",
+        "strong": "強"
+      },
+      "passwordTips": {
+        "weak": "💡 建議：使用8位以上密碼，包含大小寫字母、數字或特殊字符"
+      },
+      "nameInputPlaceholder": "例如：張三",
+      "toggleNo": "否",
+      "toggleYes": "是",
+      "birthPlace": "出生地(可選)",
+      "birthPlacePlaceholder": "如 US-CA-Los Angeles",
+      "compute": "計算",
+      "result": "結果",
+      "hashLabel": "哈希:",
+      "description": "說明：計算邏輯與合約getPersonHash完全一致。",
+      "bcOptions": {
+        "ad": "公元",
+        "bc": "公元前"
+      },
+      "calculatedHash": "計算的雜湊",
+      "contractHash": "合約雜湊",
+      "hashesMatch": "雜湊匹配",
+      "hashesNoMatch": "雜湊不匹配"
+    },
+    "validation": {
+      "nameRequired": "請輸入姓名",
+      "nameTooLong": "姓名不能超過256字節（約256個英文字符）",
+      "hashRequired": "請輸入人物哈希",
+      "hashInvalid": "請輸入有效的64位十六進制哈希值",
+      "tokenIdRequired": "請輸入有效的Token ID",
+      "required": "必填",
+      "monthRange": "月份必須在0-12之間",
+      "dayRange": "日期必須在0-31之間",
+      "yearRange": "年份必須在0-10000之間",
+      "yearExceedsCurrent": "公元年份不能超過當前年份"
+    },
+    "offset": "offset"
+  },
+  "familyTree": {
+    "title": "視覺化",
+    "viewModes": {
+      "tree": "樹圖",
+      "dag": "有向無環圖",
+      "force": "力導向",
+      "virtual": "虛擬化"
+    },
+    "versionSelector": {
+      "label": "版本選擇",
+      "apply": "應用"
+    },
+    "config": {
+      "rpc": "RPC",
+      "contract": "合約",
+      "root": "根節點哈希",
+      "clearAndRefresh": "清空",
+      "strictCacheOnly": "嚴格唯讀快取",
+      "strictCacheOn": "離線模式",
+      "strictCacheOff": "線上模式",
+      "rootHistory": "根雜湊歷史",
+      "reset": "重置",
+      "resetToDefaults": "重置為環境變數預設值"
+    },
+    "ui": {
+      "displaySettings": "數據選項",
+      "versionNumber": "版本序號",
+      "contractModeConfig": "配置",
+      "traversalDFS": "DFS 深度優先：快速深入後回溯",
+      "traversalBFS": "BFS 廣度優先：按層展開更均衡",
+      "traversal": "遍歷方式",
+      "traversalDesc": "DFS 深度優先(快看到深層) / BFS 廣度優先(按層展開)",
+      "includeVersionDetails": "載入詳情",
+      "includeVersionDetailsDesc": "僅影響下次重新整理時是否批次載入版本詳情（重新整理時鎖定快照）。",
+      "progressSummary": "節點 {{created}} / 深度 {{depth}}",
+      "nodesLabelFull": "節點",
+      "depthLabelFull": "深度",
+      "edit": "編輯",
+      "save": "保存",
+      "cancel": "取消"
+    },
+    "status": {
+      "loading": "加載中...",
+      "contractModeRootNotFound": "未找到該根節點版本，請檢查哈希與版本序號",
+      "rootNotFound": "未找到根節點，請檢查哈希與版本序號或等待索引",
+      "contractOk": "合約資料載入完成",
+      "badge": {
+        "checking": "檢查中",
+        "ok": "正常",
+        "root_missing": "缺少根節點哈希",
+        "error": "錯誤"
+      },
+      "networkError": "網路請求失敗",
+      "rateLimited": "已達到每日請求上限，請稍後再試"
+    },
+    "actions": {
+      "refresh": "重新整理",
+      "remove": "移除",
+      "clearAll": "清空歷史"
+    },
+    "nodeDetail": {
+      "title": "節點詳情",
+      "hash": "哈希",
+      "version": "版本序號",
+      "endorsementCount": "背書數",
+      "father": "父親哈希",
+      "fatherVersion": "父親版本序號",
+      "mother": "母親哈希",
+      "motherVersion": "母親版本序號",
+      "addedBy": "添加者",
+      "timestamp": "時間戳",
+      "tag": "標籤",
+      "cid": "CID",
+      "nft": "NFT",
+      "tokenId": "Token ID",
+      "fullName": "全名",
+      "gender": "性別",
+      "birth": "出生",
+      "death": "逝世",
+      "story": "事蹟",
+      "profile": "檔案",
+      "storyChunks": "分片數量",
+      "storyLength": "總長度",
+      "sealed": "已封存",
+      "lastUpdate": "最後更新",
+      "showFullStory": "顯示完整檔案",
+      "hideFullStory": "隱藏完整檔案",
+      "showChunks": "顯示分片",
+      "hideChunks": "隱藏分片",
+      "editStory": "編輯檔案",
+      "viewFullStory": "查看完整檔案",
+      "uri": "URI",
+      "loading": "NFT 資訊載入中…",
+      "loadErrorPrefix": "NFT 載入失敗",
+      "bcPrefix": "公元前",
+      "genders": {
+        "male": "男",
+        "female": "女",
+        "other": "其他"
+      },
+      "errors": {
+        "nftLoadFailed": "NFT 載入失敗",
+        "loadFailed": "載入失敗"
+      }
+    },
+    "personVersionDetail": {
+      "title": "人物版本詳情"
+    },
+    "validation": {
+      "rpc": "請輸入有效的 RPC 位址",
+      "contract": "請輸入有效的合約位址 (0x + 40位16進制)",
+      "root": "請輸入有效的根雜湊 (0x + 64位16進制)",
+      "version": "請輸入有效的版本序號"
+    }
+  },
+  "common": {
+    "confirm": "前往視覺化",
+    "cancel": "取消",
+    "goBack": "返回",
+    "close": "關閉",
+    "hashCopied": "已複製雜湊",
+    "copy": "複製",
+    "copied": "已複製"
+  },
+  "wallet": {
+    "connect": "連接錢包",
+    "connecting": "連接中...",
+    "disconnect": "斷開連接",
+    "wrongNetwork": "網路錯誤",
+    "noMetaMask": "請安裝 MetaMask",
+    "connected": "錢包連接成功",
+    "rejected": "用戶拒絕連接",
+    "pending": "連接請求待處理",
+    "connectionFailed": "錢包連接失敗",
+    "disconnected": "錢包已斷開",
+    "chainSwitched": "網路切換成功",
+    "chainNotAdded": "網路未添加到錢包",
+    "chainSwitchFailed": "網路切換失敗",
+    "notConnected": "請連接錢包",
+    "keepVisible": "保持錢包彈窗可見:",
+    "dontClickOutside": "不要點擊錢包彈窗外部",
+    "checkTaskbar": "如果彈窗消失請檢查任務欄",
+    "useAltTab": "使用 Alt+Tab 查找隱藏的錢包窗口",
+    "waitForConfirm": "等待交易確認後再關閉"
+  },
+  "theme": {
+    "switchToLight": "切換到淺色模式",
+    "switchToDark": "切換到深色模式",
+    "light": "淺色",
+    "dark": "深色"
+  },
+  "settings": {
+    "theme": "主題",
+    "language": "語言"
+  },
+  "storyChunkEditor": {
+    "title": "傳記分片編輯器",
+    "stats": "分片數量: {{count}}, 總長度: {{length}}",
+    "sealed": "已封存",
+    "seal": "封存",
+    "hashLabel": "雜湊",
+    "editChunk": "編輯分片 #{{index}}",
+    "addChunk": "添加新分片",
+    "contentPlaceholder": "請輸入分片內容（最多1000字元）",
+    "saving": "保存中...",
+    "save": "保存",
+    "cancel": "取消",
+    "addNewChunk": "添加新分片",
+    "chunks": "現有分片",
+    "loading": "載入中...",
+    "contentRequired": "內容不能為空",
+    "contentTooLong": "內容不能超過1000字元",
+    "operationFailed": "操作失敗",
+    "sealConfirm": "確定要封存傳記嗎？封存後將無法再修改。",
+    "sealFailed": "封存失敗",
+    "sealDialog": {
+      "title": "封存傳記",
+      "description": "確定要封存傳記嗎？封存後將無法再修改。",
+      "dontAskAgain": "不再詢問",
+      "cancel": "取消",
+      "confirm": "確認封存"
+    },
+    "contentTooLongBytes": "內容不能超過1000位元組",
+    "contentPlaceholderBytes": "請輸入分片內容（最多1000位元組，約=1000英文或≈333漢字）",
+    "offlineNoData": "離線模式：本地沒有快取該傳記",
+    "errors": {
+      "mustBeNFTHolder": "您必須擁有此NFT才能編輯其傳記",
+      "unauthorized": "無權限執行此操作",
+      "onlyOwner": "僅擁有者可以執行此操作",
+      "storySealed": "傳記已封存，無法修改",
+      "chunkIndexExists": "此索引位置的分片已存在",
+      "invalidChunkIndex": "無效的分片索引",
+      "contentTooLong": "內容超過最大長度限制",
+      "expectedHashMismatch": "預期雜湊值不匹配",
+      "chunkHashMismatch": "分片內容與預期雜湊值不匹配",
+      "chunkIndexOutOfRange": "分片索引超出有效範圍",
+      "customError": "合約錯誤：{{error}}",
+      "transactionReverted": "交易失敗：執行被回退",
+      "userRejected": "用戶拒絕了交易",
+      "insufficientFunds": "Gas費不足",
+      "unknown": "發生未知錯誤"
+    }
+  },
+  "person": {
+    "encyclopedia": "人物百科",
+    "pageTitle": "{{name}}的檔案",
+    "title": "的檔案",
+    "loading": "載入傳記中...",
+    "notFound": "傳記未找到",
+    "chunks": "分片",
+    "length": "長度",
+    "sealed": "已封存",
+    "edit": "編輯傳記",
+    "fullStory": "人物傳記",
+    "noStory": "暫無傳記內容",
+    "chunkList": "分片列表",
+    "characters": "字元",
+    "noChunks": "暫無分片",
+    "metadata": "元數據",
+    "totalChunks": "總分片數",
+    "totalLength": "總長度",
+    "lastUpdate": "最後更新",
+    "status": "狀態",
+    "editable": "可編輯",
+    "storyHash": "傳記哈希",
+    "owner": "所有者地址",
+    "basicInfo": "基礎資訊",
+    "paragraph": "段落",
+    "raw": "原文",
+    "viewParagraph": "段落模式",
+    "viewRaw": "原文模式",
+    "integrityOk": "已校驗",
+    "integrityWarn": "完整性可能不一致",
+    "integrityLenDiff": "長度不匹配 本地={{local}}位元組",
+    "integrityLocalHashMismatch": "本地哈希不匹配",
+    "integrityChainHashMismatch": "鏈上哈希不匹配",
+    "integrityMissing": "缺失索引: {{indices}}",
+    "integrityFrontendOk": "完整性已校驗",
+    "integrityChainFail": "鏈上校驗失敗",
+    "verify": "合約校驗",
+    "verified": "已校驗",
+    "personHashLabel": "人物哈希:",
+    "versionLabel": "版本：",
+    "viewFamilyTree": "族譜視圖",
+    "invalidTokenId": "無效的 Token ID",
+    "nonexistentToken": "該 Token 不存在",
+    "fetchFailed": "載入 Token 失敗",
+    "tokenId": "Token ID"
+  },
+  "people": {
+    "syncing": "同步中...",
+    "loading": "載入人物中...",
+    "badge": "人物百科",
+    "title": "家族人物百科",
+    "subtitle": "探索保存在區塊鏈上的家族成員檔案",
+    "totalPeople": "總人數",
+    "withStories": "有詳細傳記",
+    "withNFTs": "擁有NFT",
+    "searchPlaceholder": "按姓名、地點或傳記內容搜尋...",
+    "filterByAddress": "按創建者地址篩選...",
+    "filterByTag": "按標籤篩選...",
+    "clearFilters": "清除所有篩選",
+    "filteredResults": "{{count}} 個篩選結果",
+    "allResults": "共 {{count}} 個結果",
+    "sortRules": "排序規則",
+    "filterRules": "過濾規則",
+    "viewMode": "視圖模式",
+    "filterAll": "Token ID",
+    "filterByCreateTime": "建立時間",
+    "filterByName": "姓名",
+    "filterByEndorsement": "背書",
+    "filterByBirthYear": "出生年",
+    "gridView": "網格視圖",
+    "listView": "列表視圖",
+    "resultsCount": "找到 {{count}} 個結果",
+    "noResults": "未找到人物",
+    "noResultsDesc": "請嘗試調整您的搜尋條件或篩選器",
+    "hasStory": "傳記",
+    "hasNFT": "NFT",
+    "born": "出生",
+    "died": "逝世",
+    "chunks": "{{count}} 個分片",
+    "viewDetails": "查看",
+    "clickToEndorse": "點擊為此版本背書"
+  },
+  "storyChunksModal": {
+    "fetchError": "載入傳記資料失敗",
+    "viewDetail": "查看詳情",
+    "born": "出生",
+    "died": "逝世",
+    "storyInfo": "傳記資訊",
+    "chunksCount": "{{count}} 個分片，{{length}} 位元組",
+    "addedBy": "添加者",
+    "tag": "標籤",
+    "personHash": "人物雜湊",
+    "detailedStory": "傳記",
+    "chunks": "分片",
+    "fullText": "全文",
+    "integrityChecking": "正在檢查完整性...",
+    "integrityVerified": "傳記完整性已驗證",
+    "integrityWarning": "檢測到傳記完整性問題",
+    "loading": "載入傳記分片中...",
+    "chunkTitle": "分片 #{{index}}",
+    "characters": "個字元",
+    "noStoryData": "暫無傳記資料",
+    "basicStory": "事蹟",
+    "noStory": "暫無傳記內容",
+    "peopleEncyclopedia": "人物百科"
+  },
+  "actions": {
+    "title": "鏈上操作",
+    "subtitle": "使用已連接的錢包操作 DeepFamily 協定",
+    "walletRequired": "需要連接錢包",
+    "walletRequiredDesc": "連接您的錢包以存取區塊鏈功能，如添加版本、鑄造 NFT 和參與背書。",
+    "walletConnected": "錢包已連接",
+    "whatYouCanDo": "連接後您可以：",
+    "feature1": "添加新的人物版本（可獲得 DEEP 代幣獎勵）",
+    "feature2": "將人物版本鑄造為 NFT 收藏品",
+    "feature3": "背書優質版本（需要消耗 DEEP 代幣）",
+    "addVersion": "添加版本",
+    "add": "添加",
+    "addVersionDesc": "使用零知識證明添加新的人物資料版本",
+    "mintNFT": "鑄造 NFT",
+    "mint": "鑄造",
+    "mintNFTDesc": "將背書的人物資料轉換為有價值的 NFT 收藏品",
+    "endorse": "背書",
+    "endorsement": "參與背書",
+    "endorseDesc": "使用 DEEP 代幣支援優質資料版本",
+    "startAddVersion": "開始添加版本",
+    "mintNFTHint": "首先搜尋要鑄造為 NFT 的人物和版本",
+    "openMintNFT": "打開 NFT 鑄造",
+    "endorseHint": "搜尋要背書的人物版本",
+    "openEndorse": "打開背書"
+  },
+  "addVersion": {
+    "addNewVersion": "新增版本",
+    "addPerson": "新增人物",
+    "description": "使用零知識證明新增人物",
+    "versionIndexHint": "0=未知",
+    "fatherInfo": "父親資訊",
+    "motherInfo": "母親資訊",
+    "versionIndex": "版本序號",
+    "metadata": "元數據",
+    "tag": "標籤",
+    "tagPlaceholder": "可選標籤",
+    "metadataCID": "元數據CID",
+    "processing": "處理中...",
+    "preparingData": "準備資料...",
+    "generatingProof": "生成零知識證明...（可能需要30-60秒）",
+    "verifyingProof": "驗證證明...",
+    "submittingToBlockchain": "提交到區塊鏈...",
+    "addedSuccessfully": "人物新增成功！",
+    "personHash": "人物雜湊",
+    "transactionHash": "交易雜湊",
+    "blockNumber": "區塊號",
+    "eventsTriggered": "觸發事件",
+    "zkProofVerified": "零知識證明已驗證",
+    "zkProofVerifiedDesc": "零知識證明已在鏈上成功驗證",
+    "versionAdded": "人物版本已新增",
+    "versionAddedDesc": "人物版本已成功新增到家譜",
+    "addedBy": "新增者",
+    "timestamp": "時間戳",
+    "fatherHash": "父親雜湊",
+    "fatherVersionIndex": "父親版本",
+    "motherHash": "母親雜湊",
+    "motherVersionIndex": "母親版本",
+    "tokenReward": "代幣獎勵已發放",
+    "familyComplete": "完整家庭資料獎勵 - 父母均已存在",
+    "miner": "礦工",
+    "hashPrefix": "雜湊",
+    "rewardAmount": "獎勵數量",
+    "noTokenReward": "無代幣獎勵",
+    "tokenRewardCondition": "只有父母均已存在時才發放代幣獎勵",
+    "tokenRewardTip": "請先新增父母，完成家庭資料可獲得DEEP代幣獎勵",
+    "failed": "交易失敗",
+    "errorType": "錯誤類型",
+    "errorMessage": "錯誤訊息",
+    "errorDetails": "詳細資訊",
+    "continueAdding": "繼續新增",
+    "submit": "新增版本",
+    "cancel": "取消",
+    "close": "關閉",
+    "personInfoRequired": "請填寫人物資訊",
+    "contractNotConfigured": "合約未配置",
+    "wallet.notConnected": "請連接錢包",
+    "partial": "部分",
+    "complete": "完整",
+    "proofGenerationNote": "ZK證明生成需要複雜的加密計算，請耐心等待..."
+  },
+  "mintNFT": {
+    "title": "鑄造 NFT",
+    "description": "為此人物創建獨特的 NFT",
+    "personInfo": "人物資訊",
+    "personHash": "人物雜湊",
+    "versionIndex": "版本序號",
+    "checkingStatus": "正在檢查狀態...",
+    "endorsed": "已背書",
+    "notEndorsed": "未背書",
+    "alreadyMinted": "已鑄造",
+    "canMint": "可鑄造",
+    "targetVersion": "目標版本",
+    "specifyVersion": "指定要鑄造的版本",
+    "specifyVersionDesc": "請輸入要鑄造為 NFT 的人物雜湊和版本序號。",
+    "basicInfo": "基本資訊",
+    "supplementalInfo": "補充資訊",
+    "birthPlace": "出生地",
+    "birthPlacePlaceholder": "請輸入出生地",
+    "deathPlace": "死亡地",
+    "deathPlacePlaceholder": "如適用請輸入死亡地",
+    "deathDate": "死亡日期（如適用）",
+    "deathYear": "死亡年",
+    "story": "生平簡介",
+    "storyPlaceholder": "請輸入簡要生平...",
+    "metadata": "NFT 元資料",
+    "tokenURI": "Token URI",
+    "tokenURIHint": "選填：NFT 元資料的 URL 或 IPFS 雜湊",
+    "nftAlreadyMinted": "NFT 已鑄造",
+    "nftAlreadyMintedDesc": "此版本已鑄造為 NFT。每個版本只能鑄造一次。",
+    "mint": "鑄造 NFT",
+    "minting": "正在鑄造...",
+    "goEndorse": "前往背書",
+    "endorsementRequiredTitle": "需要背書",
+    "endorsementRequiredDesc": "您必須先背書此版本才能鑄造。是否前往背書？",
+    "personInfoRequired": "請填寫人物資訊",
+    "personHashRequired": "無法計算人物雜湊",
+    "mintFailed": "鑄造 NFT 失敗",
+    "mintedSuccessfully": "NFT 鑄造成功！",
+    "tokenId": "Token ID",
+    "mintingDesc": "正在區塊鏈上創建您的獨特 NFT...",
+    "eventDetails": "事件詳情",
+    "nftMintedEvent": "PersonNFTMinted 事件",
+    "nftMintedEventDesc": "NFT 已成功鑄造並記錄在鏈上",
+    "owner": "所有者",
+    "timestamp": "時間戳",
+    "blockNumber": "區塊號",
+    "transactionHash": "交易雜湊",
+    "errorType": "錯誤類型",
+    "errorMessage": "錯誤訊息",
+    "errorDetails": "詳細資訊",
+    "continueMinting": "繼續鑄造",
+    "validation": {
+      "birthPlaceTooLong": "出生地過長",
+      "deathPlaceTooLong": "死亡地過長",
+      "storyTooLong": "故事內容過長",
+      "tokenURITooLong": "Token URI 過長",
+      "invalidTokenURI": "無效的 URL 或 IPFS URI",
+      "yearExceedsCurrent": "公元年份不能超過當前年份"
+    },
+    "errors": {
+      "versionAlreadyMinted": "此版本已被鑄造為 NFT",
+      "mustEndorseFirst": "您必須先背書此版本才能鑄造",
+      "basicInfoMismatch": "人物資訊與版本資料不匹配",
+      "invalidTokenURI": "無效的 Token URI 格式",
+      "invalidStory": "故事內容過長",
+      "invalidBirthPlace": "出生地過長",
+      "invalidDeathPlace": "死亡地過長",
+      "insufficientFunds": "交易手續費不足",
+      "userRejected": "用戶拒絕交易"
+    }
+  },
+  "endorse": {
+    "title": "背書版本",
+    "description": "以 DEEP 代幣背書高品質版本",
+    "targetVersion": "目標版本",
+    "specifyVersion": "指定要背書的版本",
+    "specifyVersionDesc": "請輸入要背書的 person hash 與版本序號。",
+    "personHash": "人物雜湊",
+    "versionIndex": "版本序號",
+    "versionInfo": "版本資訊",
+    "fullName": "姓名",
+    "currentEndorsements": "當前背書數",
+    "deepTokenFee": "DEEP 費用",
+    "yourBalance": "我的 DEEP 餘額",
+    "feeRecipient": "費用接收方",
+    "feeDistribution": "費用分配說明",
+    "nftMinted": "已鑄造 NFT",
+    "feeToNFTHolder": "100% 費用歸當前 NFT 持有人",
+    "noNFT": "尚未鑄造 NFT",
+    "feeToCreator": "100% 費用歸版本建立者",
+    "feeNote": "DEEP 費用會隨目前挖礦獎勵動態變化",
+    "insufficientBalance": "DEEP 餘額不足",
+    "needMoreTokens": "餘額不足，無法背書此版本",
+    "endorsementComplete": "背書完成",
+    "needMoreForNext": "需要更多 DEEP 代幣以進行額外背書",
+    "benefits": "背書的好處",
+    "benefitQuality": "協助驗證並提升資料品質",
+    "benefitPriority": "被背書版本在搜尋中優先級更高",
+    "benefitNFT": "鑄造 NFT 前的必要步驟",
+    "benefitEconomy": "支持版本建立者與 NFT 持有人",
+    "successMessage": "背書成功！",
+    "approving": "授權中...",
+    "endorsing": "背書中...",
+    "endorsed": "已背書",
+    "endorse": "背書",
+    "invalidTarget": "人物雜湊或版本序號無效",
+    "invalidTargetDesc": "請確認雜湊與索引對應鏈上已存在的版本",
+    "needApprove": "授權額度不足，請重新授權 DEEP",
+    "approvingDesc": "請在錢包中確認代幣授權",
+    "endorsingDesc": "正在區塊鏈上處理背書...",
+    "endorsedSuccessfully": "版本背書成功！",
+    "feePaid": "已支付費用",
+    "transactionHash": "交易雜湊",
+    "blockNumber": "區塊號",
+    "eventDetails": "事件詳情",
+    "versionEndorsedEvent": "PersonVersionEndorsed 事件",
+    "versionEndorsedEventDesc": "背書已成功記錄在鏈上",
+    "endorser": "背書者",
+    "feeAmount": "費用金額",
+    "timestamp": "時間戳",
+    "endorseFailed": "背書失敗",
+    "errorType": "錯誤類型",
+    "errorMessage": "錯誤訊息",
+    "errorDetails": "詳細資訊",
+    "continueEndorsing": "繼續背書",
+    "canContinueEndorsing": "您現在可以繼續背書其他版本或關閉此對話框。",
+    "transactionFailed": "交易失敗。請檢查錯誤訊息後重試。",
+    "transactionFailedDetails": "交易已提交但未能成功完成。",
+    "errors": {
+      "invalidTarget": "無效的人物雜湊或版本序號",
+      "needApprove": "授權額度不足，請重新授權 DEEP 代幣",
+      "insufficientDeepTokens": "DEEP 代幣餘額不足",
+      "feeTransferFailed": "背書費用轉帳失敗",
+      "insufficientFunds": "交易手續費不足",
+      "userRejected": "用戶拒絕交易",
+      "walletTimeout": "錢包確認超時。錢包彈窗可能已被關閉或隱藏。",
+      "walletTimeoutDetails": "請重試並確保在錢包彈窗中確認交易。"
+    },
+    "approveUnlimited": "授權無限制 DEEP 額度以避免重複授權",
+    "approveUnlimitedHint": "推薦：每次背書都會消耗授權額度，無限制授權避免重複操作",
+    "retryTransaction": "重試交易"
+  },
+  "contract": {
+    "endorseSuccess": "背書提交成功",
+    "endorseFailed": "背書版本失敗"
+  },
+  "transaction": {
+    "pending": "交易等待確認中...",
+    "pendingDetails": "交易已提交或等待錢包確認。您可以繼續使用應用，我們會在確認後更新。"
+  }
+}

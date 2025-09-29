@@ -1,0 +1,929 @@
+{
+  "navigation": {
+    "home": "ホーム",
+    "familyTree": "家系図",
+    "search": "検索",
+    "people": "人物",
+    "actions": "操作"
+  },
+  "home": {
+    "title": "分散型デジタル家系図",
+    "subtitle": "ZKプライバシー保護 · パスフレーズのソルト化によるデリンク · 多バージョン系譜の共存 · NFT価値の沈殿 · 経済的インセンティブ駆動",
+    "exploreFamilyTree": "家系図を探索",
+    "addPerson": "人物追加",
+    "search": "検索",
+    "searchGenealogy": "家系図検索",
+    "configSettings": "接続設定",
+    "blockchainActions": "人物追加",
+    "tagStrip": {
+      "protocol": "分散型",
+      "incentive": "インセンティブループ",
+      "nft": "NFT",
+      "zk": "ZK"
+    },
+    "coreValue": {
+      "title": "コアミッション",
+      "description": "永続的で信頼できるグローバルデジタル家系図インフラの構築"
+    },
+    "valueProps": {
+      "title": "コア価値提案",
+      "subtitle": "多次元信頼系譜エコシステムの構築、情報探索から価値確認への自然進化を実現",
+      "zkPrivacy": {
+        "title": "ゼロ知識プライバシー",
+        "description": "Groth16証明で家族メンバーを秘密裏に提出、構造正確性を検証しつつ機密情報を隠蔽"
+      },
+      "saltedUnlinkability": {
+        "title": "パスフレーズソルト非連結性",
+        "description": "独自パスフレーズで身元推理と汚染攻撃を防止、各身元ハッシュの一意性と安全性を確保"
+      },
+      "dualTreeModels": {
+        "title": "デュアルツリーモデル",
+        "description": "公開協力ツリーと私有保護ツリーの両方をサポート、異なる系譜構築ニーズに対応"
+      },
+      "communityEndorsement": {
+        "title": "コミュニティ背書",
+        "description": "DEEPトークン背書機制でノイズをフィルタリング、高品質データのコミュニティ合意を形成"
+      },
+      "nftValueCreation": {
+        "title": "NFT価値創造",
+        "description": "バージョン → NFT → 持有者が後続背書費用流を獲得、高品質データ貢献を激励"
+      },
+      "storyShardingSealing": {
+        "title": "ストーリー分片と封存",
+        "description": "伝記内容を分片書き込み + ハッシュ検証 + 封存後不可改竄、永続的なオンチェーンアーカイブを形成"
+      }
+    },
+    "valueSystem": {
+      "title": "二層ネットワークモデル",
+      "subtitle": "第一層関係層と第二層価値層の協調設計、構造化データと経済価値の有機融合を実現",
+      "layer1": {
+        "title": "関係層",
+        "subtitle": "構造と時系列",
+        "feature1": "人物ハッシュ管理",
+        "feature1Desc": "ハッシュベースの人物識別、多版本共存と進化追跡をサポート",
+        "feature2": "版本管理システム",
+        "feature2Desc": "不可改竄の版本履歴、各版本は作成時間と作者を記録",
+        "feature3": "親-子代トポロジー",
+        "feature3Desc": "完全な家系図ネットワークトポロジー構造と血縁関係チェーンを構築",
+        "description": "特性：構造化データ、時系列、トポロジーネットワーク"
+      },
+      "layer2": {
+        "title": "価値層",
+        "subtitle": "経済インセンティブと資産化",
+        "feature1": "NFT資産結合",
+        "feature1Desc": "特定版本をNFTとして鋳造可能、価値と収益権を担う",
+        "feature2": "承認手数料流",
+        "feature2Desc": "承認手数料をNFT保有者に配分、継続収益を形成",
+        "feature3": "マイニング報酬機制",
+        "feature3Desc": "両親参照を完備した版本はDEEPトークン報酬を獲得",
+        "description": "特性：経済インセンティブ、価値発見、検証可能叙事資産化"
+      },
+      "privacyLayer": {
+        "title": "プライバシー保護層",
+        "description": "ゼロ知識証明に基づくプライバシー保護機制、機密情報の安全性を確保",
+        "feature1": "ゼロ知識証明検証",
+        "feature2": "機密フィールド隠蔽",
+        "feature3": "構造正確性検証"
+      },
+      "valueLayer": {
+        "title": "価値確認層",
+        "description": "経済インセンティブと合意機制によりデータ価値の確認と配分を実現",
+        "feature1": "承認合意機制",
+        "feature2": "NFT価値結合",
+        "feature3": "収益権配分"
+      },
+      "flow": {
+        "title": "プライバシーから価値への流れ",
+        "description": "プライベートハッシュストレージからコミュニティ検証済みNFTアセットまで",
+        "step1": "プライベート提出",
+        "step1Desc": "ゼロ知識証明で家族メンバーを追加",
+        "step2": "公開開示",
+        "step2Desc": "完全な伝記情報を公開するNFTを鋳造"
+      },
+      "advantages": {
+        "title": "動作フロー",
+        "subtitle": "五段階価値発見と合意形成機制",
+        "step1": "人物版本追加",
+        "step1Desc": "両親が存在する場合 → マイニング報酬を獲得",
+        "step2": "他ユーザー承認",
+        "step2Desc": "DEEPを支払い特定版本を承認",
+        "step3": "版本NFT鋳造",
+        "step3Desc": "承認者は対応版本のNFTを鋳造可能",
+        "step4": "ストーリー分片作成",
+        "step4Desc": "NFT保有者が人物ストーリー分片を作成/追加",
+        "step5": "ストーリー封存",
+        "step5Desc": "ストーリー封存、不可変更のオンチェーン歴史映像を形成",
+        "conclusion": "価値駆動の協作ネットワーク",
+        "conclusionDesc": "経済インセンティブ機制により、高品質系譜データの自然蓄積と価値発見を実現"
+      },
+      "dualModels": {
+        "title": "デュアル家系図モデル",
+        "description": "パスフレーズソルト系統は、協力的な公開ツリーと汚染耐性のあるプライベートツリーの両方を可能にします",
+        "public": {
+          "title": "公開協力ツリー",
+          "description": "共有パスフレーズにより、複数のユーザーが協力して包括的な家系図を構築できます。",
+          "benefit": "コミュニティ協力",
+          "mode": "共有パスフレーズモード"
+        },
+        "private": {
+          "title": "プライベート保護ツリー",
+          "description": "独自のパスフレーズは、汚染攻撃や関係破壊から完全に保護されたツリーを作成します。",
+          "benefit": "汚染防止保護",
+          "mode": "独自パスフレーズモード"
+        }
+      }
+    },
+    "features": {
+      "title": "コア機能",
+      "subtitle": "二層ネットワーク動作をサポートする完全な機能モジュール",
+      "zkVersion": {
+        "title": "ZK版本追加",
+        "description": "ゼロ知識証明でハッシュ結合版本を提出、構造正確性を検証しつつ機密フィールドを隠蔽"
+      },
+      "versionManagement": {
+        "title": "人物版本管理",
+        "description": "多版本並列、親/子代でインデックス可能、改竄不可で新増代替叙述のみ"
+      },
+      "endorsementEconomy": {
+        "title": "承認経済",
+        "description": "手数料は現在発行報酬と動的連動、承認で優先度選別、ノイズフィルタで合意形成"
+      },
+      "personNFT": {
+        "title": "人物NFT",
+        "description": "特定版本に結合、価値と後続収益権を担い、高品質データ貢献を奨励"
+      },
+      "storySharding": {
+        "title": "ストーリー分片",
+        "description": "分片書き込み → ハッシュ合成 → 履歴スナップショットとして封存、検証可能なオンチェーンアーカイブを形成"
+      },
+      "versionNotarization": {
+        "title": "版本公証",
+        "description": "不可改竄の版本履歴、新増代替叙述のみ可能、承認で優先度選別"
+      }
+    },
+    "tokenomics": {
+      "title": "インセンティブとトークン経済",
+      "subtitle": "DEEPトークン駆動の持続可能エコシステムインセンティブ機制",
+      "deepToken": {
+        "title": "DEEPトークン",
+        "description": "多段階逓減マイニング → 安定発行区間に進入、インフレ対策設計"
+      },
+      "supply": {
+        "title": "総供給上限",
+        "description": "1000億枚トークン上限、プリマイニングなし、公正スタート"
+      },
+      "mining": {
+        "title": "マイニングトリガー",
+        "description": "両親参照を含む有効人物版本を新増時にマイニング報酬をトリガー"
+      },
+      "endorsement": {
+        "title": "承認手数料",
+        "description": "現在マイニング報酬と同等、発行強度と自適応結合"
+      },
+      "distribution": {
+        "title": "手数料配分",
+        "description": "NFT鋳造前は作成者帰属、NFT鋳造後はNFT保有者帰属"
+      },
+      "goal": {
+        "title": "経済目標",
+        "description": "高品質構造化補完を奨励、ゴミ刷りと重複ノイズを抑制"
+      }
+    },
+    "audience": {
+      "title": "対象ユーザー",
+      "subtitle": "多元化ユーザーグループの協作エコシステム",
+      "contributors": {
+        "title": "データ貢献者",
+        "description": "系譜情報の入力、補完、考証により、信頼できる家系図データネットワークを構築",
+        "benefit1": "DEEPトークンマイニング報酬を獲得",
+        "benefit2": "長期承認手数料分配を享受"
+      },
+      "researchers": {
+        "title": "家系図研究者",
+        "description": "版本進化と分岐を追跡し、家族史の多元叙述と真実を探索",
+        "benefit1": "完全な版本進化履歴にアクセス",
+        "benefit2": "家族関係ネットワークの隠れた接続を発見"
+      },
+      "developers": {
+        "title": "開発者",
+        "description": "スマートコントラクト、フロントエンドコンポーネントを統合し、二次アプリと知識グラフシステムを開発",
+        "benefit1": "完全なスマートコントラクトインターフェースを使用",
+        "benefit2": "分散型家系図エコシステムアプリを構築"
+      },
+      "creators": {
+        "title": "叙事創作者",
+        "description": "歴史ストーリーを編集・封存し、家族記憶を検証可能なオンチェーンアーカイブに転化",
+        "benefit1": "創作コンテンツが永続保存を獲得",
+        "benefit2": "ストーリー分片により著作権保護を獲得"
+      }
+    },
+    "contracts": {
+      "title": "スマートコントラクトアーキテクチャ",
+      "subtitle": "人物管理、承認システム、NFT鋳造、ガバナンス機制を網羅する完全な家系図スマートコントラクトシステム",
+      "familyTree": {
+        "feature1": "人物管理システム",
+        "feature2": "承認ステーキング機制",
+        "feature3": "NFT鋳造機能"
+      },
+      "token": {
+        "feature1": "ERC20トークンコントラクト",
+        "feature2": "10回半減段階",
+        "feature3": "総供給量1000億"
+      },
+  "votes": {
+        "feature1": "NFT投票重み",
+        "feature2": "承認チャレンジ提案",
+        "feature3": "手数料調整提案"
+      }
+    },
+    "cta": {
+      "title": "あなたのデジタル家系図を構築開始",
+      "subtitle": "スマートコントラクトを使用してデジタル家系図を構築し、分散型家族記録システム建設に参加",
+      "startButton": "構築開始",
+      "exploreButton": "家系図探索",
+      "experience": "今すぐ体験",
+      "search": "家系図検索",
+      "configure": "接続設定",
+      "opensource": "GitHubオープンソースプロジェクト",
+      "free": "オープンソース無料",
+      "license": "MITライセンス",
+      "privacy": "プライバシー保護",
+      "security": "セキュリティ保証"
+    }
+  },
+  "search": {
+    "title": "検索",
+    "query": "クエリ",
+    "reset": "リセット",
+    "copy": "コピー",
+    "copied": "コピー済み",
+    "copyFailed": "コピー失敗",
+    "loading": "クエリ中...",
+    "noData": "データなし",
+    "prev": "前のページ",
+    "next": "次のページ",
+    "queryFailed": "クエリ失敗",
+    "totalResults": "結果総数",
+    "nameQuery": {
+      "title": "フルネームで検索",
+      "fullName": "フルネーム",
+      "pageSize": "ページサイズ(≤100)",
+      "placeholder": "例：田中太郎"
+    },
+    "endorsementQuery": {
+      "title": "承認統計クエリ",
+      "personHash": "人物ハッシュ",
+      "placeholder": "0x1234...abcd (64桁16進数)",
+      "version": "版本",
+      "endorsementCount": "承認数",
+      "tokenId": "トークンID"
+    },
+    "uriQuery": {
+      "title": "URI履歴クエリ",
+      "tokenId": "トークンID",
+      "placeholder": "トークンIDを入力"
+    },
+    "versionsQuery": {
+      "title": "人物版本クエリ",
+      "personHash": "人物ハッシュ",
+      "placeholder": "0x1234...abcd (64桁16進数)",
+      "versionIndex": "版本番号",
+      "creator": "作成者",
+      "addTime": "追加時間",
+      "fatherHash": "父ハッシュ",
+      "motherHash": "母ハッシュ",
+      "fatherVersion": "父版本",
+      "motherVersion": "母版本",
+      "versionTag": "版本タグ",
+      "metadataCID": "メタデータCID",
+      "unknown": "不明",
+      "none": "なし"
+    },
+    "storyChunksQuery": {
+      "title": "ストーリー分片クエリ",
+      "tokenId": "トークンID",
+      "placeholder": "NFTトークンIDを入力",
+      "chunkIndex": "分片インデックス",
+      "chunkHash": "分片ハッシュ",
+      "content": "内容",
+      "timestamp": "タイムスタンプ",
+      "lastEditor": "最終編集者",
+      "contentPreview": "内容プレビュー",
+      "totalChunks": "総分片数"
+    },
+    "childrenQuery": {
+      "title": "子女クエリ",
+      "parentHash": "親ハッシュ",
+      "parentVersion": "親版本",
+      "parentHashPlaceholder": "0x1234...abcd (64桁16進数)",
+      "parentVersionPlaceholder": "親版本番号を入力",
+      "childHash": "子女ハッシュ",
+      "childVersion": "子女版本",
+      "totalChildren": "総子女数"
+    },
+    "hashCalculator": {
+      "title": "ローカル人物ハッシュ計算",
+      "tip": "💡 ヒント：下のツールを使用して人物ハッシュを計算し、下記クエリにコピーして使用",
+      "name": "フルネーム",
+      "isBirthBC": "紀元前",
+      "birthYear": "生年",
+      "birthMonth": "1-12",
+      "birthDay": "1-31",
+      "gender": "性別",
+      "genderOptions": {
+        "unknown": "不明",
+        "male": "男性",
+        "female": "女性",
+        "other": "その他"
+      },
+      "birthYearLabel": "生年",
+      "birthMonthLabel": "月",
+      "birthDayLabel": "日",
+      "passphrase": "パスフレーズ",
+      "passphrasePlaceholder": "オプション：プライバシー強化のためのパスフレーズを入力",
+      "passphraseHelp": {
+        "title": "パスフレーズの役割説明",
+        "privacy": "🔒 プライバシー保護",
+        "privacyDesc": "あなたの身元ハッシュに追加の保護層を追加し、他の人が名前と生年月日からあなたの身元を推測することを防ぎます。",
+        "optional": "✅ 完全にオプション",
+        "optionalDesc": "空のままでも構いませんが、セキュリティ向上のため強いパスフレーズの使用をお勧めします。",
+        "remember": "⚠️ 覚えておいてください",
+        "rememberDesc": "パスフレーズは復元できません。忘れると異なる身元ハッシュが生成されます。"
+      },
+      "passwordStrength": {
+        "weak": "弱",
+        "medium": "中",
+        "strong": "強"
+      },
+      "passwordTips": {
+        "weak": "💡 ヒント：8文字以上で大文字・小文字・数字・特殊文字を含むパスワードを使用してください"
+      },
+      "nameInputPlaceholder": "例：田中太郎",
+      "toggleNo": "いいえ",
+      "toggleYes": "はい",
+      "birthPlace": "出生地(任意)",
+      "birthPlacePlaceholder": "例 JP-13-Tokyo",
+      "compute": "計算",
+      "result": "結果",
+      "hashLabel": "ハッシュ:",
+      "description": "説明：計算ロジックはコントラクトgetPersonHashと完全一致。",
+      "bcOptions": {
+        "ad": "西暦",
+        "bc": "紀元前"
+      },
+      "calculatedHash": "計算されたハッシュ",
+      "contractHash": "コントラクトハッシュ",
+      "hashesMatch": "ハッシュ一致",
+      "hashesNoMatch": "ハッシュ不一致"
+    },
+    "validation": {
+      "nameRequired": "名前を入力してください",
+      "nameTooLong": "名前は256バイト（約256英文字）を超えることはできません",
+      "hashRequired": "人物ハッシュを入力してください",
+      "hashInvalid": "有効な64桁16進数ハッシュ値を入力してください",
+      "tokenIdRequired": "有効なトークンIDを入力してください",
+      "required": "必須",
+      "monthRange": "月は0-12の間である必要があります",
+      "dayRange": "日は0-31の間である必要があります",
+      "yearRange": "年は0-10000の間である必要があります",
+      "yearExceedsCurrent": "西暦年は現在年を超えることはできません"
+    },
+    "offset": "オフセット"
+  },
+  "familyTree": {
+    "title": "可視化",
+    "viewModes": {
+      "tree": "ツリー図",
+      "dag": "有向非循環グラフ",
+      "force": "力指向",
+      "virtual": "仮想化"
+    },
+    "versionSelector": {
+      "label": "版本選択",
+      "apply": "適用"
+    },
+    "config": {
+      "rpc": "RPC",
+      "contract": "コントラクト",
+      "root": "ルートノード ハッシュ",
+      "clearAndRefresh": "クリア",
+      "strictCacheOnly": "厳密読み取り専用キャッシュ",
+      "strictCacheOn": "オフラインモード",
+      "strictCacheOff": "オンラインモード",
+      "rootHistory": "ルートハッシュ履歴",
+      "reset": "リセット",
+      "resetToDefaults": "環境変数デフォルト値にリセット"
+    },
+    "ui": {
+      "displaySettings": "データオプション",
+      "versionNumber": "版本番号",
+      "contractModeConfig": "設定",
+      "traversalDFS": "DFS深度優先：高速深入、パス順に下降後バックトラック",
+      "traversalBFS": "BFS幅優先：階層順に展開、層構造がより直感的",
+      "traversal": "トラバーサル方式",
+      "traversalDesc": "DFS深度優先(深層を高速閲覧) / BFS幅優先(階層順展開)",
+      "includeVersionDetails": "詳細読み込み",
+      "includeVersionDetailsDesc": "次回リフレッシュ時に版本詳細をバッチ読み込みするかどうかのみ影響（リフレッシュ時にスナップショット固定）。",
+      "progressSummary": "ノード {{created}} / 深度 {{depth}}",
+      "nodesLabelFull": "ノード",
+      "depthLabelFull": "深度",
+      "edit": "編集",
+      "save": "保存",
+      "cancel": "キャンセル"
+    },
+    "status": {
+      "loading": "読み込み中...",
+      "contractModeRootNotFound": "そのルートノード版本が見つかりません。ハッシュと版本番号を確認してください",
+      "rootNotFound": "ルートノードが見つかりません。Root設定を確認するかインデックスを待ってください",
+      "contractOk": "コントラクトデータ読み込み完了",
+      "badge": {
+        "checking": "チェック中",
+        "ok": "正常",
+        "root_missing": "ルートノードハッシュ不足",
+        "error": "エラー"
+      },
+      "networkError": "ネットワークリクエスト失敗",
+      "rateLimited": "一日のリクエスト上限に達しました。しばらく待ってから再試行してください"
+    },
+    "actions": {
+      "refresh": "リフレッシュ",
+      "remove": "削除",
+      "clearAll": "履歴クリア"
+    },
+    "nodeDetail": {
+      "title": "ノード詳細",
+      "hash": "ハッシュ",
+      "version": "版本番号",
+      "endorsementCount": "承認数",
+      "father": "父ハッシュ",
+      "fatherVersion": "父版本番号",
+      "mother": "母ハッシュ",
+      "motherVersion": "母版本番号",
+      "addedBy": "追加者",
+      "timestamp": "タイムスタンプ",
+      "tag": "タグ",
+      "cid": "CID",
+      "nft": "NFT",
+      "tokenId": "トークンID",
+      "fullName": "フルネーム",
+      "gender": "性別",
+      "birth": "誕生",
+      "death": "死去",
+      "story": "事績",
+      "profile": "プロフィール",
+      "storyChunks": "分片数",
+      "storyLength": "総長",
+      "sealed": "封存済み",
+      "lastUpdate": "最終更新",
+      "showFullStory": "完全プロフィール表示",
+      "hideFullStory": "完全プロフィール非表示",
+      "showChunks": "分片表示",
+      "hideChunks": "分片非表示",
+      "editStory": "プロフィール編集",
+      "viewFullStory": "完全プロフィール閲覧",
+      "uri": "URI",
+      "loading": "NFT情報読み込み中…",
+      "loadErrorPrefix": "NFT読み込み失敗",
+      "bcPrefix": "紀元前",
+      "genders": {
+        "male": "男性",
+        "female": "女性",
+        "other": "その他"
+      },
+      "errors": {
+        "nftLoadFailed": "NFT読み込み失敗",
+        "loadFailed": "読み込み失敗"
+      }
+    },
+    "personVersionDetail": {
+      "title": "人物版本詳細"
+    },
+    "validation": {
+      "rpc": "有効なRPCアドレスを入力してください",
+      "contract": "有効なコントラクトアドレスを入力してください (0x + 40桁16進数)",
+      "root": "有効なルートハッシュを入力してください (0x + 64桁16進数)",
+      "version": "有効な版本番号を入力してください"
+    }
+  },
+  "common": {
+    "confirm": "可視化へ",
+    "cancel": "キャンセル",
+    "goBack": "戻る",
+    "close": "閉じる",
+    "hashCopied": "ハッシュをコピーしました",
+    "copy": "コピー",
+    "copied": "コピー済み"
+  },
+  "wallet": {
+    "connect": "ウォレット接続",
+    "connecting": "接続中...",
+    "disconnect": "接続解除",
+    "wrongNetwork": "ネットワークエラー",
+    "noMetaMask": "MetaMaskをインストールしてください",
+    "noWallet": "ウォレット拡張をインストールしてください",
+    "selectWallet": "ウォレット選択",
+    "noWalletsFound": "ウォレットが見つかりません",
+    "installWallet": "ウォレット拡張をインストールしてください",
+    "connected": "ウォレット接続成功",
+    "rejected": "ユーザーが接続を拒否",
+    "pending": "接続リクエスト処理中",
+    "connectionFailed": "ウォレット接続失敗",
+    "disconnected": "ウォレット切断済み",
+    "chainSwitched": "ネットワーク切り替え成功",
+    "chainNotAdded": "ネットワークがウォレットに追加されていません",
+    "chainSwitchFailed": "ネットワーク切り替え失敗",
+    "notConnected": "ウォレットを接続してください",
+    "keepVisible": "ウォレットポップアップを可視状態に保つ:",
+    "dontClickOutside": "ウォレットポップアップ外をクリックしないでください",
+    "checkTaskbar": "ポップアップが消失した場合はタスクバーを確認してください",
+    "useAltTab": "Alt+Tabで隠れたウォレットウィンドウを探してください",
+    "waitForConfirm": "取引確認後に閉じてください"
+  },
+  "theme": {
+    "switchToLight": "ライトモードに切り替え",
+    "switchToDark": "ダークモードに切り替え",
+    "light": "ライト",
+    "dark": "ダーク"
+  },
+  "settings": {
+    "theme": "テーマ",
+    "language": "言語"
+  },
+  "storyChunkEditor": {
+    "title": "伝記コンテンツエディタ",
+    "stats": "分片数: {{count}}, 総長: {{length}}",
+    "sealed": "封存済み",
+    "seal": "封存",
+    "hashLabel": "ハッシュ",
+    "editChunk": "分片 #{{index}} 編集",
+    "addChunk": "新規分片追加",
+    "contentPlaceholder": "分片内容を入力してください（最大1000文字）",
+    "saving": "保存中...",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "addNewChunk": "新規分片追加",
+    "chunks": "既存分片",
+    "loading": "読み込み中...",
+    "contentRequired": "内容を空にすることはできません",
+    "contentTooLong": "内容は1000文字を超えることはできません",
+    "operationFailed": "操作失敗",
+    "sealConfirm": "伝記を封存しますか？封存後は修正できません。",
+    "sealFailed": "封存失敗",
+    "sealDialog": {
+      "title": "伝記封存",
+      "description": "伝記を封存しますか？封存後は修正できません。",
+      "dontAskAgain": "再度問い合わせしない",
+      "cancel": "キャンセル",
+      "confirm": "封存確認"
+    },
+    "contentTooLongBytes": "内容は1000バイトを超えることはできません",
+    "contentPlaceholderBytes": "分片内容を入力してください（最大1000バイト、約=1000英文字または≈333漢字）",
+    "offlineNoData": "オフラインモード：ローカルにその伝記のキャッシュがありません",
+    "errors": {
+      "mustBeNFTHolder": "このNFTを所有している必要があります",
+      "unauthorized": "この操作の権限がありません",
+      "onlyOwner": "所有者のみ実行可能",
+      "storySealed": "伝記は封存済みで修正できません",
+      "chunkIndexExists": "このインデックス位置の分片は既に存在します",
+      "invalidChunkIndex": "無効な分片インデックス",
+      "contentTooLong": "内容が最大長制限を超えています",
+      "expectedHashMismatch": "期待ハッシュ値が一致しません",
+      "chunkHashMismatch": "分片内容と期待ハッシュ値が一致しません",
+      "chunkIndexOutOfRange": "分片インデックスが有効範囲を超えています",
+      "customError": "コントラクトエラー：{{error}}",
+      "transactionReverted": "取引失敗：実行が戻されました",
+      "userRejected": "ユーザーが取引を拒否",
+      "insufficientFunds": "Gas費不足",
+      "unknown": "不明なエラーが発生しました"
+    }
+  },
+  "person": {
+    "encyclopedia": "人物百科",
+    "pageTitle": "{{name}}のプロフィール",
+    "title": "のプロフィール",
+    "loading": "伝記読み込み中...",
+    "notFound": "伝記が見つかりません",
+    "chunks": "分片",
+    "length": "長さ",
+    "sealed": "封存済み",
+    "edit": "伝記編集",
+    "fullStory": "人物伝記",
+    "noStory": "伝記内容なし",
+    "chunkList": "分片リスト",
+    "characters": "文字",
+    "noChunks": "分片なし",
+    "metadata": "メタデータ",
+    "totalChunks": "総分片数",
+    "totalLength": "総長",
+    "lastUpdate": "最終更新",
+    "status": "ステータス",
+    "editable": "編集可能",
+    "storyHash": "伝記ハッシュ",
+    "owner": "所有者アドレス",
+    "basicInfo": "基本情報",
+    "paragraph": "段落",
+    "raw": "原文",
+    "viewParagraph": "段落モード",
+    "viewRaw": "原文モード",
+    "integrityOk": "検証済み",
+    "integrityWarn": "整合性が一致しない可能性があります",
+    "integrityLenDiff": "長さ不一致 ローカル={{local}}バイト",
+    "integrityLocalHashMismatch": "ローカルハッシュ不一致",
+    "integrityChainHashMismatch": "チェーン上ハッシュ不一致",
+    "integrityMissing": "欠損インデックス: {{indices}}",
+    "integrityFrontendOk": "整合性検証済み",
+    "integrityChainFail": "チェーン上検証失敗",
+    "verify": "コントラクト検証",
+    "verified": "検証済み",
+    "personHashLabel": "人物ハッシュ:",
+    "versionLabel": "版本：",
+    "viewFamilyTree": "家系図ビュー",
+    "invalidTokenId": "無効なトークンID",
+    "nonexistentToken": "そのトークンは存在しません",
+    "fetchFailed": "トークン読み込み失敗",
+    "tokenId": "トークンID"
+  },
+  "people": {
+    "syncing": "同期中...",
+    "loading": "人物読み込み中...",
+    "badge": "人物百科",
+    "title": "家族人物百科",
+    "subtitle": "ブロックチェーンに保存された家族メンバープロフィールを探索",
+    "totalPeople": "総人数",
+    "withStories": "詳細伝記あり",
+    "withNFTs": "NFT所有",
+    "searchPlaceholder": "氏名、場所、伝記内容で検索...",
+    "filterByAddress": "作成者アドレスでフィルタ...",
+    "filterByTag": "タグでフィルタ...",
+    "clearFilters": "全フィルタクリア",
+    "filteredResults": "{{count}} 個のフィルタ結果",
+    "allResults": "計 {{count}} 個の結果",
+    "sortRules": "ソート規則",
+    "filterRules": "フィルタ規則",
+    "viewMode": "ビューモード",
+    "filterAll": "トークンID",
+    "filterByCreateTime": "作成時間",
+    "filterByName": "氏名",
+    "filterByEndorsement": "承認",
+    "filterByBirthYear": "生年",
+    "gridView": "グリッドビュー",
+    "listView": "リストビュー",
+    "resultsCount": "{{count}} 個の結果が見つかりました",
+    "noResults": "人物が見つかりません",
+    "noResultsDesc": "検索条件やフィルタを調整してお試しください",
+    "hasStory": "伝記",
+    "hasNFT": "NFT",
+    "born": "誕生",
+    "died": "死去",
+    "chunks": "{{count}} 個の分片",
+    "viewDetails": "表示",
+    "clickToEndorse": "クリックしてこの版本を承認"
+  },
+  "storyChunksModal": {
+    "fetchError": "伝記データ読み込み失敗",
+    "viewDetail": "詳細表示",
+    "born": "誕生",
+    "died": "死去",
+    "storyInfo": "伝記情報",
+    "chunksCount": "{{count}} 個の分片、{{length}} バイト",
+    "addedBy": "追加者",
+    "tag": "タグ",
+    "personHash": "人物ハッシュ",
+    "detailedStory": "伝記",
+    "chunks": "分片",
+    "fullText": "全文",
+    "integrityChecking": "整合性チェック中...",
+    "integrityVerified": "伝記整合性検証済み",
+    "integrityWarning": "伝記整合性問題を検出",
+    "loading": "伝記分片読み込み中...",
+    "chunkTitle": "分片 #{{index}}",
+    "characters": "文字",
+    "noStoryData": "伝記データなし",
+    "basicStory": "事績",
+    "noStory": "伝記内容なし",
+    "peopleEncyclopedia": "人物百科"
+  },
+  "actions": {
+    "title": "チェーン上操作",
+    "subtitle": "接続済みウォレットでDeepFamilyプロトコルを操作",
+    "walletRequired": "ウォレット接続が必要",
+    "walletRequiredDesc": "ブロックチェーン機能（版本追加、NFT鋳造、承認参加）にアクセスするためウォレットを接続してください。",
+    "walletConnected": "ウォレット接続済み",
+    "whatYouCanDo": "接続後の可能な操作：",
+    "feature1": "新しい人物版本を追加（DEEPトークン報酬を獲得）",
+    "feature2": "人物版本をNFTコレクションとして鋳造",
+    "feature3": "優質版本を承認（DEEPトークンを消費）",
+    "addVersion": "版本追加",
+    "add": "追加",
+    "addVersionDesc": "ゼロ知識証明を使用して新しい人物データ版本を追加",
+    "mintNFT": "NFT鋳造",
+    "mint": "鋳造",
+    "mintNFTDesc": "承認済み人物データを価値あるNFTコレクションに転換",
+    "endorse": "承認",
+    "endorsement": "承認参加",
+    "endorseDesc": "DEEPトークンを使用して優質データ版本をサポート",
+    "startAddVersion": "版本追加開始",
+    "mintNFTHint": "まずNFTとして鋳造したい人物と版本を検索してください",
+    "openMintNFT": "NFT鋳造を開く",
+    "endorseHint": "承認したい人物版本を検索してください",
+    "openEndorse": "承認を開く"
+  },
+  "addVersion": {
+    "addNewVersion": "新版本追加",
+    "addPerson": "人物追加",
+    "description": "ゼロ知識証明を使用して人物を追加",
+    "versionIndexHint": "0=不明",
+    "fatherInfo": "父情報",
+    "motherInfo": "母情報",
+    "metadata": "メタデータ",
+    "tag": "タグ",
+    "tagPlaceholder": "オプションタグ",
+    "metadataCID": "メタデータCID",
+    "processing": "処理中...",
+    "preparingData": "データ準備...",
+    "generatingProof": "ゼロ知識証明生成中...（30-60秒かかる場合があります）",
+    "verifyingProof": "証明検証中...",
+    "submittingToBlockchain": "ブロックチェーンに提出中...",
+    "addedSuccessfully": "人物追加成功！",
+    "personHash": "人物ハッシュ",
+    "transactionHash": "取引ハッシュ",
+    "blockNumber": "ブロック番号",
+    "eventsTriggered": "トリガーイベント",
+    "zkProofVerified": "ゼロ知識証明検証済み",
+    "zkProofVerifiedDesc": "ゼロ知識証明がチェーン上で正常に検証されました",
+    "versionAdded": "人物版本追加済み",
+    "versionAddedDesc": "人物版本が家系図に正常に追加されました",
+    "addedBy": "追加者",
+    "timestamp": "タイムスタンプ",
+    "fatherHash": "父ハッシュ",
+    "fatherVersionIndex": "父版本",
+    "motherHash": "母ハッシュ",
+    "motherVersionIndex": "母版本",
+    "tokenReward": "トークン報酬配布済み",
+    "familyComplete": "完全家族データ報酬 - 両親とも存在",
+    "miner": "マイナー",
+    "hashPrefix": "ハッシュ",
+    "rewardAmount": "報酬金額",
+    "noTokenReward": "トークン報酬なし",
+    "tokenRewardCondition": "両親が存在する場合のみトークン報酬を配布",
+    "tokenRewardTip": "まず両親を追加し、家族データを完成させるとDEEPトークン報酬を獲得できます",
+    "failed": "取引失敗",
+    "errorType": "エラータイプ",
+    "errorMessage": "エラーメッセージ",
+    "errorDetails": "詳細情報",
+    "continueAdding": "追加を続ける",
+    "submit": "版本追加",
+    "cancel": "キャンセル",
+    "close": "閉じる",
+    "personInfoRequired": "人物情報を入力してください",
+    "contractNotConfigured": "コントラクト未設定",
+    "wallet.notConnected": "ウォレットを接続してください",
+    "partial": "部分",
+    "complete": "完全",
+    "proofGenerationNote": "ZK証明生成には複雑な暗号計算が必要です。しばらくお待ちください..."
+  },
+  "mintNFT": {
+    "title": "NFT鋳造",
+    "description": "この人物のユニークなNFTを作成",
+    "personInfo": "人物情報",
+    "personHash": "人物ハッシュ",
+    "versionIndex": "版本インデックス",
+    "checkingStatus": "ステータス確認中...",
+    "endorsed": "承認済み",
+    "notEndorsed": "未承認",
+    "alreadyMinted": "鋳造済み",
+    "canMint": "鋳造可能",
+    "targetVersion": "対象版本",
+    "specifyVersion": "鋳造する版本を指定",
+    "specifyVersionDesc": "NFTとして鋳造したい人物ハッシュと版本インデックスを入力してください。",
+    "basicInfo": "基本情報",
+    "supplementalInfo": "補足情報",
+    "birthPlace": "出生地",
+    "birthPlacePlaceholder": "出生地を入力してください",
+    "deathPlace": "死去地",
+    "deathPlacePlaceholder": "該当する場合は死去地を入力してください",
+    "deathDate": "死去日（該当する場合）",
+    "deathYear": "死去年",
+    "story": "略歴",
+    "storyPlaceholder": "簡潔な略歴を入力してください...",
+    "metadata": "NFTメタデータ",
+    "tokenURI": "トークンURI",
+    "tokenURIHint": "オプション：NFTメタデータのURLまたはIPFSハッシュ",
+    "nftAlreadyMinted": "NFT鋳造済み",
+    "nftAlreadyMintedDesc": "その版本は既にNFTとして鋳造されています。各版本は一度のみ鋳造可能です。",
+    "mint": "NFT鋳造",
+    "minting": "鋳造中...",
+    "goEndorse": "承認へ",
+    "endorsementRequiredTitle": "承認が必要",
+    "endorsementRequiredDesc": "鋳造前にこの版本を承認する必要があります。承認に進みますか？",
+    "personInfoRequired": "人物情報を入力してください",
+    "personHashRequired": "人物ハッシュを計算できません",
+    "mintFailed": "NFT鋳造失敗",
+    "mintedSuccessfully": "NFT鋳造成功！",
+    "tokenId": "トークンID",
+    "mintingDesc": "ブロックチェーン上でユニークなNFTを作成中...",
+    "eventDetails": "イベント詳細",
+    "nftMintedEvent": "PersonNFTMintedイベント",
+    "nftMintedEventDesc": "NFTが正常に鋳造され、チェーン上に記録されました",
+    "owner": "所有者",
+    "continueMinting": "鋳造を続ける",
+    "validation": {
+      "birthPlaceTooLong": "出生地が長すぎます",
+      "deathPlaceTooLong": "死去地が長すぎます",
+      "storyTooLong": "ストーリー内容が長すぎます",
+      "tokenURITooLong": "トークンURIが長すぎます",
+      "invalidTokenURI": "無効なURLまたはIPFS URI",
+      "yearExceedsCurrent": "西暦年は現在年を超えることはできません"
+    },
+    "errors": {
+      "versionAlreadyMinted": "この版本は既にNFTとして鋳造されています",
+      "mustEndorseFirst": "鋳造前にこの版本を承認する必要があります",
+      "basicInfoMismatch": "人物情報が版本データと一致しません",
+      "invalidTokenURI": "無効なトークンURI形式",
+      "invalidStory": "ストーリー内容が長すぎます",
+      "invalidBirthPlace": "出生地が長すぎます",
+      "invalidDeathPlace": "死去地が長すぎます",
+      "insufficientFunds": "取引手数料不足",
+      "userRejected": "ユーザーが取引を拒否"
+    }
+  },
+  "endorse": {
+      "title": "版本承認",
+      "description": "DEEPトークンを消費して高品質版本を承認",
+      "targetVersion": "対象版本",
+      "specifyVersion": "承認する版本を指定",
+      "specifyVersionDesc": "承認したい人物ハッシュと版本番号を入力してください。",
+      "personHash": "人物ハッシュ",
+      "versionIndex": "版本序号",
+      "versionInfo": "版本情報",
+      "fullName": "氏名",
+      "currentEndorsements": "現在承認数",
+      "deepTokenFee": "DEEP手数料",
+      "yourBalance": "私のDEEP残高",
+      "feeRecipient": "手数料受取人",
+      "feeDistribution": "手数料配分説明",
+      "nftMinted": "NFT鋳造済み",
+      "feeToNFTHolder": "100% 手数料は現在のNFT保有者へ",
+      "noNFT": "NFT未鋳造",
+      "feeToCreator": "100% 手数料は版本作成者へ",
+      "feeNote": "DEEP手数料は現在のマイニング報酬と動的連動",
+      "insufficientBalance": "DEEP残高不足",
+      "needMoreTokens": "残高不足、その版本を承認できません",
+      "endorsementComplete": "承認完了",
+      "needMoreForNext": "追加承認のためさらなるDEEPトークンが必要",
+      "benefits": "承認のメリット",
+      "benefitQuality": "データ品質の検証と向上を支援",
+      "benefitPriority": "承認版本は検索で優先度が高い",
+      "benefitNFT": "NFT鋳造前の必要ステップ",
+      "benefitEconomy": "版本作成者とNFT保有者をサポート",
+      "successMessage": "承認成功！",
+      "approving": "承認中...",
+      "endorsing": "承認中...",
+      "endorsed": "承認済み",
+      "endorse": "承認",
+      "invalidTarget": "人物ハッシュまたは版本番号が無効",
+      "invalidTargetDesc": "ハッシュとインデックスがチェーン上の既存版本に対応していることを確認してください",
+      "needApprove": "承認額度不足、DEEPを再承認してください",
+      "approvingDesc": "ウォレットでトークン承認を確認してください",
+      "endorsingDesc": "ブロックチェーン上で承認を処理中...",
+      "endorsedSuccessfully": "版本承認成功！",
+      "feePaid": "手数料支払い済み",
+      "transactionHash": "取引ハッシュ",
+      "blockNumber": "ブロック番号",
+      "eventDetails": "イベント詳細",
+      "versionEndorsedEvent": "PersonVersionEndorsedイベント",
+      "versionEndorsedEventDesc": "承認がチェーン上に正常に記録されました",
+      "endorser": "承認者",
+      "feeAmount": "手数料金額",
+      "timestamp": "タイムスタンプ",
+      "endorseFailed": "承認失敗",
+      "errorType": "エラータイプ",
+      "errorMessage": "エラーメッセージ",
+      "errorDetails": "詳細情報",
+      "continueEndorsing": "承認を続ける",
+      "canContinueEndorsing": "他の版本の承認を続けるか、このダイアログを閉じることができます。",
+      "transactionFailed": "取引失敗。エラー情報を確認後再試行してください。",
+      "transactionFailedDetails": "取引は提出されましたが正常に完了できませんでした。",
+      "errors": {
+        "invalidTarget": "無効な人物ハッシュまたは版本インデックス",
+        "needApprove": "承認額度不足、DEEPトークンを再承認してください",
+        "insufficientDeepTokens": "DEEPトークン残高不足",
+        "feeTransferFailed": "承認手数料送金失敗",
+        "insufficientFunds": "取引手数料不足",
+        "userRejected": "ユーザーが取引を拒否",
+        "walletTimeout": "ウォレット確認タイムアウト。ウォレットポップアップが閉じられたか隠れた可能性があります。",
+        "walletTimeoutDetails": "再試行し、ウォレットポップアップで取引を確認してください。"
+      },
+      "approveUnlimited": "無制限DEEP額度承認で重複承認を回避",
+      "approveUnlimitedHint": "推奨：各承認は承認額度を消費します。無制限承認で重複操作を回避",
+      "retryTransaction": "取引再試行"
+    },
+    "transaction": {
+      "pending": "取引確認待ち中...",
+      "pendingDetails": "取引が提出されたかウォレット確認待ちです。アプリを継続使用でき、確認後に更新します。"
+    },
+  "contract": {
+    "endorseSuccess": "承認提出成功",
+    "endorseFailed": "版本承認失敗"
+  }
+}
