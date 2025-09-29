@@ -37,7 +37,7 @@ function Footer() {
             
             {/* Social Links */}
             <a 
-              href="https://github.com/0xfdbu/meson-integration" 
+              href="https://github.com/0xfdbu/summerhackfest-2025/blob/main/projects/quickbridge/README.md" 
               target="_blank" 
               rel="noopener noreferrer"
               className="flex items-center space-x-1 bg-white/10 px-3 py-1.5 rounded-full shadow-sm text-gray-300 transition-all duration-200 hover:shadow-md"
