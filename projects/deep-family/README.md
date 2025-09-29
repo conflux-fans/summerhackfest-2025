@@ -1,119 +1,78 @@
-# DeepFamily - Decentralized Global Digital Family Tree Protocol
+# DeepFamily - Decentralized Global Family Tree Protocol
 
-<div align="center">
-
-![DeepFamily Logo](https://img.shields.io/badge/DeepFamily-v1.0.0-blue?style=for-the-badge&logo=ethereum)
-[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
-[![Solidity](https://img.shields.io/badge/Solidity-^0.8.20-red?style=for-the-badge&logo=solidity)](https://soliditylang.org/)
-[![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react)](https://reactjs.org/)
-[![Node](https://img.shields.io/badge/Node.js-18+-green?style=for-the-badge&logo=node.js)](https://nodejs.org/)
-
-**A blockchain-based decentralized global digital family tree protocol**
-*Leveraging zero-knowledge proofs, NFTs, and community governance for collaborative family history*
-
-[🚀 Quick Start](#-quick-start) • [📖 Documentation](#-documentation) • [🎯 Core Features](#-core-features) • [🏗️ Architecture](#️-architecture) • [🚀 Deployment](#-deployment) • [🤝 Contributing](#-contributing)
-
-</div>
-
----
-
-## 🌟 Vision & Mission
-
+## Overview
 DeepFamily creates the decentralized family tree infrastructure, using zero-knowledge proofs and blockchain immutability to build a collaborative, verifiable, and perpetual family history recording system.
 
-### 🎯 Core Principles
-- 🔐 **Zero-Knowledge Privacy**: Private family tree construction with selective disclosure through NFT minting
-- 🌍 **Globally Accessible**: Borderless family connections accessible from anywhere in the world
-- 💎 **Immutable Heritage**: Permanent on-chain storage preserves data across generations
-- 💰 **Smart Incentives**: DEEP token rewards for complete family data contributions
-- 🤝 **Community Validation**: Endorsement-based governance ensures information quality
+## Hackathon
+Code Without Borders - SummerHackfest 2025 (August 18 – September 29, 2025)
 
-## 🎯 Core Features
+## Team
+- HappCode (GitHub: @HappyCodeBase)
 
-### 🔐 Zero-Knowledge Privacy System
-- **Private Member Addition**: Uses Groth16 proofs to add family tree members without revealing personal information
-- **Salted Passphrase Unlinkability**: Poseidon(fullName, passphrase) prevents identity inference and family tree pollution
-- **Dual Family Tree Models**: Public trees (shared passphrase) for collaboration, private trees (unique passphrase) for complete protection
-- **Selective Disclosure**: Privacy protection during member addition, **full disclosure when minting NFTs**
-- **Multi-Version Support**: Each person can have multiple verified versions with parent relationship tracking
+## Problem Statement
+Traditional family tree research faces several practical hurdles:
+- **Fragmented Data**: Birth certificates, immigration records, and DNA matches are trapped across national archives, paid portals, and paper binders that do not interoperate.
+- **Privacy & Verification Trade-off**: Families must hand over full names and documents to third-party sites just to prove a relationship, forfeiting privacy for validation.
+- **Data Loss & Platform Dependency**: Paper family books fade or burn, while centralized genealogy sites can revoke exports, raise prices, or sunset products—erasing years of collaborative research.
+- **Geographic & Economic Barriers**: Overseas relatives struggle with paywalled document copies, time-zone delays from archive staff, and scarce translations of records or interfaces.
+- **Zero Economic Incentives**: Contributors manually transcribe records with no shared upside, so trees stagnate with missing branches and unverifiable anecdotes.
 
-### 🎨 NFT Value Creation
-- **Family Tree NFTs**: Each person version can mint exactly one ERC721 token
-- **Public Information**: **NFT minting reveals full name and biographical data to the community**
-- **Story Sharding**: Detailed life stories stored in up to 100×1KB on-chain chunks with immutable sealing
-- **Endorsement Requirement**: Must endorse a version before minting its NFT
+## Solution
+DeepFamily leverages blockchain immutability, zero-knowledge proofs, and incentive design to tackle these problems:
+- **Zero-Knowledge Privacy System**: Salted passphrase unlinkability using Poseidon hash function prevents identity inference and pollution attacks while enabling Groth16 proofs for private family member addition
+- **Dual Tree Models**: Public collaborative trees (no/shared passphrase) vs. private protected trees (unique passphrase) giving users complete control over privacy levels
+- **Smart Economic Incentives**: DEEP tokens only awarded when both parent relationships exist, encouraging complete family data
+- **Community Endorsement Economy**: Pay current mining reward to endorse trusted versions, with automatic fee distribution to NFT holders or original contributors
+- **Selective Disclosure**: Complete privacy protection during member addition, full disclosure when minting community NFTs for value creation
+- **Decentralized Permanence**: Blockchain anchors plus IPFS storage keep family histories tamper-resistant and accessible beyond any single application
+- **Story Sharding System**: Rich biographical content stored in up to 100×1KB on-chain chunks with immutable sealing for historical preservation
 
-### 💰 DEEP Token Economics
-- **Smart Mining**: Rewards only granted when both parent relationships exist (complete family data)
-- **Progressive Halving**: 10 halving cycles with expanding periods (1→10→100→1K→10K→100K→1M→10M→100M→Fixed 100M)
-- **100 Billion Cap**: Fixed maximum supply with minimum reward threshold
-- **Complete Family Incentives**: Encourages connected family trees over isolated entries
+## Conflux Integration
+DeepFamily is designed to leverage Conflux features for optimal performance and user experience:
+- [x] **eSpace**: Smart contracts deployed and tested on Conflux eSpace for EVM compatibility
+- [ ] **Core Space**: Planned deployment for maximum decentralization benefits
+- [ ] **Cross-Space Bridge**: Future integration for multi-space asset management
+- [ ] **Gas Sponsorship**: Planned implementation for seamless user onboarding
+- [ ] **Built-in Contracts**: Future integration for enhanced functionality
+- [ ] **Partner Integrations**: Planned Privy/Pyth integrations for improved UX
 
-### 🤝 Community Governance
-- **Endorsement Fees**: Pay current mining reward to endorse trusted versions
-- **Fee Distribution**: Endorsement fees flow to NFT holders or original contributors
-- **Version Competition**: Multiple versions per person, community selects best through endorsements
-- **Quality Signaling**: Endorsement counts indicate version trustworthiness
+## Features
+- **Salted Passphrase Unlinkability**: Poseidon hash function prevents identity inference and family tree pollution attacks while enabling collaborative or private tree construction
+- **Advanced Zero-Knowledge Privacy**: Groth16 proof system enables private family member addition without revealing personal information, with dual tree models for public collaboration or complete anonymity
+- **Multi-Version System**: Each person can have multiple verified data versions with community endorsement and duplicate prevention
+- **Community Endorsement Economy**: Fee-based validation system where endorsement costs equal current mining reward, with automatic distribution to NFT holders or contributors
+- **NFT Value Creation**: Community-endorsed versions can mint exactly one ERC721 token with full biographical disclosure and rich on-chain metadata
+- **Story Sharding & Sealing**: Biographical content stored in up to 100×1KB on-chain chunks (100KB total) with immutable sealing for permanent historical preservation
+- **Smart Mining Rewards**: DEEP tokens only awarded when both parent relationships exist, encouraging complete family trees
+- **Interactive D3.js Visualization**: Responsive family tree rendering with multiple layouts, animations, and mobile-optimized design
+- **Multi-language Support**: English, Simplified/Traditional Chinese, Japanese, and Korean interfaces for a broader audience
+- **Gas-Optimized Queries**: Paginated blockchain queries with 100-record limits for efficient interaction
 
-### 📊 Advanced Data Management
-- **Multi-Version System**: Each person supports multiple data versions with duplicate prevention
-- **Paginated Queries**: Gas-optimized queries with 100-record limits
-- **Family Tree Networks**: Complete relationship tracking through personHash/fatherHash/motherHash
-- **Story Sealing**: Biographical data can be permanently locked for historical preservation
+## Technology Stack
+- **Modern Frontend**: React 18 + TypeScript with lazy loading, Vite build system, TailwindCSS + gradient animations, Lucide icons, React Router + i18n
+- **Advanced Visualization**: D3.js interactive family trees with responsive design, multiple layouts, hover effects, and mobile optimization
+- **Blockchain Infrastructure**: Conflux eSpace (primary) with multi-network support (Ethereum, Polygon, Arbitrum, Optimism, BSC) and unified deployment system
+- **Production Smart Contracts**: Solidity ^0.8.20, OpenZeppelin v5.0, ~1,800 lines of core logic with comprehensive test coverage
+- **Zero-Knowledge System**: Groth16 proofs with Circom circuits, SnarkJS integration, Poseidon hashing, and production-ready cryptographic primitives
+- **Development Ecosystem**: Hardhat toolchain, Node.js 18+, Ethers v6, cross-platform scripts, automated deployment, and quality assurance tools
+- **Storage & Metadata**: IPFS integration for decentralized metadata storage with blockchain immutability
+- **Quality Assurance**: TypeScript, Solhint, Prettier, Husky pre-commit hooks, comprehensive test coverage, and automated linting
 
-## 🏗️ Two-Layer Value System
+## Setup Instructions
 
-### Layer 1: Private Hash Storage
-- Add family tree members with zero-knowledge proofs without revealing personal information
-- **Salted Passphrase System**: `Poseidon(fullName, passphrase)` prevents identity inference and pollution attacks
-- Only cryptographic commitments stored on-chain (personHash, fatherHash, motherHash)
-- **Dual Tree Models**: Public collaborative trees vs. private protected trees with unique passphrases
-- Receive DEEP token rewards for complete family connections
+### Prerequisites
+- Node.js v18.0.0+
+- Git
+- Conflux wallet (Fluent Wallet recommended) or MetaMask
+- NPM or Yarn package manager
 
-### Layer 2: Public NFT Assets
-- Community-endorsed versions can be minted as NFTs
-- **NFT minting reveals full name and biographical information**
-- Story sharding enables detailed on-chain biographies
-- NFTs represent community-validated family tree data
-
-### 🛠️ Technology Stack
-- **Smart Contracts**: Solidity ^0.8.20, OpenZeppelin v5, Poseidon hashing
-- **Zero-Knowledge**: Groth16 proofs, circom circuits, snarkjs integration
-- **Frontend**: React 18, TypeScript, Vite, TailwindCSS, D3.js family tree visualization
-- **Development**: Hardhat, Ethers v6, comprehensive testing suite
-
-### Smart Contracts
-
-**DeepFamily.sol** - Main Protocol
-- Multi-version person data with ZK proof validation
-- Community endorsement with automatic fee distribution
-- NFT minting with on-chain biographical storage
-- Story sharding system for detailed life narratives
-- Mining rewards for complete family data
-
-**DeepFamilyToken.sol** - DEEP Token
-- ERC20 with progressive halving mining mechanism
-- 100 billion supply cap, 10 halving cycles
-- Authorized minting only by DeepFamily contract
-
-**ZK Verifiers** - Privacy Protection
-- PersonHashVerifier: Validates family relationships for private submissions
-- NamePoseidonVerifier: Proves name ownership for NFT minting
-
-
-## 🚀 Quick Start
-
-### 📋 Prerequisites
-- **Node.js** >= 18.0.0 (required by package.json engines)
-- **npm** or **yarn** package manager
-- **Git** version control
-
-### 🔧 Environment Setup
+### Installation
 1. Clone the repository
    ```bash
    git clone https://github.com/deepfamilylabs/DeepFamily.git
    cd DeepFamily
    ```
+
 2. Install dependencies
    ```bash
    npm run setup
@@ -138,7 +97,7 @@ DeepFamily creates the decentralized family tree infrastructure, using zero-know
    # This starts: local node + contract deployment + demo data + frontend
    ```
 
-### 🧪 Testing
+### Testing
 ```bash
 # Run all contract tests
 npm test
@@ -150,9 +109,9 @@ npm run test:gas
 npm run test:coverage
 
 # Run specific test suites
-npx hardhat test test/contract-person-version.test.js
-npx hardhat test test/contract-endorse.test.js
-npx hardhat test test/contract-mint-nft.test.js
+npx hardhat test test/personVersion.test.js
+npx hardhat test test/endorse.test.js
+npx hardhat test test/mintNft.test.js
 ```
 
 ## Usage
@@ -198,90 +157,80 @@ npm run frontend:config
 npm run frontend:dev
 ```
 
+## Architecture
 
-### 🌐 Access Points
-- **Frontend dApp**: http://localhost:5173
-- **Local Blockchain RPC**: http://localhost:8545
-- **Contract Deployment**: Check terminal output for deployed addresses
+DeepFamily implements a revolutionary dual-layer blockchain architecture that balances privacy, collaboration, and value creation:
+
+### Layer 1: Privacy Protection (Hash-Based Relationships)
+- **Salted Hash System**: Poseidon hash function creates unlinkable identity commitments preventing inference attacks
+- **Dual Tree Models**: Public trees (shared passphrase) enable family collaboration, private trees (unique passphrase) ensure complete anonymity
+- **Zero-Knowledge Integration**: Groth16 proofs validate family relationships without revealing personal data
+- **Multi-Version Support**: Each person supports multiple data versions with duplicate prevention and provenance tracking
+- **Smart Mining Rewards**: DEEP tokens only awarded when both parent relationships exist, encouraging complete family connections
+
+### Layer 2: Value Confirmation (NFT + Token Economics)
+- **Selective Disclosure**: Users control when to reveal full information by minting community NFTs
+- **Story Sharding System**: Rich biographical content in up to 100×1KB on-chain chunks with immutable sealing
+- **Community Endorsement**: Economic validation through fee-based endorsement system with automatic distribution
+- **NFT Value Creation**: Each version mints exactly one ERC721 token with complete metadata and community validation
+- **Progressive Economics**: 10 halving cycles with expanding periods (1→10→100→1K→10K→100K→1M→10M→100M→Fixed) and 100B supply cap
+
+### Core Components
+- **DeepFamily.sol**: Comprehensive protocol managing family trees, multi-version system, endorsements, NFT minting, and story sharding
+- **DeepFamilyToken.sol**: Advanced DEEP ERC20 with sophisticated progressive halving mining mechanism
+- **PersonHashVerifier.sol**: Production-ready Groth16 zero-knowledge proof verifier for privacy-preserving submissions
+- **NamePoseidonVerifier.sol**: Zero-knowledge proof verifier for name ownership validation during NFT minting
+
+## Smart Contracts
+
+### Conflux eSpace Testnet
+- DeepFamily: `0x34A1D09B3Ccc66C510586f40fb621b75974B9326`
+- DeepFamilyToken: `0xac4D17f2061585e32F0519da76e4c9E7F39DFB65`
+- PersonHashVerifier: `0x9459B46A1D372CeFB9DB2b79eda9ca170ce7F5Fe`
+- NamePoseidonVerifier: `0x55E2Cd040614aF369141a492B78E57E979fDb584`
+
+### Conflux eSpace Mainnet
+- DeepFamily: `TBD`
+- DeepFamilyToken: `TBD`
+- PersonHashVerifier: `TBD`
+- NamePoseidonVerifier: `TBD`
+
+## Future Improvements
+
+### Technical Enhancements
+- **Mobile Applications**: React Native iOS/Android apps with offline family tree browsing and PWA capabilities
+- **Graph Protocol Integration**: Advanced indexing and querying for complex genealogical relationships and family network analysis
+
+### Feature Expansions
+- **Enhanced Visualization**: 3D family tree rendering with improved navigation and zoom capabilities
+- **Advanced Search & Filtering**: Smart search algorithms for finding distant relatives and family connections
+- **Data Import/Export**: Integration with existing genealogy formats and family tree services
+- **Improved User Experience**: Enhanced mobile responsiveness and accessibility features
+- **Family Stories & Media**: Support for photos, documents, and multimedia content in family histories
 
 
-## 🚀 Deployment Guide
+### Known Limitations
+- Zero-knowledge circuits require production-grade security audit and gas optimization for mainnet deployment
+- Current architecture may need optimization for global adoption scale and enhanced user onboarding experience
 
-### 🌐 Supported Networks
-**Ethereum Family:**
-- Mainnet, Sepolia, Holesky 
+## License
 
-**Layer 2 Solutions:**
-- Polygon: Mainnet, Amoy Testnet
-- Arbitrum: Mainnet , Sepolia Testnet
-- Optimism: Mainnet, Sepolia Testnet
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-**Alternative Chains:**
-- BSC: Mainnet, Testnet
-- Conflux eSpace: Mainnet, Testnet
+## Acknowledgments
 
-### 📦 Multi-Network Deployment
-```bash
-# Deploy to specific network
-npm run deploy:net --net=holesky
-npm run deploy:net --net=polygonAmoy
-npm run deploy:net --net=confluxTestnet
+- **Conflux Network**: For providing scalable blockchain infrastructure with low fees
+- **OpenZeppelin**: For battle-tested smart contract security primitives
+- **D3.js Community**: For powerful data visualization libraries
+- **React Ecosystem**: For modern frontend development tools
 
-# Local development
-npm run deploy:local
 
-# Verify deployed contracts
-npm run verify:net --net=holesky
-```
 
-## 📖 Documentation
+## Additional Documentation
 
-- [Smart Contracts Reference](docs/contracts.md) - Complete contract API and implementation details
-- [Zero-Knowledge Proofs](docs/zk-proofs.md) - ZK proof system and circuit documentation
-- [Frontend Integration](docs/frontend.md) - React component and UI development guide
+For comprehensive technical documentation, see:
+- [Smart Contracts Reference](docs/contracts.md) - Complete API documentation
+- [Frontend Integration](docs/frontend.md) - React dApp development guide
+- [ZK Proofs](docs/zk-proofs.md) - Privacy implementation details
 
-## 🤝 Contributing
-
-### 🐛 Bug Reports
-1. Search existing Issues
-2. Open new issue with reproduction steps & env
-3. Include logs & network details
-
-### 💻 Code
-1. Fork
-2. Branch: `git checkout -b feat/your-feature`
-3. Commit: `git commit -am 'feat: add X'`
-4. Push: `git push origin feat/your-feature`
-5. Open PR
-
-### 📋 Standards
-- Prettier + Solhint + lint-staged pre-commit (husky)
-- Conventional Commits
-- Tests required for new features
-- Update README / docs when changing core behaviors
-
-## 🌍 Community
-
-Links are placeholders until launch:
-- **GitHub**: https://github.com/deepfamilylabs/DeepFamily
-
-## 📄 License
-
-MIT License (see [LICENSE](LICENSE) for full text). Excerpt:
-```
-MIT License
-
-Copyright (c) 2025 DeepFamily
-```
----
-
-<div align="center">
-
-**🌳 DeepFamily - Connect the Past, Record the Present, Preserve the Future 🌳**
-
-[![GitHub Stars](https://img.shields.io/github/stars/deepfamilylabs/DeepFamily?style=social)](https://github.com/deepfamilylabs/DeepFamily.git)
-[![GitHub Forks](https://img.shields.io/github/forks/deepfamilylabs/DeepFamily?style=social)](https://github.com/deepfamilylabs/DeepFamily.git)
-
-*Building a shared digital family heritage for humanity*
-
-</div>
+**🌳 Building a shared digital family heritage for humanity 🌳**
