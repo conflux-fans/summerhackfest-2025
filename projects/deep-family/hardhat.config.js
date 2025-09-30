@@ -2,17 +2,19 @@ require("@nomicfoundation/hardhat-toolbox");
 require("hardhat-deploy");
 require("hardhat-contract-sizer");
 require("dotenv").config();
-require("./tasks/add-person");
-require("./tasks/endorse");
-require("./tasks/mint-nft");
+require("./tasks/contract-add-person");
+require("./tasks/contract-endorse");
+require("./tasks/contract-mint-nft");
+require("./tasks/zk-add-person-enhanced");
+require("./tasks/zk-generate-name-poseidon-proof");
 require("./tasks/networks-check");
 require("./tasks/networks-list");
 
 // Register story-related task scripts used by tests
-require("./tasks/add-story-chunk");
-require("./tasks/update-story-chunk");
-require("./tasks/list-story-chunks");
-require("./tasks/seal-story");
+require("./tasks/story-add-chunk");
+require("./tasks/story-update-chunk");
+require("./tasks/story-list-chunks");
+require("./tasks/story-seal");
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY || "0x0000000000000000000000000000000000000000000000000000000000000000";
 const INFURA_API_KEY = process.env.INFURA_API_KEY || "";

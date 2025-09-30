@@ -17,8 +17,20 @@ async function calculateWitnessIsolated(inputData) {
       publicSignals.push(witness[i].toString());
     }
 
+    // For direct function calls, return the result
+    if (require.main !== module) {
+      return { witness, publicSignals };
+    }
+
+    // For child process calls, output JSON to stdout
     console.log(JSON.stringify({ success: true, publicSignals }));
   } catch (error) {
+    // For direct function calls, throw the error
+    if (require.main !== module) {
+      throw error;
+    }
+
+    // For child process calls, output error JSON to stdout
     console.log(JSON.stringify({ success: false, error: error.message }));
   }
 }

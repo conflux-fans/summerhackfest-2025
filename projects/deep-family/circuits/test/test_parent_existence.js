@@ -1,5 +1,4 @@
-const fs = require("fs");
-const path = require("path");
+const { calculateWitnessIsolated } = require("./witness_helper");
 
 async function testParentExistence() {
   try {
@@ -40,7 +39,7 @@ async function testParentExistence() {
     // Test 1: Both parents exist
     console.log("\n1. Testing with both parents existing...");
     const bothParentsExist = { ...baseInput, hasFather: 1, hasMother: 1 };
-    const result1 = await testInput(bothParentsExist);
+    const result1 = await calculateWitnessIsolated(bothParentsExist);
     console.log("✅ Both parents exist test passed");
     console.log("   Person hash:", result1.publicSignals[0], result1.publicSignals[1]);
     console.log("   Father hash:", result1.publicSignals[2], result1.publicSignals[3]);
@@ -49,7 +48,7 @@ async function testParentExistence() {
     // Test 2: No father
     console.log("\n2. Testing with no father...");
     const noFather = { ...baseInput, hasFather: 0, hasMother: 1 };
-    const result2 = await testInput(noFather);
+    const result2 = await calculateWitnessIsolated(noFather);
     console.log("✅ No father test passed");
     console.log("   Person hash:", result2.publicSignals[0], result2.publicSignals[1]);
     console.log("   Father hash:", result2.publicSignals[2], result2.publicSignals[3]);
@@ -66,7 +65,7 @@ async function testParentExistence() {
     // Test 3: No mother
     console.log("\n3. Testing with no mother...");
     const noMother = { ...baseInput, hasFather: 1, hasMother: 0 };
-    const result3 = await testInput(noMother);
+    const result3 = await calculateWitnessIsolated(noMother);
     console.log("✅ No mother test passed");
     console.log("   Person hash:", result3.publicSignals[0], result3.publicSignals[1]);
     console.log("   Father hash:", result3.publicSignals[2], result3.publicSignals[3]);
@@ -83,7 +82,7 @@ async function testParentExistence() {
     // Test 4: No parents
     console.log("\n4. Testing with no parents (orphan)...");
     const orphan = { ...baseInput, hasFather: 0, hasMother: 0 };
-    const result4 = await testInput(orphan);
+    const result4 = await calculateWitnessIsolated(orphan);
     console.log("✅ Orphan test passed");
     console.log("   Person hash:", result4.publicSignals[0], result4.publicSignals[1]);
     console.log("   Father hash:", result4.publicSignals[2], result4.publicSignals[3]);
@@ -122,7 +121,7 @@ async function testParentExistence() {
     console.log("\n6. Testing invalid parent existence flags...");
     try {
       const invalidFatherFlag = { ...baseInput, hasFather: 2, hasMother: 1 };
-      await testInput(invalidFatherFlag);
+      await calculateWitnessIsolated(invalidFatherFlag);
       console.log("   ❌ Should have failed with invalid hasFather value");
       return false;
     } catch (error) {
@@ -131,7 +130,7 @@ async function testParentExistence() {
 
     try {
       const invalidMotherFlag = { ...baseInput, hasFather: 1, hasMother: 3 };
-      await testInput(invalidMotherFlag);
+      await calculateWitnessIsolated(invalidMotherFlag);
       console.log("   ❌ Should have failed with invalid hasMother value");
       return false;
     } catch (error) {
@@ -153,23 +152,6 @@ async function testParentExistence() {
     console.error("❌ Parent existence test failed:", error);
     return false;
   }
-}
-
-async function testInput(input) {
-  const wasm = fs.readFileSync(
-    path.join(__dirname, "../../artifacts/circuits/person_hash_zk_js/person_hash_zk.wasm"),
-  );
-  const wc = require("../../artifacts/circuits/person_hash_zk_js/witness_calculator.js");
-
-  const witnessCalculator = await wc(wasm);
-  const witness = await witnessCalculator.calculateWitness(input, 0);
-
-  const publicSignals = [];
-  for (let i = 1; i <= 7; i++) {
-    publicSignals.push(witness[i].toString());
-  }
-
-  return { witness, publicSignals };
 }
 
 // Run tests

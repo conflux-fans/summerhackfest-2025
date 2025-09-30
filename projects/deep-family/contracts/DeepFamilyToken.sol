@@ -23,7 +23,7 @@ contract DeepFamilyToken is ERC20, Ownable {
 
   uint256 public constant MAX_SUPPLY = 100_000_000_000e18; // 100 billion cap
   uint256 public constant INITIAL_REWARD = 113_777e18; // Initial reward (integer, no over-issuance)
-  uint256 public constant MIN_REWARD = 1e17; // Minimum reward (0.1 tokens)
+  uint256 public constant MIN_REWARD = 1e15; // Minimum reward (0.001 tokens)
 
   // Preset halving cycle lengths (fixed at 100_000_000 after 9th cycle)
   uint256[] public cycleLengths = [
@@ -98,11 +98,9 @@ contract DeepFamilyToken is ERC20, Ownable {
   function mint(address miner) external onlyDeepFamilyContract returns (uint256 reward) {
     if (miner == address(0)) revert ZeroAddress();
 
-    // Calculate reward for next record (don't immediately increment counter to avoid 0 reward polluting totalAdditions)
     uint256 nextIndex = totalAdditions + 1;
     reward = getReward(nextIndex); // Returns 0 if < MIN_REWARD
 
-    // Mining ended
     if (reward == 0) {
       recentReward = 0;
       return 0;
@@ -110,18 +108,15 @@ contract DeepFamilyToken is ERC20, Ownable {
 
     uint256 supply = totalSupply();
 
-    // Pre-check if mining has ended (reached cap or reward below threshold)
     if (supply >= MAX_SUPPLY) {
       recentReward = 0;
       return 0;
     }
 
-    // Prevent exceeding cap (protective truncation)
     if (supply + reward > MAX_SUPPLY) {
       reward = MAX_SUPPLY - supply;
     }
 
-    // Only update counter when actually distributing
     totalAdditions = nextIndex;
     _mint(miner, reward);
     recentReward = reward;
@@ -140,7 +135,6 @@ contract DeepFamilyToken is ERC20, Ownable {
     uint256 cycleIndex;
     uint256 countLeft = recordCount;
 
-    // Iterate through preset cycles
     for (uint256 i = 0; i < cycleLengths.length; i++) {
       uint256 len = cycleLengths[i];
       if (countLeft <= len) {
@@ -149,7 +143,6 @@ contract DeepFamilyToken is ERC20, Ownable {
       }
       countLeft -= len;
 
-      // If reached the last preset cycle
       if (i == cycleLengths.length - 1) {
         uint256 extraCycles = (countLeft - 1) / FIXED_LENGTH + 1;
         cycleIndex = i + extraCycles;
@@ -157,10 +150,9 @@ contract DeepFamilyToken is ERC20, Ownable {
       }
     }
 
-    // Reward = Initial reward / 2^cycleIndex
-    uint256 reward = INITIAL_REWARD >> cycleIndex; // Efficient division by 2^i
+    uint256 reward = INITIAL_REWARD >> cycleIndex;
     if (reward < MIN_REWARD) {
-      return 0; // Mining ends when reward falls below threshold
+      return 0;
     }
     return reward;
   }

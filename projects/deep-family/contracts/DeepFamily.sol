@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "poseidon-solidity/PoseidonT4.sol";
 
 /**
  * @dev DeepFamily Token Contract Interface
@@ -15,7 +16,7 @@ interface IDeepFamilyToken {
 }
 
 /**
- * @dev Top-level ZK Verifier Interface (Groth16 Standard)
+ * @dev Groth16 verifier interface for onboarding person hash commitments.
  */
 interface IPersonHashVerifier {
   function verifyProof(
@@ -27,11 +28,24 @@ interface IPersonHashVerifier {
 }
 
 /**
- * @title DeepFamily - Decentralized Global On-Chain Family Tree Protocol
- * @dev Multi-version family tree with endorsements, ZK proofs, NFTs, and token incentives.
- * Features: Multi-version persons with parent references | Endorsement mechanism with fee distribution
- * ZK addition via Groth16 proofs | NFT minting with on-chain metadata | Token rewards for complete families
- * Name indexing & paginated queries | Story sharding system | Security & gas optimization
+ * @dev Poseidon name binding proof verifier interface used before minting NFTs.
+ */
+interface INamePoseidonVerifier {
+  function verifyProof(
+    uint256[2] calldata a,
+    uint256[2][2] calldata b,
+    uint256[2] calldata c,
+    uint256[4] calldata publicSignals
+  ) external view returns (bool);
+}
+
+/**
+ * @title DeepFamily — Zero-Knowledge Secured Family Tree
+ * @notice Maintains verifiable family lineages with multi-version personas, endorsement flows, and NFT incentives.
+ * @dev Poseidon commitments paired with Groth16 verifiers deliver:
+ *      - private-yet-verifiable identity commitments plus addPersonZK onboarding
+ *      - mintPersonNFT name-binding proofs, endorsement-driven FT reward routing, and parent-linked version histories
+ *      - story chunk append/update/seal lifecycle, pagination-friendly read APIs, and strict validation guardrails
  */
 contract DeepFamily is ERC721Enumerable, Ownable, ReentrancyGuard {
   // ========== Custom Errors (Unified Error Handling) ==========
@@ -53,6 +67,7 @@ contract DeepFamily is ERC721Enumerable, Ownable, ReentrancyGuard {
   // Added ZK-related errors
   error InvalidZKProof();
   error VerifierNotSet();
+  error NameVerifierNotSet();
 
   // Business logic errors
   error DuplicateVersion();
@@ -81,7 +96,7 @@ contract DeepFamily is ERC721Enumerable, Ownable, ReentrancyGuard {
    * @dev Basic identity information structure
    */
   struct PersonBasicInfo {
-    bytes32 fullNameHash; // Hash of the full name (keccak256)
+    bytes32 fullNameCommitment; // Poseidon digest derived from keccak(fullName) and salt
     bool isBirthBC; // Whether birth is BC (Before Christ)
     uint16 birthYear; // Birth year(0=unknown)
     uint8 birthMonth; // Birth month (1-12, 0=unknown)
@@ -236,19 +251,20 @@ contract DeepFamily is ERC721Enumerable, Ownable, ReentrancyGuard {
 
   /// @dev ZK verification contract address (immutable)
   address public immutable PERSON_HASH_VERIFIER;
+  address public immutable NAME_POSEIDON_VERIFIER;
 
   // ========== Event Definitions ==========
 
   /**
    * @dev Person version added event (extended: includes parent hashes and version indices for frontend/indexing tree construction)
    * @notice Version index starts from 1
-   * @param personHash Person hash
+   * @param personHash Person hash (keccak256 of Poseidon commitment)
    * @param versionIndex Version index
    * @param addedBy Address of the person who added this
    * @param timestamp Addition timestamp
-   * @param fatherHash Father's hash
+   * @param fatherHash Father's hash (keccak256 of Poseidon commitment)
    * @param fatherVersionIndex Father's version index (0 means unspecified)
-   * @param motherHash Mother's hash
+   * @param motherHash Mother's hash (keccak256 of Poseidon commitment)
    * @param motherVersionIndex Mother's version index (0 means unspecified)
    * @param tag Version tag
    */
@@ -267,7 +283,7 @@ contract DeepFamily is ERC721Enumerable, Ownable, ReentrancyGuard {
   /**
    * @dev Version endorsement event
    * @notice Version index starts from 1
-   * @param personHash Person hash
+   * @param personHash Person hash (keccak256 of Poseidon commitment)
    * @param endorser Endorser's address
    * @param versionIndex Endorsed version index
    * @param endorsementFee Endorsement fee
@@ -282,14 +298,14 @@ contract DeepFamily is ERC721Enumerable, Ownable, ReentrancyGuard {
   );
 
   /**
-   * @dev Person hash ZK verification event
+   * @dev Person hash ZK verification event (emits final keccak256-wrapped hash)
    */
   event PersonHashZKVerified(bytes32 indexed personHash, address indexed prover);
 
   /**
    * @dev NFT minting event
    * @notice Version index starts from 1
-   * @param personHash Person hash
+   * @param personHash Person hash (keccak256 of Poseidon commitment)
    * @param tokenId NFT TokenID
    * @param owner NFT holder
    * @param versionIndex Corresponding version index
@@ -407,31 +423,35 @@ contract DeepFamily is ERC721Enumerable, Ownable, ReentrancyGuard {
    */
   constructor(
     address _deepFamilyTokenContract,
-    address _personHashVerifier
+    address _personHashVerifier,
+    address _namePoseidonVerifier
   ) ERC721("DeepFamily", "Family") Ownable(msg.sender) {
     if (_deepFamilyTokenContract == address(0)) revert TokenContractNotSet();
     if (_personHashVerifier == address(0)) revert VerifierNotSet();
+    if (_namePoseidonVerifier == address(0)) revert NameVerifierNotSet();
     DEEP_FAMILY_TOKEN_CONTRACT = _deepFamilyTokenContract;
     PERSON_HASH_VERIFIER = _personHashVerifier;
+    NAME_POSEIDON_VERIFIER = _namePoseidonVerifier;
   }
 
   // ========== Core Functionality Functions ==========
 
   /**
-   * @dev Reassembles 2 128-bit limbs starting from 'start' in publicSignals into bytes32 (big-endian: hi128|lo128).
+   * @dev Reassembles 2 128-bit limbs starting from 'start' in publicSignals into raw Poseidon digest bytes32 (big-endian: hi128|lo128).
    */
-  function _packHashFromTwo128(
-    uint256[] calldata signals,
-    uint256 start
-  ) internal pure returns (bytes32 h) {
+  function _packHashFromTwo128(uint256 hi, uint256 lo) internal pure returns (bytes32 h) {
     unchecked {
-      uint256 hi = signals[start];
-      uint256 lo = signals[start + 1];
-      // Ensure each limb < 2^128
       if ((hi >> 128) != 0 || (lo >> 128) != 0) revert InvalidZKProof();
-      uint256 v = (hi << 128) | lo; // Big-endian concatenation
+      uint256 v = (hi << 128) | lo;
       h = bytes32(v);
     }
+  }
+
+  /**
+   * @dev Wrap raw Poseidon digest with keccak256 for domain separation and collision resistance.
+   */
+  function _wrapPoseidonHash(bytes32 poseidonDigest) internal pure returns (bytes32) {
+    return keccak256(abi.encodePacked(poseidonDigest));
   }
 
   /**
@@ -444,34 +464,32 @@ contract DeepFamily is ERC721Enumerable, Ownable, ReentrancyGuard {
   }
 
   /**
-   * @notice Calculate fullNameHash from full name string
-   * @dev Helper function to convert string to hash for PersonBasicInfo
-   */
-  function getFullNameHash(string memory fullName) public pure returns (bytes32) {
-    bytes memory nameBytes = bytes(fullName);
-    if (nameBytes.length == 0 || nameBytes.length > MAX_LONG_TEXT_LENGTH) revert InvalidFullName();
-    return keccak256(nameBytes);
-  }
-
-  /**
    * @notice Calculate unique person hash value
-   * @dev Uses fullNameHash + abi.encodePacked serialization with fixed 38-byte preimage, convenient for ZK circuit constraints.
+   * @dev Matches circuit Poseidon output and applies keccak256 for final domain-separated hash
    */
   function getPersonHash(PersonBasicInfo memory basicInfo) public pure returns (bytes32) {
-    if (basicInfo.fullNameHash == bytes32(0)) revert InvalidFullName();
+    if (basicInfo.fullNameCommitment == bytes32(0)) revert InvalidFullName();
     if (basicInfo.birthMonth > 12) revert InvalidBirthMonth();
     if (basicInfo.birthDay > 31) revert InvalidBirthDay();
-    return
-      keccak256(
-        abi.encodePacked(
-          basicInfo.fullNameHash,
-          uint8(basicInfo.isBirthBC ? 1 : 0),
-          basicInfo.birthYear,
-          basicInfo.birthMonth,
-          basicInfo.birthDay,
-          basicInfo.gender
-        )
-      );
+
+    uint256 limb0 = uint256(basicInfo.fullNameCommitment) >> 128;
+    uint256 limb1 = uint256(basicInfo.fullNameCommitment) & ((1 << 128) - 1);
+
+    uint256 packedData = (uint256(basicInfo.birthYear) << 24) |
+      (uint256(basicInfo.birthMonth) << 16) |
+      (uint256(basicInfo.birthDay) << 8) |
+      (uint256(basicInfo.gender) << 1) |
+      (basicInfo.isBirthBC ? 1 : 0);
+
+    uint256[3] memory inputs;
+    inputs[0] = limb0;
+    inputs[1] = limb1;
+    inputs[2] = packedData;
+
+    uint256 poseidonResult = PoseidonT4.hash(inputs);
+    bytes32 poseidonDigest = bytes32(poseidonResult);
+
+    return _wrapPoseidonHash(poseidonDigest);
   }
 
   /**
@@ -501,12 +519,10 @@ contract DeepFamily is ERC721Enumerable, Ownable, ReentrancyGuard {
     string calldata tag,
     string calldata metadataCID
   ) internal {
-    // Input length validation
     if (bytes(tag).length > MAX_LONG_TEXT_LENGTH) revert InvalidTagLength();
     if (bytes(metadataCID).length > MAX_LONG_TEXT_LENGTH) revert InvalidCIDLength();
     if (fatherVersionIndex > personVersions[fatherHash].length) revert InvalidFatherVersionIndex();
     if (motherVersionIndex > personVersions[motherHash].length) revert InvalidMotherVersionIndex();
-    // Prevent duplicates: check if version already exists
     bytes32 versionHash = keccak256(
       abi.encodePacked(
         personHash,
@@ -514,7 +530,7 @@ contract DeepFamily is ERC721Enumerable, Ownable, ReentrancyGuard {
         motherHash,
         fatherVersionIndex,
         motherVersionIndex,
-        metadataCID
+        tag
       )
     );
     if (versionExists[personHash][versionHash]) revert DuplicateVersion();
@@ -603,43 +619,35 @@ contract DeepFamily is ERC721Enumerable, Ownable, ReentrancyGuard {
     uint256[2] calldata a,
     uint256[2][2] calldata b,
     uint256[2] calldata c,
-    uint256[] calldata publicSignals,
+    uint256[7] calldata publicSignals,
     uint256 fatherVersionIndex,
     uint256 motherVersionIndex,
     string calldata tag,
     string calldata metadataCID
   ) external {
-    // 6 limbs (3 hashes × 2 limbs) + 1 submitter
-    if (publicSignals.length != _HASH_LIMBS_REQUIRED + 1) revert InvalidZKProof();
-
-    // cheap check: all limbs < 2^128 (avoid burning verify gas first)
-    unchecked {
-      for (uint256 i = 0; i < _HASH_LIMBS_REQUIRED; ++i) {
-        if (publicSignals[i] >> 128 != 0) revert InvalidZKProof();
-      }
-    }
-
-    // submitter binding: prevent same-chain frontrunning
     uint256 submitter = publicSignals[_HASH_LIMBS_REQUIRED];
-    if (submitter >> 160 != 0) revert InvalidZKProof();
     if (submitter != uint256(uint160(msg.sender))) revert InvalidZKProof();
 
-    // verify ZK proof (verifier expects fixed-size [7] array)
-    uint256[7] memory fixedSignals;
-    unchecked {
-      for (uint256 i = 0; i < 7; ++i) fixedSignals[i] = publicSignals[i];
-    }
-    if (!IPersonHashVerifier(PERSON_HASH_VERIFIER).verifyProof(a, b, c, fixedSignals)) {
+    if (!IPersonHashVerifier(PERSON_HASH_VERIFIER).verifyProof(a, b, c, publicSignals)) {
       revert InvalidZKProof();
     }
 
-    emit PersonHashZKVerified(_packHashFromTwo128(publicSignals, 0), msg.sender);
+    bytes32 personHash_ = _wrapPoseidonHash(
+      _packHashFromTwo128(publicSignals[0], publicSignals[1])
+    );
+    bytes32 fatherHash_ = _wrapPoseidonHash(
+      _packHashFromTwo128(publicSignals[2], publicSignals[3])
+    );
+    bytes32 motherHash_ = _wrapPoseidonHash(
+      _packHashFromTwo128(publicSignals[4], publicSignals[5])
+    );
 
-    // business write (internal should check: personHash uniqueness, parent/mother version index matches hash, optional length limit)
+    emit PersonHashZKVerified(personHash_, msg.sender);
+
     _addPersonInternal(
-      _packHashFromTwo128(publicSignals, 0), // personHash: limbs 0..1
-      _packHashFromTwo128(publicSignals, 2), // fatherHash: limbs 2..3
-      _packHashFromTwo128(publicSignals, 4), // motherHash: limbs 4..5
+      personHash_,
+      fatherHash_,
+      motherHash_,
       fatherVersionIndex,
       motherVersionIndex,
       tag,
@@ -658,32 +666,26 @@ contract DeepFamily is ERC721Enumerable, Ownable, ReentrancyGuard {
     uint256 versionIndex
   ) external validPersonAndVersion(personHash, versionIndex) {
     uint256 prev = endorsedVersionIndex[personHash][msg.sender];
-    // If endorsing the same version repeatedly, return silently
     if (prev == versionIndex) {
       return;
     }
 
     uint256 arrayIndex = versionIndex - 1;
-
-    // Read current endorsement fee (equivalent to recentReward)
     uint256 fee = IDeepFamilyToken(DEEP_FAMILY_TOKEN_CONTRACT).recentReward();
 
     if (fee > 0) {
-      // New rule:
-      // - If NOT minted: 100% -> version creator (addedBy)
-      // - If minted: 100% -> current NFT holder (even if holder == creator)
       PersonVersion storage v = personVersions[personHash][arrayIndex];
       uint256 tokenId = versionToTokenId[personHash][arrayIndex];
       address recipient;
       if (tokenId != 0) {
-        address holder = _ownerOf(tokenId); // _ownerOf returns address(0) if burned/nonexistent
+        address holder = _ownerOf(tokenId);
         if (holder != address(0)) {
-          recipient = holder; // 100% to NFT holder
+          recipient = holder;
         } else {
-          recipient = v.addedBy; // Fallback safety (should not normally happen)
+          recipient = v.addedBy;
         }
       } else {
-        recipient = v.addedBy; // 100% to creator before NFT exists
+        recipient = v.addedBy;
       }
       bool ok = IDeepFamilyToken(DEEP_FAMILY_TOKEN_CONTRACT).transferFrom(
         msg.sender,
@@ -693,7 +695,6 @@ contract DeepFamily is ERC721Enumerable, Ownable, ReentrancyGuard {
       if (!ok) revert EndorsementFeeTransferFailed();
     }
 
-    // Decrease old version count (only when previously endorsed other versions)
     if (prev > 0) {
       uint256 prevIdx = prev - 1;
       uint256 count = versionEndorsementCount[personHash][prevIdx];
@@ -702,9 +703,7 @@ contract DeepFamily is ERC721Enumerable, Ownable, ReentrancyGuard {
       }
     }
 
-    // New version count +1
     versionEndorsementCount[personHash][arrayIndex] += 1;
-    // Record new endorsement index
     endorsedVersionIndex[personHash][msg.sender] = versionIndex;
 
     emit PersonVersionEndorsed(personHash, msg.sender, versionIndex, fee, block.timestamp);
@@ -719,53 +718,56 @@ contract DeepFamily is ERC721Enumerable, Ownable, ReentrancyGuard {
    * @param coreInfo Person core information structure
    */
   function mintPersonNFT(
+    uint256[2] calldata a,
+    uint256[2][2] calldata b,
+    uint256[2] calldata c,
+    uint256[4] calldata publicSignals,
     bytes32 personHash,
     uint256 versionIndex,
     string calldata _tokenURI,
     PersonCoreInfo calldata coreInfo
   ) external nonReentrant validPersonAndVersion(personHash, versionIndex) {
-    // Convert to array index
     uint256 arrayIndex = versionIndex - 1;
 
-    // Check if this version has already been minted as NFT
     if (versionToTokenId[personHash][arrayIndex] != 0) revert VersionAlreadyMinted();
 
-    // Must endorse this version first
     if (endorsedVersionIndex[personHash][msg.sender] != versionIndex) {
       revert MustEndorseVersionFirst();
     }
 
-    // Input validation
     if (bytes(_tokenURI).length > MAX_LONG_TEXT_LENGTH) revert InvalidTokenURI();
+    if (bytes(coreInfo.supplementInfo.fullName).length == 0) revert InvalidFullName();
+    if (bytes(coreInfo.supplementInfo.fullName).length > MAX_LONG_TEXT_LENGTH)
+      revert InvalidFullName();
     if (bytes(coreInfo.supplementInfo.story).length > MAX_LONG_TEXT_LENGTH) revert InvalidStory();
     if (bytes(coreInfo.supplementInfo.birthPlace).length > MAX_LONG_TEXT_LENGTH)
       revert InvalidBirthPlace();
     if (bytes(coreInfo.supplementInfo.deathPlace).length > MAX_LONG_TEXT_LENGTH)
       revert InvalidDeathPlace();
 
-    // Validate if fullName matches fullNameHash (getFullNameHash will validate fullName length)
-    bytes32 computedFullNameHash = getFullNameHash(coreInfo.supplementInfo.fullName);
-    if (computedFullNameHash != coreInfo.basicInfo.fullNameHash) revert BasicInfoMismatch();
-
-    // Validate if core information matches personHash
     bytes32 computedHash = getPersonHash(coreInfo.basicInfo);
     if (computedHash != personHash) revert BasicInfoMismatch();
 
-    // Generate new tokenId
+    if (!INamePoseidonVerifier(NAME_POSEIDON_VERIFIER).verifyProof(a, b, c, publicSignals))
+      revert InvalidZKProof();
+
+    bytes32 poseidonDigest = _packHashFromTwo128(publicSignals[0], publicSignals[1]);
+    if (poseidonDigest != coreInfo.basicInfo.fullNameCommitment) revert BasicInfoMismatch();
+
+    bytes32 providedFullNameHash = _packHashFromTwo128(publicSignals[2], publicSignals[3]);
+    bytes32 computedFullNameHash = _hashString(coreInfo.supplementInfo.fullName);
+    if (computedFullNameHash != providedFullNameHash) revert BasicInfoMismatch();
+
     uint256 newTokenId = ++tokenCounter;
 
-    // Mint NFT
     _safeMint(msg.sender, newTokenId);
     _setTokenURI(newTokenId, _tokenURI);
 
-    // Establish mapping relationship between NFT and family tree
     tokenIdToPerson[newTokenId] = personHash;
     tokenIdToVersionIndex[newTokenId] = versionIndex;
 
-    // Record version to TokenID mapping
     versionToTokenId[personHash][arrayIndex] = newTokenId;
 
-    // Store core information on-chain
     nftCoreInfo[newTokenId] = coreInfo;
 
     emit PersonNFTMinted(
@@ -804,22 +806,15 @@ contract DeepFamily is ERC721Enumerable, Ownable, ReentrancyGuard {
 
     StoryMetadata storage metadata = storyMetadata[tokenId];
 
-    // Check if already sealed
     if (metadata.isSealed) revert StoryAlreadySealed();
-
-    // Check chunk quantity limit
     if (metadata.totalChunks >= MAX_STORY_CHUNKS) revert ChunkIndexOutOfRange();
-
-    // Validate chunk index (must be added continuously)
     if (chunkIndex != metadata.totalChunks) revert ChunkIndexOutOfRange();
 
-    // Calculate and validate content hash
     bytes32 contentHash = _hashString(content);
     if (expectedHash != bytes32(0) && contentHash != expectedHash) {
       revert ChunkHashMismatch();
     }
 
-    // Create chunk
     StoryChunk storage chunk = storyChunks[tokenId][chunkIndex];
     chunk.chunkIndex = chunkIndex;
     chunk.chunkHash = contentHash;
@@ -827,15 +822,12 @@ contract DeepFamily is ERC721Enumerable, Ownable, ReentrancyGuard {
     chunk.timestamp = block.timestamp;
     chunk.lastEditor = msg.sender;
 
-    // Update metadata
     metadata.totalChunks = metadata.totalChunks + 1;
     metadata.lastUpdateTime = block.timestamp;
     metadata.totalLength = metadata.totalLength + bytes(content).length;
 
-    // Add to active chunk indices
     activeChunkIndices[tokenId].push(chunkIndex);
 
-    // Recalculate complete story hash
     _updateFullStoryHash(tokenId);
 
     emit StoryChunkAdded(tokenId, chunkIndex, contentHash, msg.sender, bytes(content).length);
@@ -855,25 +847,18 @@ contract DeepFamily is ERC721Enumerable, Ownable, ReentrancyGuard {
     string calldata newContent,
     bytes32 expectedHash
   ) external nonReentrant {
-    // Verify NFT ownership
     if (_ownerOf(tokenId) != msg.sender) revert MustBeNFTHolder();
 
     StoryMetadata storage metadata = storyMetadata[tokenId];
 
-    // Check if already sealed
     if (metadata.isSealed) revert StoryAlreadySealed();
-
-    // Validate chunk index
     if (chunkIndex >= metadata.totalChunks) revert ChunkIndexOutOfRange();
-
-    // Validate new content
     if (bytes(newContent).length == 0 || bytes(newContent).length > MAX_CHUNK_CONTENT_LENGTH) {
       revert InvalidChunkContent();
     }
 
     StoryChunk storage chunk = storyChunks[tokenId][chunkIndex];
 
-    // Calculate new content hash
     bytes32 newHash = _hashString(newContent);
     if (expectedHash != bytes32(0) && newHash != expectedHash) {
       revert ChunkHashMismatch();
@@ -882,17 +867,14 @@ contract DeepFamily is ERC721Enumerable, Ownable, ReentrancyGuard {
     bytes32 oldHash = chunk.chunkHash;
     uint256 oldLength = bytes(chunk.content).length;
 
-    // Update chunk
     chunk.chunkHash = newHash;
     chunk.content = newContent;
     chunk.timestamp = block.timestamp;
     chunk.lastEditor = msg.sender;
 
-    // Update metadata
     metadata.lastUpdateTime = block.timestamp;
     metadata.totalLength = metadata.totalLength - oldLength + bytes(newContent).length;
 
-    // Recalculate complete story hash
     _updateFullStoryHash(tokenId);
 
     emit StoryChunkUpdated(tokenId, chunkIndex, oldHash, newHash, msg.sender);
@@ -904,18 +886,13 @@ contract DeepFamily is ERC721Enumerable, Ownable, ReentrancyGuard {
    * @param tokenId NFT TokenID
    */
   function sealStory(uint256 tokenId) external {
-    // Verify NFT ownership
     if (_ownerOf(tokenId) != msg.sender) revert MustBeNFTHolder();
 
     StoryMetadata storage metadata = storyMetadata[tokenId];
 
-    // Check if already sealed
     if (metadata.isSealed) revert StoryAlreadySealed();
-
-    // Check if there are chunks
     if (metadata.totalChunks == 0) revert StoryNotFound();
 
-    // Seal story
     metadata.isSealed = true;
     metadata.lastUpdateTime = block.timestamp;
 
@@ -935,7 +912,6 @@ contract DeepFamily is ERC721Enumerable, Ownable, ReentrancyGuard {
       return;
     }
 
-    // Collect all chunk hashes in index order
     bytes memory combinedHashes;
     for (uint256 i = 0; i < indices.length; i++) {
       uint256 chunkIndex = indices[i];
@@ -943,7 +919,6 @@ contract DeepFamily is ERC721Enumerable, Ownable, ReentrancyGuard {
       combinedHashes = abi.encodePacked(combinedHashes, chunkHash);
     }
 
-    // Calculate combined hash
     metadata.fullStoryHash = keccak256(combinedHashes);
   }
 
@@ -1106,23 +1081,19 @@ contract DeepFamily is ERC721Enumerable, Ownable, ReentrancyGuard {
       uint256 nextOffset
     )
   {
-    // Input validation
     if (limit > MAX_QUERY_PAGE_SIZE) revert PageSizeExceedsLimit();
 
     PersonVersion[] storage allVersions = personVersions[personHash];
     totalVersions = allVersions.length;
 
-    // limit=0: only return totalVersions, no array allocation
     if (limit == 0) {
       return (new PersonVersion[](0), totalVersions, false, offset);
     }
 
-    // If starting position exceeds range, return empty result
     if (offset >= totalVersions) {
       return (new PersonVersion[](0), totalVersions, false, totalVersions);
     }
 
-    // Calculate actual return quantity
     uint256 endIndex = offset + limit;
     if (endIndex > totalVersions) {
       endIndex = totalVersions;
@@ -1131,12 +1102,10 @@ contract DeepFamily is ERC721Enumerable, Ownable, ReentrancyGuard {
     uint256 resultLength = endIndex - offset;
     versions = new PersonVersion[](resultLength);
 
-    // Fill result array
     for (uint256 i = 0; i < resultLength; i++) {
       versions[i] = allVersions[offset + i];
     }
 
-    // Calculate next query starting position and whether there are more versions
     nextOffset = endIndex;
     hasMore = endIndex < totalVersions;
 
@@ -1172,18 +1141,15 @@ contract DeepFamily is ERC721Enumerable, Ownable, ReentrancyGuard {
       uint256 nextOffset
     )
   {
-    // Input validation
     if (limit > MAX_QUERY_PAGE_SIZE) revert PageSizeExceedsLimit();
 
     PersonVersion[] storage versions = personVersions[personHash];
     totalVersions = versions.length;
 
-    // limit=0: only return totalVersions, no array allocation
     if (limit == 0) {
       return (new uint256[](0), new uint256[](0), new uint256[](0), totalVersions, false, offset);
     }
 
-    // If starting position exceeds range, return empty result
     if (offset >= totalVersions) {
       return (
         new uint256[](0),
@@ -1195,7 +1161,6 @@ contract DeepFamily is ERC721Enumerable, Ownable, ReentrancyGuard {
       );
     }
 
-    // Calculate actual return quantity
     uint256 endIndex = offset + limit;
     if (endIndex > totalVersions) {
       endIndex = totalVersions;
@@ -1206,10 +1171,9 @@ contract DeepFamily is ERC721Enumerable, Ownable, ReentrancyGuard {
     endorsementCounts = new uint256[](resultLength);
     tokenIds = new uint256[](resultLength);
 
-    // Fill result array
     for (uint256 i = 0; i < resultLength; i++) {
       uint256 versionIndex = offset + i;
-      versionIndices[i] = versionIndex + 1; // Version index starts from 1
+      versionIndices[i] = versionIndex + 1;
       endorsementCounts[i] = versionEndorsementCount[personHash][versionIndex];
       tokenIds[i] = versionToTokenId[personHash][versionIndex];
     }
@@ -1288,7 +1252,6 @@ contract DeepFamily is ERC721Enumerable, Ownable, ReentrancyGuard {
     if (bytes(newURI).length > MAX_LONG_TEXT_LENGTH) revert InvalidTokenURI();
 
     string memory oldURI = _tokenURIs[tokenId];
-    // Record old URI to history (if old value is not empty)
     if (bytes(oldURI).length > 0) {
       tokenURIHistory[tokenId].push(oldURI);
     }
