@@ -1,0 +1,26 @@
+{
+  "name": "Hardhat Dev Container",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "runArgs": ["--env-file", "${localWorkspaceFolder}/.devcontainer/.env.example"],
+  "remoteUser": "node",
+  "postCreateCommand": "bash -lc 'if [ ! -f .devcontainer/.env ]; then cp .devcontainer/.env.example .devcontainer/.env; fi && pnpm install && pnpm build'",
+  "forwardPorts": [8545],
+  "portsAttributes": {
+    "8545": {
+      "onAutoForward": "notify",
+      "requireLocalPort": true
+    }
+  },
+  "features": {},
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "NomicFoundation.hardhat-vscode",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint"
+      ]
+    }
+  }
+}

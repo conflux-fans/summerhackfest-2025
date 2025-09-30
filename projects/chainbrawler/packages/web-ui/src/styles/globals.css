@@ -1,0 +1,665 @@
+/* Global CSS for ChainBrawler Web UI - Production Ready */
+
+/* CSS Variables - Design Token System */
+:root {
+  /* Brand Colors */
+  --cb-primary: #3b82f6;
+  --cb-secondary: #8b5cf6;
+  --cb-success: #10b981;
+  --cb-warning: #f59e0b;
+  --cb-error: #ef4444;
+
+  /* Game Colors */
+  --cb-combat: #ef4444;
+  --cb-defense: #3b82f6;
+  --cb-luck: #10b981;
+  --cb-health: #f59e0b;
+  --cb-experience: #8b5cf6;
+  --cb-energy: #06b6d4;
+
+  /* Surface Colors */
+  --cb-bg-primary: #0f172a;
+  --cb-bg-secondary: #1e293b;
+  --cb-bg-tertiary: #334155;
+  --cb-surface-elevated: rgba(30, 41, 59, 0.8);
+  --cb-surface-glass: rgba(30, 41, 59, 0.6);
+  --cb-surface-overlay: rgba(15, 23, 42, 0.9);
+
+  /* Text Colors */
+  --cb-text-primary: #f8fafc;
+  --cb-text-secondary: #cbd5e1;
+  --cb-text-tertiary: #94a3b8;
+  --cb-text-muted: #64748b;
+
+  /* Border Colors */
+  --cb-border-primary: rgba(59, 130, 246, 0.2);
+  --cb-border-secondary: rgba(148, 163, 184, 0.1);
+  --cb-border-accent: rgba(59, 130, 246, 0.4);
+
+  /* Spacing */
+  --cb-space-xs: 4px;
+  --cb-space-sm: 8px;
+  --cb-space-md: 16px;
+  --cb-space-lg: 24px;
+  --cb-space-xl: 32px;
+  --cb-space-xxl: 48px;
+
+  /* Border Radius */
+  --cb-radius-sm: 4px;
+  --cb-radius-md: 8px;
+  --cb-radius-lg: 12px;
+  --cb-radius-xl: 16px;
+  --cb-radius-full: 9999px;
+
+  /* Shadows */
+  --cb-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --cb-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --cb-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --cb-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --cb-shadow-game: 0 4px 20px rgba(59, 130, 246, 0.15);
+  --cb-shadow-glow: 0 0 20px rgba(59, 130, 246, 0.3);
+
+  /* Animation */
+  --cb-duration-fast: 150ms;
+  --cb-duration-normal: 300ms;
+  --cb-duration-slow: 500ms;
+  --cb-easing-out: cubic-bezier(0, 0, 0.2, 1);
+  --cb-easing-in: cubic-bezier(0.4, 0, 1, 1);
+  --cb-easing-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Modern CSS Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100vh;
+  font-family:
+    "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--cb-bg-primary);
+  color: var(--cb-text-primary);
+  overflow-x: hidden;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+#root {
+  isolation: isolate;
+}
+
+/* Enhanced Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--cb-bg-secondary);
+  border-radius: var(--cb-radius-sm);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(45deg, var(--cb-primary), var(--cb-secondary));
+  border-radius: var(--cb-radius-sm);
+  transition: all var(--cb-duration-normal) var(--cb-easing-out);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(45deg, var(--cb-primary), var(--cb-secondary));
+  filter: brightness(1.2);
+  box-shadow: var(--cb-shadow-glow);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--cb-primary) var(--cb-bg-secondary);
+}
+
+/* Enhanced Selection Styles */
+::selection {
+  background: rgba(59, 130, 246, 0.3);
+  color: var(--cb-text-primary);
+  text-shadow: none;
+}
+
+::-moz-selection {
+  background: rgba(59, 130, 246, 0.3);
+  color: var(--cb-text-primary);
+  text-shadow: none;
+}
+
+/* Enhanced Focus Styles */
+*:focus {
+  outline: none;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--cb-primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  transition: all var(--cb-duration-fast) var(--cb-easing-out);
+}
+
+/* Focus styles for interactive elements */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--cb-primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+/* Production-Ready Animation Keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes gentlePulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.02);
+  }
+}
+
+@keyframes glow {
+  0%,
+  100% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
+  }
+  50% {
+    box-shadow:
+      0 0 20px rgba(59, 130, 246, 0.6),
+      0 0 30px rgba(59, 130, 246, 0.3);
+  }
+}
+
+@keyframes combatGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+  }
+  50% {
+    box-shadow:
+      0 0 25px rgba(239, 68, 68, 0.8),
+      0 0 40px rgba(239, 68, 68, 0.4);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes bounce {
+  0%,
+  20%,
+  53%,
+  80%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  40%,
+  43% {
+    transform: translate3d(0, -15px, 0);
+  }
+  70% {
+    transform: translate3d(0, -7px, 0);
+  }
+  90% {
+    transform: translate3d(0, -2px, 0);
+  }
+}
+
+/* Enhanced Utility Classes */
+.fade-in {
+  animation: fadeIn var(--cb-duration-slow) var(--cb-easing-out);
+}
+
+.fade-in-up {
+  animation: fadeInUp var(--cb-duration-slow) var(--cb-easing-out);
+}
+
+.slide-in {
+  animation: slideIn var(--cb-duration-normal) var(--cb-easing-out);
+}
+
+.slide-up {
+  animation: slideUp var(--cb-duration-normal) var(--cb-easing-out);
+}
+
+.scale-in {
+  animation: scaleIn var(--cb-duration-normal) var(--cb-easing-out);
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+.gentle-pulse {
+  animation: gentlePulse 3s ease-in-out infinite;
+}
+
+.glow {
+  animation: glow 2s infinite;
+}
+
+.combat-glow {
+  animation: combatGlow 1.5s infinite;
+}
+
+.shimmer {
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.2), transparent);
+  background-size: 200px 100%;
+  animation: shimmer 2s infinite;
+}
+
+.float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.bounce {
+  animation: bounce 1s;
+}
+
+/* Production Game-specific Styles */
+.game-container {
+  min-height: 100vh;
+  background: linear-gradient(
+    135deg,
+    var(--cb-bg-primary) 0%,
+    var(--cb-bg-secondary) 50%,
+    var(--cb-bg-primary) 100%
+  );
+  position: relative;
+}
+
+.game-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 0%,
+    rgba(59, 130, 246, 0.03) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+/* Enhanced Interactive Elements */
+.interactive {
+  transition: all var(--cb-duration-normal) var(--cb-easing-out);
+  cursor: pointer;
+}
+
+.interactive:hover {
+  transform: translateY(-1px);
+}
+
+.interactive:active {
+  transform: translateY(0);
+}
+
+/* Glass Effect */
+.glass-effect {
+  background: var(--cb-surface-glass);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--cb-border-secondary);
+  box-shadow: var(--cb-shadow-lg);
+}
+
+/* Gradient Text */
+.gradient-text {
+  background: linear-gradient(45deg, var(--cb-primary), var(--cb-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  font-weight: 700;
+}
+
+/* Loading State */
+.loading-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--cb-bg-secondary) 25%,
+    var(--cb-bg-tertiary) 50%,
+    var(--cb-bg-secondary) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Enhanced Mobile Optimizations */
+@media (max-width: 768px) {
+  :root {
+    --cb-space-xs: 2px;
+    --cb-space-sm: 4px;
+    --cb-space-md: 8px;
+    --cb-space-lg: 16px;
+    --cb-space-xl: 24px;
+  }
+
+  body {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .game-container {
+    padding: var(--cb-space-sm);
+  }
+
+  /* Touch targets */
+  button,
+  .interactive {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Reduced motion for mobile */
+  .fade-in,
+  .slide-in,
+  .scale-in {
+    animation-duration: var(--cb-duration-fast);
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 769px) and (max-width: 1024px) {
+  :root {
+    --cb-space-md: 12px;
+    --cb-space-lg: 20px;
+    --cb-space-xl: 28px;
+  }
+}
+
+/* Large screen optimizations */
+@media (min-width: 1400px) {
+  :root {
+    --cb-space-md: 20px;
+    --cb-space-lg: 28px;
+    --cb-space-xl: 36px;
+    --cb-space-xxl: 56px;
+  }
+}
+
+/* Enhanced Accessibility Support */
+@media (prefers-contrast: high) {
+  :root {
+    --cb-border-primary: rgba(59, 130, 246, 0.6);
+    --cb-border-secondary: rgba(148, 163, 184, 0.3);
+    --cb-text-secondary: #e2e8f0;
+    --cb-text-tertiary: #cbd5e1;
+  }
+
+  .glass-effect,
+  .game-card {
+    border-width: 2px;
+    background: var(--cb-surface-elevated);
+  }
+
+  button,
+  .interactive {
+    border: 2px solid var(--cb-primary);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .pulse,
+  .glow,
+  .combat-glow,
+  .gentle-pulse,
+  .float {
+    animation: none !important;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: light) {
+  :root {
+    --cb-bg-primary: #f8fafc;
+    --cb-bg-secondary: #f1f5f9;
+    --cb-text-primary: #1e293b;
+    --cb-text-secondary: #475569;
+    --cb-surface-elevated: rgba(255, 255, 255, 0.8);
+    --cb-surface-glass: rgba(255, 255, 255, 0.6);
+  }
+}
+
+/* Print styles */
+@media print {
+  * {
+    background: transparent !important;
+    color: black !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  body {
+    font-size: 12pt;
+    line-height: 1.4;
+  }
+
+  .game-container {
+    background: white !important;
+  }
+
+  .glass-effect,
+  .game-card {
+    background: white !important;
+    border: 1px solid black !important;
+  }
+
+  /* Hide interactive elements */
+  button,
+  .interactive {
+    display: none !important;
+  }
+}
+
+/* Performance Optimizations */
+.will-change-transform {
+  will-change: transform;
+}
+
+.will-change-opacity {
+  will-change: opacity;
+}
+
+.gpu-accelerated {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Custom Properties for Components */
+.mantine-Button-root {
+  --button-radius: var(--cb-radius-md);
+}
+
+.mantine-Card-root {
+  --card-radius: var(--cb-radius-lg);
+}
+
+.mantine-Modal-content {
+  --modal-radius: var(--cb-radius-lg);
+}
+
+/* Component-specific enhancements */
+.mantine-Tabs-tab {
+  transition: all var(--cb-duration-normal) var(--cb-easing-out);
+}
+
+.mantine-ActionIcon-root {
+  transition: all var(--cb-duration-normal) var(--cb-easing-out);
+}
+
+.mantine-Badge-root {
+  font-weight: 600;
+}
+
+/* Enhanced focus for keyboard navigation */
+.mantine-Button-root:focus-visible,
+.mantine-ActionIcon-root:focus-visible {
+  outline: 2px solid var(--cb-primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+/* Loading states */
+.skeleton {
+  background: var(--cb-surface-glass);
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+  transform: translateX(-100%);
+  animation: shimmer 2s infinite;
+}

@@ -1,0 +1,158 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Debug repository structure
+      run: |
+        echo "Current directory: $(pwd)"
+        echo "Repository name: ${{ github.repository }}"
+        echo "Repository owner: ${{ github.repository_owner }}"
+        echo "Repository name only: ${{ github.event.repository.name }}"
+        echo "Contents of current directory:"
+        ls -la
+        echo "Contents of parent directory:"
+        ls -la ..
+    
+    - name: Install pnpm and Node.js
+      uses: pnpm/action-setup@v4
+      with:
+        run_install: false
+        
+    - name: Verify pnpm installation
+      run: pnpm --version
+      
+    - name: Check for pnpm-lock.yaml
+      run: |
+        echo "Current directory: $(pwd)"
+        echo "Files in current directory:"
+        ls -la
+        if [ ! -f "pnpm-lock.yaml" ]; then
+          echo "❌ pnpm-lock.yaml not found!"
+          exit 1
+        else
+          echo "✅ pnpm-lock.yaml found"
+        fi
+
+    - name: Install dependencies
+      run: pnpm install
+
+    - name: Build packages
+      run: pnpm -w build
+
+    - name: Run tests
+      run: pnpm test
+      env:
+        CI: true
+        NODE_ENV: test
+
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+
+  # Linting is disabled for now - uncomment when ready
+  # lint:
+  #   runs-on: ubuntu-latest
+  #   
+  #   steps:
+  #   - uses: actions/checkout@v4
+  #     with:
+  #       fetch-depth: 0
+  #   
+  #   - name: Debug repository structure
+  #     run: |
+  #       echo "Current directory: $(pwd)"
+  #       echo "Repository name: ${{ github.repository }}"
+  #       echo "Contents of current directory:"
+  #       ls -la
+  #   
+  #   - name: Install pnpm and Node.js
+  #     uses: pnpm/action-setup@v4
+  #     with:
+  #       run_install: false
+  #       
+  #   - name: Verify pnpm installation
+  #     run: pnpm --version
+  #     
+  #   - name: Check for pnpm-lock.yaml
+  #     run: |
+  #       echo "Current directory: $(pwd)"
+  #       echo "Files in current directory:"
+  #       ls -la
+  #       if [ ! -f "pnpm-lock.yaml" ]; then
+  #         echo "❌ pnpm-lock.yaml not found!"
+  #         exit 1
+  #       else
+  #         echo "✅ pnpm-lock.yaml found"
+  #       fi
+  #       
+  #   - name: Install dependencies
+  #     run: pnpm install
+  #     
+  #   - name: Run Biome linting
+  #     run: pnpm lint
+
+  contracts:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Debug repository structure
+      run: |
+        echo "Current directory: $(pwd)"
+        echo "Repository name: ${{ github.repository }}"
+        echo "Contents of current directory:"
+        ls -la
+    
+    - name: Install pnpm and Node.js
+      uses: pnpm/action-setup@v4
+      with:
+        run_install: false
+        
+    - name: Verify pnpm installation
+      run: pnpm --version
+      
+    - name: Check for pnpm-lock.yaml
+      run: |
+        echo "Current directory: $(pwd)"
+        echo "Files in current directory:"
+        ls -la
+        if [ ! -f "pnpm-lock.yaml" ]; then
+          echo "❌ pnpm-lock.yaml not found!"
+          exit 1
+        else
+          echo "✅ pnpm-lock.yaml found"
+        fi
+        
+    - name: Install dependencies
+      run: pnpm install
+      
+    - name: Compile contracts
+      run: cd packages/contract && pnpm run build
+      env:
+        HARDHAT_VAR_DEPLOYER_MNEMONIC: "test test test test test test test test test test test junk"
+      
+    - name: Run contract tests
+      run: cd packages/contract && pnpm test
+      env:
+        HARDHAT_VAR_DEPLOYER_MNEMONIC: "test test test test test test test test test test test junk"

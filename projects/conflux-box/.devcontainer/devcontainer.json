@@ -1,0 +1,17 @@
+{
+  "name": "Conflux DevKit — DevContainer",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-20-bookworm",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "ms-vscode.vscode-node-azure-pack",
+        "ms-vscode-remote.remote-containers"
+      ]
+    }
+  },
+  "forwardPorts": [3000, 3001, 3002],
+  "postCreateCommand": "npm i -g pnpm@8 && pnpm install",
+  "features": {}
+}

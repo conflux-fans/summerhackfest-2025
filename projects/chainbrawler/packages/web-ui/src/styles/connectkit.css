@@ -1,0 +1,115 @@
+/* ConnectKit Custom Styling for ChainBrawler */
+
+/* Override ConnectKit theme variables */
+:root {
+  --ck-font-family: "Inter", system-ui, sans-serif;
+  --ck-font-weight: 500;
+  --ck-border-radius: 12px;
+  --ck-overlay-backdrop-filter: blur(10px);
+  --ck-overlay-background: rgba(15, 23, 42, 0.8);
+  --ck-modal-box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --ck-body-background: rgba(30, 41, 59, 0.9);
+  --ck-body-color: #f8fafc;
+  --ck-primary-button-background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+  --ck-primary-button-color: #ffffff;
+  --ck-primary-button-hover-background: linear-gradient(45deg, #2563eb, #7c3aed);
+  --ck-secondary-button-background: rgba(59, 130, 246, 0.1);
+  --ck-secondary-button-color: #3b82f6;
+  --ck-secondary-button-hover-background: rgba(59, 130, 246, 0.2);
+  --ck-tertiary-button-background: transparent;
+  --ck-tertiary-button-color: #94a3b8;
+  --ck-tertiary-button-hover-background: rgba(148, 163, 184, 0.1);
+  --ck-accent-color: #3b82f6;
+  --ck-accent-text-color: #ffffff;
+  --ck-error-color: #ef4444;
+  --ck-focus-color: #3b82f6;
+  --ck-spinner-color: #3b82f6;
+  --ck-dropdown-button-color: #f8fafc;
+  --ck-dropdown-button-hover-color: #ffffff;
+  --ck-dropdown-button-hover-background: rgba(59, 130, 246, 0.1);
+  --ck-dropdown-panel-background: rgba(30, 41, 59, 0.95);
+  --ck-dropdown-panel-border: 1px solid rgba(59, 130, 246, 0.2);
+  --ck-copytoclipboard-stroke: #94a3b8;
+  --ck-tooltip-background: rgba(15, 23, 42, 0.9);
+  --ck-tooltip-background-border: 1px solid rgba(59, 130, 246, 0.2);
+  --ck-tooltip-color: #f8fafc;
+  --ck-tooltip-margin: 0 0 0 0;
+  --ck-tooltip-arrow-size: 6px;
+  --ck-tooltip-arrow-stroke: #3b82f6;
+  --ck-tooltip-arrow-fill: rgba(15, 23, 42, 0.9);
+}
+
+/* Custom ConnectKit button styling */
+[data-connectkit] button {
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-connectkit] button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3) !important;
+}
+
+/* Modal styling */
+[data-connectkit-modal] {
+  backdrop-filter: blur(10px) !important;
+  background: rgba(15, 23, 42, 0.8) !important;
+}
+
+[data-connectkit-modal] > div {
+  background: rgba(30, 41, 59, 0.95) !important;
+  border: 1px solid rgba(59, 130, 246, 0.2) !important;
+  border-radius: 16px !important;
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Wallet list styling */
+[data-connectkit-wallet-list] {
+  background: transparent !important;
+}
+
+[data-connectkit-wallet-list] button {
+  background: rgba(59, 130, 246, 0.05) !important;
+  border: 1px solid rgba(59, 130, 246, 0.1) !important;
+  border-radius: 12px !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-connectkit-wallet-list] button:hover {
+  background: rgba(59, 130, 246, 0.1) !important;
+  border-color: rgba(59, 130, 246, 0.3) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Account button styling */
+[data-connectkit-account-button] {
+  background: linear-gradient(45deg, #3b82f6, #8b5cf6) !important;
+  border: none !important;
+  border-radius: 12px !important;
+  color: white !important;
+  font-weight: 600 !important;
+  padding: 8px 16px !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-connectkit-account-button]:hover {
+  background: linear-gradient(45deg, #2563eb, #7c3aed) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3) !important;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  [data-connectkit-modal] > div {
+    margin: 16px !important;
+    max-width: calc(100vw - 32px) !important;
+  }
+
+  [data-connectkit-wallet-list] button {
+    padding: 12px !important;
+    font-size: 14px !important;
+  }
+}

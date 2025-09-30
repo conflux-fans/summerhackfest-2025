@@ -1,0 +1,48 @@
+test-node-data
+dev-node-data
+# Dependencies and package management
+node_modules
+.pnpm-store
+
+# Hardhat files
+cache
+artifacts
+deployments
+typechain
+typechain-types
+coverage
+coverage.json
+
+# Vite and frontend
+dist
+dist-ssr
+*.local
+# Generated files - be more specific about what to ignore
+packages/*/src/generated/
+!packages/core/src/generated/
+!packages/sdk/src/generated.ts
+!packages/common/src/generated_deployed_addresses.ts
+# Environment files
+.env
+.env.*
+!.env.example
+
+# IDE and OS files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Build and temp folders
+.turbo
+build
+out
+
+# NDJSON test/log outputs
+*.ndjson
+*.log

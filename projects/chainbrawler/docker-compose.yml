@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # Web UI Development
+  web-ui-dev:
+    build: .
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - .:/workspaces/chainbrawler_dev
+      - /workspaces/chainbrawler_dev/node_modules
+    command: ["pnpm", "--filter", "web-ui", "dev", "--host", "0.0.0.0", "--port", "5173"]
+    profiles:
+      - dev
+
+  # Web UI Production
+  web-ui-prod:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    command: ["pnpm", "--filter", "web-ui", "preview", "--host", "0.0.0.0", "--port", "3000"]
+    profiles:
+      - prod
+
+  # Playwright Testing
+  playwright-test:
+    build: .
+    environment:
+      - NODE_ENV=test
+    volumes:
+      - .:/workspaces/chainbrawler_dev
+      - /workspaces/chainbrawler_dev/node_modules
+    command: ["npx", "playwright", "test", "--project=chromium"]
+    profiles:
+      - test
+
+  # All services for full development environment
+  all:
+    build: .
+    ports:
+      - "5173:5173"
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - .:/workspaces/chainbrawler_dev
+      - /workspaces/chainbrawler_dev/node_modules
+    command: ["pnpm", "--filter", "web-ui", "dev", "--host", "0.0.0.0", "--port", "5173"]
+    profiles:
+      - all
+
