@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>NFTicket Mobile</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #0B0F14;
+            color: #E6ECF2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .container {
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        h1 {
+            color: #22D3EE;
+            margin-bottom: 20px;
+        }
+        .status {
+            background-color: #101621;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            margin: 20px 0;
+        }
+        .button {
+            background-color: #22D3EE;
+            color: #0B0F14;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 10px;
+            width: 100%;
+            max-width: 200px;
+        }
+        .button:hover {
+            background-color: #1BC5D9;
+        }
+        .button:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+        }
+        .code-input {
+            background-color: #101621;
+            border: 2px solid #22D3EE;
+            border-radius: 8px;
+            color: #E6ECF2;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            padding: 15px;
+            margin: 10px auto;
+            width: 250px;
+            letter-spacing: 3px;
+            display: block;
+            text-transform: uppercase;
+        }
+        .code-input:focus {
+            outline: none;
+            border-color: #1BC5D9;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+        }
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #101621;
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+        .close {
+            color: #AAB7C4;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: #E6ECF2;
+        }
+        .wallet-info {
+            background-color: #0B0F14;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: monospace;
+        }
+        .nft-card {
+            background-color: #0B0F14;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .success {
+            color: #22C55E;
+        }
+        .error {
+            color: #EF4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎫 NFTicket Mobile</h1>
+        
+        <div class="status" id="walletStatus">
+            <h2>Wallet Status</h2>
+            <p id="walletText">Not connected</p>
+            <div id="walletInfo" class="wallet-info" style="display: none;">
+                <p><strong>Address:</strong> <span id="walletAddress"></span></p>
+                <p><strong>Balance:</strong> <span id="walletBalance"></span> CFX</p>
+            </div>
+        </div>
+
+        <button class="button" onclick="openConnectModal()" id="connectBtn">
+            Connect Wallet
+        </button>
+        
+        <button class="button" onclick="openVerifyModal()" id="verifyBtn" style="display: none;">
+            Verify NFT
+        </button>
+
+        <div id="nftsSection" style="display: none;">
+            <h3>Your NFTs</h3>
+            <div id="nftList"></div>
+        </div>
+
+        <p style="margin-top: 30px; color: #AAB7C4; font-size: 14px;">
+            Demo Mode: All actions are simulated for demonstration purposes
+        </p>
+    </div>
+
+    <!-- Connect Wallet Modal -->
+    <div id="connectModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeConnectModal()">&times;</span>
+            <h2>Connect Wallet</h2>
+            <p>Enter the 6-character code to link your wallet:</p>
+            <input type="text" class="code-input" id="connectCode" maxlength="6" placeholder="ABC123">
+            <br><br>
+            <button class="button" onclick="connectWallet()">Connect</button>
+            <p id="connectStatus"></p>
+        </div>
+    </div>
+
+    <!-- Verify NFT Modal -->
+    <div id="verifyModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeVerifyModal()">&times;</span>
+            <h2>Verify NFT</h2>
+            <p>Enter the 6-character verification code:</p>
+            <input type="text" class="code-input" id="verifyCode" maxlength="6" placeholder="ABC123">
+            <br><br>
+            <button class="button" onclick="verifyNFT()">Verify</button>
+            <p id="verifyStatus"></p>
+        </div>
+    </div>
+
+    <script>
+        let isConnected = false;
+        let walletAddress = '';
+        let nfts = [
+            {
+                id: '1',
+                name: 'VIP Access Pass #42',
+                description: 'Premium access to exclusive events',
+                rarity: 'Epic',
+                verified: true
+            },
+            {
+                id: '2', 
+                name: 'Concert Ticket #128',
+                description: 'Front row seat access',
+                rarity: 'Legendary',
+                verified: true
+            },
+            {
+                id: '3',
+                name: 'Exclusive Art Piece #1',
+                description: 'A unique digital artwork',
+                rarity: 'Legendary',
+                verified: false
+            }
+        ];
+
+        function openConnectModal() {
+            document.getElementById('connectModal').style.display = 'block';
+            document.getElementById('connectCode').focus();
+        }
+
+        function closeConnectModal() {
+            document.getElementById('connectModal').style.display = 'none';
+            document.getElementById('connectCode').value = '';
+            document.getElementById('connectStatus').textContent = '';
+        }
+
+        function openVerifyModal() {
+            document.getElementById('verifyModal').style.display = 'block';
+            document.getElementById('verifyCode').focus();
+        }
+
+        function closeVerifyModal() {
+            document.getElementById('verifyModal').style.display = 'none';
+            document.getElementById('verifyCode').value = '';
+            document.getElementById('verifyStatus').textContent = '';
+        }
+
+        function connectWallet() {
+            const code = document.getElementById('connectCode').value;
+            const statusEl = document.getElementById('connectStatus');
+            
+            if (code.length !== 6) {
+                statusEl.textContent = 'Please enter a 6-character code';
+                statusEl.className = 'error';
+                return;
+            }
+
+            // Simulate connection process
+            statusEl.textContent = 'Connecting...';
+            statusEl.className = '';
+            
+            setTimeout(() => {
+                // Simulate successful connection
+                isConnected = true;
+                walletAddress = '0x742d35cc61b8000000000000000000000000000';
+                
+                // Update UI
+                document.getElementById('walletText').textContent = 'Connected';
+                document.getElementById('walletAddress').textContent = walletAddress.slice(0, 6) + '...' + walletAddress.slice(-4);
+                document.getElementById('walletBalance').textContent = '1.25';
+                document.getElementById('walletInfo').style.display = 'block';
+                document.getElementById('connectBtn').style.display = 'none';
+                document.getElementById('verifyBtn').style.display = 'inline-block';
+                document.getElementById('nftsSection').style.display = 'block';
+                
+                // Show NFTs
+                displayNFTs();
+                
+                statusEl.textContent = 'Wallet connected successfully!';
+                statusEl.className = 'success';
+                
+                setTimeout(() => {
+                    closeConnectModal();
+                }, 1500);
+            }, 2000);
+        }
+
+        function verifyNFT() {
+            const code = document.getElementById('verifyCode').value;
+            const statusEl = document.getElementById('verifyStatus');
+            
+            if (code.length !== 6) {
+                statusEl.textContent = 'Please enter a 6-character code';
+                statusEl.className = 'error';
+                return;
+            }
+
+            // Simulate verification process
+            statusEl.textContent = 'Verifying...';
+            statusEl.className = '';
+            
+            setTimeout(() => {
+                // Simulate verification result
+                const success = Math.random() > 0.3; // 70% success rate
+                
+                if (success) {
+                    statusEl.textContent = 'NFT verified successfully!';
+                    statusEl.className = 'success';
+                    
+                    // Mark a random NFT as verified
+                    const randomNft = nfts[Math.floor(Math.random() * nfts.length)];
+                    randomNft.verified = true;
+                    displayNFTs();
+                } else {
+                    statusEl.textContent = 'Verification failed. Please try again.';
+                    statusEl.className = 'error';
+                }
+                
+                setTimeout(() => {
+                    closeVerifyModal();
+                }, 2000);
+            }, 1500);
+        }
+
+        function displayNFTs() {
+            const nftList = document.getElementById('nftList');
+            nftList.innerHTML = '';
+            
+            nfts.forEach(nft => {
+                const nftCard = document.createElement('div');
+                nftCard.className = 'nft-card';
+                nftCard.innerHTML = `
+                    <h4>${nft.name}</h4>
+                    <p>${nft.description}</p>
+                    <p><strong>Rarity:</strong> ${nft.rarity}</p>
+                    <p><strong>Status:</strong> ${nft.verified ? '✅ Verified' : '❌ Not Verified'}</p>
+                `;
+                nftList.appendChild(nftCard);
+            });
+        }
+
+        // Allow only alphanumeric characters in code inputs and convert to uppercase
+        document.getElementById('connectCode').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^A-Z0-9]/gi, '').toUpperCase();
+        });
+
+        document.getElementById('verifyCode').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^A-Z0-9]/gi, '').toUpperCase();
+        });
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const connectModal = document.getElementById('connectModal');
+            const verifyModal = document.getElementById('verifyModal');
+            
+            if (event.target === connectModal) {
+                closeConnectModal();
+            }
+            if (event.target === verifyModal) {
+                closeVerifyModal();
+            }
+        }
+    </script>
+</body>
+</html>
