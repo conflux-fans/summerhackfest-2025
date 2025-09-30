@@ -1,0 +1,908 @@
+{
+  "navigation": {
+    "home": "首页",
+    "familyTree": "族谱",
+    "search": "搜索",
+    "people": "人物",
+    "actions": "操作"
+  },
+  "home": {
+    "title": "去中心化数字族谱",
+    "subtitle": "零知识隐私保护 · 口令加盐去链接性 · 双树模式 · 社区背书机制 · NFT价值创造",
+    "exploreFamilyTree": "探索族谱",
+    "addPerson": "添加人物",
+    "search": "搜索",
+    "searchGenealogy": "搜索族谱",
+    "configSettings": "配置连接设置",
+    "blockchainActions": "添加人物",
+    "tagStrip": {
+      "protocol": "去中心化",
+      "incentive": "激励循环", 
+      "nft": "NFT",
+      "zk": "ZK"
+    },
+    "coreValue": {
+      "title": "核心使命",
+      "description": "构建永久可信的全球数字族谱基础设施"
+    },
+    "valueProps": {
+      "title": "核心价值主张",
+      "subtitle": "构建多维度可信谱系生态，实现从信息探索到价值确认的自然演进",
+      "zkPrivacy": {
+        "title": "零知识隐私",
+        "description": "使用Groth16证明私密提交族谱成员，验证结构正确性的同时隐藏敏感信息"
+      },
+      "saltedUnlinkability": {
+        "title": "口令加盐去链接性",
+        "description": "独有口令防止身份推理和污染攻击，确保每个身份哈希的唯一性和安全性"
+      },
+      "dualTreeModels": {
+        "title": "双树模式",
+        "description": "支持公开协作树和私有保护树，满足不同场景下的族谱构建需求"
+      },
+      "communityEndorsement": {
+        "title": "社区背书",
+        "description": "DEEP代币背书机制过滤噪声，形成高质量数据的社区共识"
+      },
+      "nftValueCreation": {
+        "title": "NFT价值创造",
+        "description": "版本 → NFT → 持有人获得后续背书费用流，激励高质量数据贡献"
+      },
+      "storyShardingSealing": {
+        "title": "故事分片与封存",
+        "description": "分片写入传记内容 + 哈希验证 + 封存后不可篡改，形成永久链上档案"
+      }
+    },
+    "valueSystem": {
+      "title": "两层价值体系",
+      "subtitle": "渐进式隐私模型：私有提交 → 社区背书 → 可选公开披露",
+      "layer1": {
+        "title": "隐私保护",
+        "description": "口令加盐系统防止身份推理和污染攻击。零知识证明确保提交过程完全隐私。",
+        "feature1": "口令加盐去链接性",
+        "feature2": "反污染保护机制",
+        "feature3": "双树模式：公开与私有"
+      },
+      "layer2": {
+        "title": "公开NFT资产",
+        "description": "社区背书的版本可铸造为NFT，公开完整个人信息。故事分片支持详细的链上传记。",
+        "feature1": "NFT铸造公开完整信息",
+        "feature2": "需要社区背书",
+        "feature3": "故事分片与价值确认"
+      },
+      "flow": {
+        "title": "隐私到价值流程",
+        "description": "从私有哈希存储到社区验证的NFT资产",
+        "step1": "私有提交",
+        "step1Desc": "使用零知识证明添加族谱成员",
+        "step2": "公开披露",
+        "step2Desc": "铸造NFT公开完整传记信息"
+      },
+      "dualModels": {
+        "title": "双树模式",
+        "description": "口令加盐系统支持协作公开树和抗污染私有树两种模式",
+        "public": {
+          "title": "公开协作树",
+          "description": "共享口令使多个用户能够协作构建完整的族谱。",
+          "benefit": "社区协作",
+          "mode": "共享口令模式"
+        },
+        "private": {
+          "title": "私有保护树",
+          "description": "独有口令创建完全受保护的族谱，免受污染攻击和关系破坏。",
+          "benefit": "反污染保护",
+          "mode": "独有口令模式"
+        }
+      },
+      "advantages": {
+        "title": "工作流程",
+        "subtitle": "五步式价值发现与共识形成机制",
+        "step1": "添加人物版本",
+        "step1Desc": "若双亲均存在 → 获得挖矿奖励",
+        "step2": "其他用户背书",
+        "step2Desc": "支付 DEEP 背书某一版本",
+        "step3": "铸造版本 NFT",
+        "step3Desc": "背书者可铸造对应版本的 NFT",
+        "step4": "撰写故事分片",
+        "step4Desc": "NFT 持有人撰写/追加人物故事分片",
+        "step5": "故事封存",
+        "step5Desc": "故事封存，形成不可更改的链上历史影像",
+        "conclusion": "价值驱动的协作网络",
+        "conclusionDesc": "通过经济激励机制，实现高质量谱系数据的自然累积与价值发现"
+      }
+    },
+    "features": {
+      "title": "核心功能",
+      "subtitle": "完整的功能模块支持双层网络运作",
+      "zkVersion": {
+        "title": "ZK 版本添加",
+        "description": "用零知识证明提交哈希绑定版本，验证结构正确性的同时隐藏敏感字段"
+      },
+      "versionManagement": {
+        "title": "人物版本管理", 
+        "description": "多版本并列，按父母 / 子代可索引，无法篡改只能新增替代叙述"
+      },
+      "endorsementEconomy": {
+        "title": "背书经济",
+        "description": "费用随当前发行奖励动态浮动，背书筛选优先级，过滤噪声形成共识"
+      },
+      "personNFT": {
+        "title": "人物 NFT",
+        "description": "绑定特定版本，承载价值与后续收益权，激励高质量数据贡献"
+      },
+      "storySharding": {
+        "title": "故事分片",
+        "description": "分片写入 → 哈希合成 → 封存为历史快照，形成可验证的链上档案"
+      },
+      "versionNotarization": {
+        "title": "版本公证",
+        "description": "无法篡改的版本历史，只能新增替代叙述，由背书筛选优先级"
+      }
+    },
+    "tokenomics": {
+      "title": "激励与代币经济",
+      "subtitle": "DEEP 代币驱动的可持续生态激励机制",
+      "deepToken": {
+        "title": "DEEP 代币",
+        "description": "多阶段递减挖矿 → 进入稳定发行区间，抗通胀设计"
+      },
+      "supply": {
+        "title": "总量上限",
+        "description": "1000 亿枚代币上限，无预挖，公平启动"
+      },
+      "mining": {
+        "title": "挖矿触发",
+        "description": "新增含双亲引用的有效人物版本时触发挖矿奖励"
+      },
+      "endorsement": {
+        "title": "背书费用",
+        "description": "等于当前挖矿奖励，与发行强度自适应耦合"
+      },
+      "distribution": {
+        "title": "费用分配",
+        "description": "NFT 铸造前归创建者，NFT 铸造后归 NFT 持有人"
+      },
+      "goal": {
+        "title": "经济目标",
+        "description": "鼓励高质量结构化补全，抑制刷垃圾与重复噪声"
+      }
+    },
+    "audience": {
+      "title": "面向角色",
+      "subtitle": "多元化用户群体的协作生态",
+      "contributors": {
+        "title": "数据贡献者",
+        "description": "录入、补全与考证谱系信息，构建可信的族谱数据网络",
+        "benefit1": "获得 DEEP 代币挖矿奖励",
+        "benefit2": "享受长期背书费用分成"
+      },
+      "researchers": {
+        "title": "族谱研究者", 
+        "description": "追踪版本演化与分歧，探索家族历史的多元叙述和真相",
+        "benefit1": "访问完整的版本演化历史",
+        "benefit2": "发现家族关系网络的隐藏连接"
+      },
+      "developers": {
+        "title": "开发者",
+        "description": "集成智能合约、前端组件，开发二次应用和知识图谱系统",
+        "benefit1": "使用完整的智能合约接口",
+        "benefit2": "构建去中心化族谱生态应用"
+      },
+      "creators": {
+        "title": "叙事创作者",
+        "description": "编写与封存历史故事，将家族记忆转化为可验证的链上档案",
+        "benefit1": "创作内容获得永久存储",
+        "benefit2": "通过故事分片获得版权保护"
+      }
+    },
+    "contracts": {
+      "title": "智能合约架构",
+      "subtitle": "完整的族谱智能合约系统，涵盖人物管理、背书系统、NFT铸造和治理机制",
+      "familyTree": {
+        "feature1": "人物管理系统",
+        "feature2": "背书质押机制",
+        "feature3": "NFT铸造功能"
+      },
+      "token": {
+        "feature1": "ERC20代币合约",
+        "feature2": "10个减半阶段",
+        "feature3": "总供应量1000亿"
+      },
+  "votes": {
+        "feature1": "NFT投票权重",
+        "feature2": "背书挑战提案",
+        "feature3": "费用调整提案"
+      }
+    },
+    "cta": {
+      "title": "开始构建您的数字族谱",
+      "subtitle": "使用智能合约构建您的数字族谱，参与去中心化家族记录系统的建设",
+      "startButton": "开始构建",
+      "exploreButton": "探索族谱",
+      "experience": "立即体验",
+      "search": "搜索族谱",
+      "configure": "配置连接",
+      "opensource": "GitHub 开源项目",
+      "free": "开源免费",
+      "license": "MIT 许可证",
+      "privacy": "隐私保护",
+      "security": "安全保障"
+    }
+  },
+  "search": {
+    "title": "搜索",
+    "query": "查询",
+    "reset": "重置",
+    "copy": "复制",
+    "copied": "已复制",
+    "copyFailed": "复制失败",
+    "loading": "查询中...",
+    "noData": "暂无数据",
+    "prev": "上一页",
+    "next": "下一页",
+    "queryFailed": "查询失败",
+    "totalResults": "结果总数",
+    "nameQuery": {
+      "title": "按全名查询",
+      "fullName": "全名",
+      "pageSize": "每页数量(≤100)",
+      "placeholder": "如：John Smith"
+    },
+    "endorsementQuery": {
+      "title": "背书统计查询",
+      "personHash": "人物哈希",
+      "placeholder": "0x1234...abcd (64位十六进制)",
+      "version": "版本",
+      "endorsementCount": "背书数",
+      "tokenId": "Token ID"
+    },
+    "uriQuery": {
+      "title": "URI历史查询",
+      "tokenId": "Token ID",
+      "placeholder": "请输入Token ID"
+    },
+    "versionsQuery": {
+      "title": "人物版本查询",
+      "personHash": "人物哈希",
+      "placeholder": "0x1234...abcd (64位十六进制)",
+      "versionIndex": "版本序号",
+      "creator": "创建者",
+      "addTime": "添加时间",
+      "fatherHash": "父亲哈希",
+      "motherHash": "母亲哈希",
+      "fatherVersion": "父亲版本",
+      "motherVersion": "母亲版本",
+      "versionTag": "版本标签",
+      "metadataCID": "元数据CID",
+      "unknown": "未知",
+      "none": "无"
+    },
+    "storyChunksQuery": {
+      "title": "故事分片查询",
+      "tokenId": "Token ID",
+      "placeholder": "请输入NFT Token ID",
+      "chunkIndex": "分片索引",
+      "chunkHash": "分片哈希",
+      "content": "内容",
+      "timestamp": "时间戳",
+      "lastEditor": "最后编辑者",
+      "contentPreview": "内容预览",
+      "totalChunks": "总分片数"
+    },
+    "childrenQuery": {
+      "title": "子女查询",
+      "parentHash": "父母哈希",
+      "parentVersion": "父母版本",
+      "parentHashPlaceholder": "0x1234...abcd (64位十六进制)",
+      "parentVersionPlaceholder": "请输入父母版本序号",
+      "childHash": "子女哈希",
+      "childVersion": "子女版本",
+      "totalChildren": "总子女数"
+    },
+    "hashCalculator": {
+      "title": "本地计算人物哈希",
+      "tip": "💡 提示：使用下面的工具计算人物哈希，然后复制到下方的查询中使用",
+      "name": "全名",
+      "isBirthBC": "公元前",
+      "birthYear": "出生年",
+      "birthMonth": "1-12",
+      "birthDay": "1-31",
+      "gender": "性别",
+      "genderOptions": {
+        "unknown": "未知",
+        "male": "男性",
+        "female": "女性",
+        "other": "其他"
+      },
+      "birthYearLabel": "出生年",
+      "birthMonthLabel": "月",
+      "birthDayLabel": "日",
+      "passphrase": "口令",
+      "passphrasePlaceholder": "可选：输入口令以增强隐私保护",
+      "passphraseHelp": {
+        "title": "口令作用说明",
+        "privacy": "🔒 隐私保护",
+        "privacyDesc": "为您的身份哈希添加额外保护层，防止他人通过姓名和生日推测您的身份。",
+        "optional": "✅ 完全可选",
+        "optionalDesc": "可以留空，但建议使用强口令提升安全性。",
+        "remember": "⚠️ 请牢记",
+        "rememberDesc": "口令无法找回，忘记后将生成不同的身份哈希。"
+      },
+      "passwordStrength": {
+        "weak": "弱",
+        "medium": "中",
+        "strong": "强"
+      },
+      "passwordTips": {
+        "weak": "💡 建议：使用8位以上密码，包含大小写字母、数字或特殊字符"
+      },
+      "nameInputPlaceholder": "例如：张三",
+      "toggleNo": "否",
+      "toggleYes": "是",
+      "birthPlace": "出生地(可选)",
+      "birthPlacePlaceholder": "如 US-CA-Los Angeles",
+      "compute": "计算",
+      "result": "结果",
+      "hashLabel": "哈希:",
+      "description": "说明：计算逻辑与合约getPersonHash完全一致。",
+      "bcOptions": {
+        "ad": "公元",
+        "bc": "公元前"
+      },
+      "calculatedHash": "计算的哈希",
+      "contractHash": "合约哈希",
+      "hashesMatch": "哈希匹配",
+      "hashesNoMatch": "哈希不匹配"
+    },
+    "validation": {
+      "nameRequired": "请输入姓名",
+      "nameTooLong": "姓名不能超过256字节（约256个英文字符）",
+      "hashRequired": "请输入人物哈希",
+      "hashInvalid": "请输入有效的64位十六进制哈希值",
+      "tokenIdRequired": "请输入有效的Token ID",
+      "required": "必填",
+      "monthRange": "月份必须在0-12之间",
+      "dayRange": "日期必须在0-31之间",
+      "yearRange": "年份必须在0-10000之间",
+      "yearExceedsCurrent": "公元年份不能超过当前年份"
+    },
+    "offset": "offset"
+  },
+  "familyTree": {
+    "title": "可视化",
+    "viewModes": {
+      "tree": "树图",
+      "dag": "有向无环图",
+      "force": "力导向",
+      "virtual": "虚拟化"
+    },
+    "versionSelector": {
+      "label": "版本选择",
+      "apply": "应用"
+    },
+    "config": {
+      "rpc": "RPC",
+      "contract": "合约",
+      "root": "根节点哈希",
+      "clearAndRefresh": "清空",
+      "strictCacheOnly": "严格只读缓存",
+      "strictCacheOn": "离线模式",
+      "strictCacheOff": "在线模式",
+      "rootHistory": "根哈希历史",
+      "reset": "重置",
+      "resetToDefaults": "重置为环境变量默认值"
+    },
+    "ui": {
+      "displaySettings": "数据选项",
+      "versionNumber": "版本序号",
+      "contractModeConfig": "配置",
+      "traversalDFS": "DFS 深度优先：快速深入，按路径向下后回溯",
+      "traversalBFS": "BFS 广度优先：按层级展开，层结构更直观",
+      "traversal": "遍历方式",
+      "traversalDesc": "DFS 深度优先(快看到深层) / BFS 广度优先(按层展开)",
+      "includeVersionDetails": "加载详情",
+      "includeVersionDetailsDesc": "仅影响下一次刷新时是否批量加载版本详情（刷新时锁定快照）。",
+      "progressSummary": "节点 {{created}} / 深度 {{depth}}",
+      "nodesLabelFull": "节点",
+      "depthLabelFull": "深度",
+      "edit": "编辑",
+      "save": "保存",
+      "cancel": "取消"
+    },
+    "status": {
+      "loading": "加载中...",
+      "contractModeRootNotFound": "未找到该根节点版本，请检查哈希与版本序号",
+      "rootNotFound": "未找到根节点，请检查哈希与版本序号或等待索引",
+      "contractOk": "合约数据加载完成",
+      "badge": {
+        "checking": "检查中",
+        "ok": "正常",
+        "root_missing": "缺少根节点哈希",
+        "error": "错误"
+      },
+      "networkError": "网络请求失败",
+      "rateLimited": "已达到每日请求上限，请稍后再试"
+    },
+    "actions": {
+      "refresh": "刷新",
+      "remove": "移除",
+      "clearAll": "清空历史"
+    },
+    "nodeDetail": {
+      "title": "节点详情",
+      "hash": "哈希",
+      "version": "版本序号",
+      "endorsementCount": "背书数",
+      "father": "父亲哈希",
+      "fatherVersion": "父亲版本序号",
+      "mother": "母亲哈希",
+      "motherVersion": "母亲版本序号",
+      "addedBy": "添加者",
+      "timestamp": "时间戳",
+      "tag": "标签",
+      "cid": "CID",
+      "nft": "NFT",
+      "tokenId": "Token ID",
+      "fullName": "全名",
+      "gender": "性别",
+      "birth": "出生",
+      "death": "逝世",
+      "story": "事迹",
+      "profile": "档案",
+      "storyChunks": "分片数量",
+      "storyLength": "总长度",
+      "sealed": "已封存",
+      "lastUpdate": "最后更新",
+      "showFullStory": "显示完整档案",
+      "hideFullStory": "隐藏完整档案",
+      "showChunks": "显示分片",
+      "hideChunks": "隐藏分片",
+      "editStory": "编辑档案",
+      "viewFullStory": "查看完整档案",
+      "uri": "URI",
+      "loading": "NFT 信息加载中…",
+      "loadErrorPrefix": "NFT 加载失败",
+      "bcPrefix": "公元前",
+      "genders": {
+        "male": "男",
+        "female": "女",
+        "other": "其他"
+      },
+      "errors": {
+        "nftLoadFailed": "NFT 加载失败",
+        "loadFailed": "加载失败"
+      }
+    },
+    "personVersionDetail": {
+      "title": "人物版本详情"
+    },
+    "validation": {
+      "rpc": "请输入有效的 RPC 地址",
+      "contract": "请输入有效的合约地址 (0x + 40位16进制)",
+      "root": "请输入有效的根哈希 (0x + 64位16进制)",
+      "version": "请输入有效的版本序号"
+    }
+  },
+  "common": {
+    "confirm": "前往可视化",
+    "cancel": "取消",
+    "goBack": "返回",
+    "close": "关闭",
+    "hashCopied": "已复制哈希",
+    "copy": "复制",
+    "copied": "已复制"
+  },
+  "wallet": {
+    "connect": "连接钱包",
+    "connecting": "连接中...",
+    "disconnect": "断开连接",
+    "wrongNetwork": "网络错误",
+    "noMetaMask": "请安装 MetaMask",
+    "noWallet": "请安装钱包扩展",
+    "selectWallet": "选择钱包",
+    "noWalletsFound": "未找到钱包",
+    "installWallet": "请安装钱包扩展",
+    "connected": "钱包连接成功",
+    "rejected": "用户拒绝连接",
+    "pending": "连接请求待处理",
+    "connectionFailed": "钱包连接失败",
+    "disconnected": "钱包已断开",
+    "chainSwitched": "网络切换成功",
+    "chainNotAdded": "网络未添加到钱包",
+    "chainSwitchFailed": "网络切换失败",
+    "notConnected": "请连接钱包",
+    "keepVisible": "保持钱包弹窗可见:",
+    "dontClickOutside": "不要点击钱包弹窗外部",
+    "checkTaskbar": "如果弹窗消失请检查任务栏",
+    "useAltTab": "使用 Alt+Tab 查找隐藏的钱包窗口",
+    "waitForConfirm": "等待交易确认后再关闭"
+  },
+  "theme": {
+    "switchToLight": "切换到浅色模式",
+    "switchToDark": "切换到深色模式", 
+    "light": "浅色",
+    "dark": "深色"
+  },
+  "settings": {
+    "theme": "主题",
+    "language": "语言"
+  },
+  "storyChunkEditor": {
+    "title": "传记内容编辑器",
+    "stats": "分片数量: {{count}}, 总长度: {{length}}",
+    "sealed": "已封存",
+    "seal": "封存",
+    "hashLabel": "哈希",
+    "editChunk": "编辑分片 #{{index}}",
+    "addChunk": "添加新分片",
+    "contentPlaceholder": "请输入分片内容（最多1000字符）",
+    "saving": "保存中...",
+    "save": "保存",
+    "cancel": "取消",
+    "addNewChunk": "添加新分片",
+    "chunks": "现有分片",
+    "loading": "加载中...",
+    "contentRequired": "内容不能为空",
+    "contentTooLong": "内容不能超过1000字符",
+    "operationFailed": "操作失败",
+    "sealConfirm": "确定要封存传记吗？封存后将无法再修改。",
+    "sealFailed": "封存失败",
+    "sealDialog": {
+      "title": "封存传记",
+      "description": "确定要封存传记吗？封存后将无法再修改。",
+      "dontAskAgain": "不再询问",
+      "cancel": "取消",
+      "confirm": "确认封存"
+    },
+    "contentTooLongBytes": "内容不能超过1000字节",
+    "contentPlaceholderBytes": "请输入分片内容（最多1000字节，约=1000英文或≈333汉字）",
+    "offlineNoData": "离线模式：本地没有缓存该传记",
+    "errors": {
+      "mustBeNFTHolder": "您必须拥有此NFT才能编辑其传记",
+      "unauthorized": "无权限执行此操作",
+      "onlyOwner": "仅所有者可以执行此操作",
+      "storySealed": "传记已封存，无法修改",
+      "chunkIndexExists": "此索引位置的分片已存在",
+      "invalidChunkIndex": "无效的分片索引",
+      "contentTooLong": "内容超过最大长度限制",
+      "expectedHashMismatch": "预期哈希值不匹配",
+      "chunkHashMismatch": "分片内容与预期哈希值不匹配",
+      "chunkIndexOutOfRange": "分片索引超出有效范围",
+      "customError": "合约错误：{{error}}",
+      "transactionReverted": "交易失败：执行被回退",
+      "userRejected": "用户拒绝了交易",
+      "insufficientFunds": "Gas费不足",
+      "unknown": "发生未知错误"
+    }
+  },
+  "person": {
+    "encyclopedia": "人物百科",
+    "pageTitle": "{{name}}的档案",
+    "title": "的档案",
+    "loading": "加载传记中...",
+    "notFound": "传记未找到",
+    "chunks": "分片",
+    "length": "长度",
+    "sealed": "已封存",
+    "edit": "编辑传记",
+    "fullStory": "人物传记",
+    "noStory": "暂无传记内容",
+    "chunkList": "分片列表",
+    "characters": "字符",
+    "noChunks": "暂无分片",
+    "metadata": "元数据",
+    "totalChunks": "总分片数",
+    "totalLength": "总长度",
+    "lastUpdate": "最后更新",
+    "status": "状态",
+    "editable": "可编辑",
+    "storyHash": "传记哈希",
+    "owner": "所有者地址",
+    "basicInfo": "基础信息",
+    "paragraph": "段落",
+    "raw": "原文",
+    "viewParagraph": "段落模式",
+    "viewRaw": "原文模式",
+    "integrityOk": "已校验",
+    "integrityWarn": "完整性可能不一致",
+    "integrityLenDiff": "长度不匹配 本地={{local}}字节",
+    "integrityLocalHashMismatch": "本地哈希不匹配",
+    "integrityChainHashMismatch": "链上哈希不匹配",
+    "integrityMissing": "缺失索引: {{indices}}",
+    "integrityFrontendOk": "完整性已校验",
+    "integrityChainFail": "链上校验失败",
+    "verify": "合约校验",
+    "verified": "已校验",
+    "personHashLabel": "人物哈希:",
+    "versionLabel": "版本：",
+    "viewFamilyTree": "族谱视图",
+    "invalidTokenId": "无效的 Token ID",
+    "nonexistentToken": "该 Token 不存在",
+    "fetchFailed": "加载 Token 失败",
+    "tokenId": "Token ID"
+  },
+  "people": {
+    "syncing": "同步中...",
+    "loading": "加载人物中...",
+    "badge": "人物百科",
+    "title": "家族人物百科",
+    "subtitle": "探索保存在区块链上的家族成员档案",
+    "totalPeople": "总人数",
+    "withStories": "有详细传记",
+    "withNFTs": "拥有NFT",
+    "searchPlaceholder": "按姓名、地点或传记内容搜索...",
+    "filterByAddress": "按创建者地址筛选...",
+    "filterByTag": "按标签筛选...",
+    "clearFilters": "清除所有筛选",
+    "filteredResults": "{{count}} 个筛选结果",
+    "allResults": "共 {{count}} 个结果",
+    "sortRules": "排序规则",
+    "filterRules": "过滤规则",
+    "viewMode": "视图模式",
+    "filterAll": "Token ID",
+    "filterByCreateTime": "创建时间",
+    "filterByName": "姓名",
+    "filterByEndorsement": "背书",
+    "filterByBirthYear": "出生年",
+    "gridView": "网格视图",
+    "listView": "列表视图",
+    "resultsCount": "找到 {{count}} 个结果",
+    "noResults": "未找到人物",
+    "noResultsDesc": "请尝试调整您的搜索条件或筛选器",
+    "hasStory": "传记",
+    "hasNFT": "NFT",
+    "born": "出生",
+    "died": "逝世",
+    "chunks": "{{count}} 个分片",
+    "viewDetails": "查看",
+    "clickToEndorse": "点击为此版本背书"
+  },
+  "storyChunksModal": {
+    "fetchError": "加载传记数据失败",
+    "viewDetail": "查看详情",
+    "born": "出生",
+    "died": "逝世",
+    "storyInfo": "传记信息",
+    "chunksCount": "{{count}} 个分片，{{length}} 字节",
+    "addedBy": "添加者",
+    "tag": "标签",
+    "personHash": "人物哈希",
+    "detailedStory": "传记",
+    "chunks": "分片",
+    "fullText": "全文",
+    "integrityChecking": "正在检查完整性...",
+    "integrityVerified": "传记完整性已验证",
+    "integrityWarning": "检测到传记完整性问题",
+    "loading": "加载传记分片中...",
+    "chunkTitle": "分片 #{{index}}",
+    "characters": "个字符",
+    "noStoryData": "暂无传记数据",
+    "basicStory": "事迹",
+    "noStory": "暂无传记内容",
+    "peopleEncyclopedia": "人物百科"
+  },
+  "actions": {
+    "title": "链上操作",
+    "subtitle": "使用已连接的钱包操作 DeepFamily 协议",
+    "walletRequired": "需要连接钱包",
+    "walletRequiredDesc": "连接您的钱包以访问区块链功能，如添加版本、铸造 NFT 和参与背书。",
+    "walletConnected": "钱包已连接",
+    "whatYouCanDo": "连接后您可以：",
+    "feature1": "添加新的人物版本（可获得 DEEP 代币奖励）",
+    "feature2": "将人物版本铸造为 NFT 收藏品",
+    "feature3": "背书优质版本（需要消耗 DEEP 代币）",
+    "addVersion": "添加版本",
+    "add": "添加",
+    "addVersionDesc": "使用零知识证明添加新的人物数据版本",
+    "mintNFT": "铸造 NFT",
+    "mint": "铸造",
+    "mintNFTDesc": "将背书的人物数据转换为有价值的 NFT 收藏品",
+    "endorse": "背书",
+    "endorsement": "参与背书",
+    "endorseDesc": "使用 DEEP 代币支持优质数据版本",
+    "startAddVersion": "开始添加版本",
+    "mintNFTHint": "首先搜索要铸造为 NFT 的人物和版本",
+    "openMintNFT": "打开 NFT 铸造",
+    "endorseHint": "搜索要背书的人物版本",
+    "openEndorse": "打开背书"
+  },
+  "addVersion": {
+    "addNewVersion": "添加新版本",
+    "addPerson": "添加人物",
+    "description": "使用零知识证明添加人物",
+    "versionIndexHint": "0=未知",
+    "fatherInfo": "父亲信息",
+    "motherInfo": "母亲信息",
+    "versionIndex": "版本序号",
+    "metadata": "元数据",
+    "tag": "标签",
+    "tagPlaceholder": "可选标签",
+    "metadataCID": "元数据CID",
+    "processing": "处理中...",
+    "preparingData": "准备数据...",
+    "generatingProof": "生成零知识证明...（可能需要30-60秒）",
+    "verifyingProof": "验证证明...",
+    "submittingToBlockchain": "提交到区块链...",
+    "addedSuccessfully": "人物添加成功！",
+    "personHash": "人物哈希",
+    "transactionHash": "交易哈希",
+    "blockNumber": "区块号",
+    "eventsTriggered": "触发事件",
+    "zkProofVerified": "零知识证明已验证",
+    "zkProofVerifiedDesc": "零知识证明已在链上成功验证",
+    "versionAdded": "人物版本已添加",
+    "versionAddedDesc": "人物版本已成功添加到家谱",
+    "addedBy": "添加者",
+    "timestamp": "时间戳",
+    "fatherHash": "父亲哈希",
+    "fatherVersionIndex": "父亲版本",
+    "motherHash": "母亲哈希",
+    "motherVersionIndex": "母亲版本",
+    "tokenReward": "代币奖励已分发",
+    "familyComplete": "完整家庭数据奖励 - 父母均已存在",
+    "miner": "矿工",
+    "hashPrefix": "哈希",
+    "rewardAmount": "奖励数量",
+    "noTokenReward": "无代币奖励",
+    "tokenRewardCondition": "只有父母均已存在时才分发代币奖励",
+    "tokenRewardTip": "请先添加父母，完成家庭数据可获得DEEP代币奖励",
+    "failed": "交易失败",
+    "errorType": "错误类型",
+    "errorMessage": "错误信息",
+    "errorDetails": "详细信息",
+    "continueAdding": "继续添加",
+    "submit": "添加版本",
+    "cancel": "取消",
+    "close": "关闭",
+    "personInfoRequired": "请填写人物信息",
+    "contractNotConfigured": "合约未配置",
+    "wallet.notConnected": "请连接钱包",
+    "partial": "部分",
+    "complete": "完整",
+    "proofGenerationNote": "ZK证明生成需要复杂的加密计算，请耐心等待..."
+  },
+  "mintNFT": {
+    "title": "铸造 NFT",
+    "description": "为此人物创建独特的 NFT",
+    "personInfo": "人物信息",
+    "personHash": "人物哈希",
+    "versionIndex": "版本序号",
+    "checkingStatus": "正在检查状态...",
+    "endorsed": "已背书",
+    "notEndorsed": "未背书",
+    "alreadyMinted": "已铸造",
+    "canMint": "可铸造",
+    "targetVersion": "目标版本",
+    "specifyVersion": "指定要铸造的版本",
+    "specifyVersionDesc": "请输入要铸造为 NFT 的人物哈希和版本序号。",
+    "basicInfo": "基本信息",
+    "supplementalInfo": "补充信息",
+    "birthPlace": "出生地",
+    "birthPlacePlaceholder": "请输入出生地",
+    "deathPlace": "死亡地",
+    "deathPlacePlaceholder": "如适用请输入死亡地",
+    "deathDate": "死亡日期（如适用）",
+    "deathYear": "死亡年",
+    "story": "生平简介",
+    "storyPlaceholder": "请输入简要生平...",
+    "metadata": "NFT 元数据",
+    "tokenURI": "Token URI",
+    "tokenURIHint": "可选：NFT 元数据的 URL 或 IPFS 哈希",
+    "nftAlreadyMinted": "NFT 已铸造",
+    "nftAlreadyMintedDesc": "该版本已铸造为 NFT。每个版本只能铸造一次。",
+    "mint": "铸造 NFT",
+    "minting": "正在铸造...",
+    "goEndorse": "去背书",
+    "endorsementRequiredTitle": "需要背书",
+    "endorsementRequiredDesc": "您必须先背书此版本才能铸造。是否前往背书？",
+    "personInfoRequired": "请填写人物信息",
+    "personHashRequired": "无法计算人物哈希",
+    "mintFailed": "铸造 NFT 失败",
+    "mintedSuccessfully": "NFT 铸造成功！",
+    "tokenId": "Token ID",
+    "mintingDesc": "正在区块链上创建您的独特 NFT...",
+    "eventDetails": "事件详情",
+    "nftMintedEvent": "PersonNFTMinted 事件",
+    "nftMintedEventDesc": "NFT 已成功铸造并记录在链上",
+    "owner": "所有者",
+    "continueMinting": "继续铸造",
+    "validation": {
+      "birthPlaceTooLong": "出生地过长",
+      "deathPlaceTooLong": "死亡地过长",
+      "storyTooLong": "故事内容过长",
+      "tokenURITooLong": "Token URI 过长",
+      "invalidTokenURI": "无效的 URL 或 IPFS URI",
+      "yearExceedsCurrent": "公元年份不能超过当前年份"
+    },
+    "errors": {
+      "versionAlreadyMinted": "此版本已被铸造为 NFT",
+      "mustEndorseFirst": "您必须先背书此版本才能铸造",
+      "basicInfoMismatch": "人物信息与版本数据不匹配",
+      "invalidTokenURI": "无效的 Token URI 格式",
+      "invalidStory": "故事内容过长",
+      "invalidBirthPlace": "出生地过长",
+      "invalidDeathPlace": "死亡地过长",
+      "insufficientFunds": "交易手续费不足",
+      "userRejected": "用户拒绝交易"
+    }
+  },
+  "endorse": {
+      "title": "背书版本",
+      "description": "通过消耗 DEEP 代币为高质量版本背书",
+      "targetVersion": "目标版本",
+      "specifyVersion": "指定要背书的版本",
+      "specifyVersionDesc": "请输入要背书的 person hash 与版本序号。",
+      "personHash": "人物哈希",
+      "versionIndex": "版本序号",
+      "versionInfo": "版本信息",
+      "fullName": "姓名",
+      "currentEndorsements": "当前背书数",
+      "deepTokenFee": "DEEP 费用",
+      "yourBalance": "我的 DEEP 余额",
+      "feeRecipient": "费用接收方",
+      "feeDistribution": "费用分配说明",
+      "nftMinted": "已铸造 NFT",
+      "feeToNFTHolder": "100% 费用归当前 NFT 持有人",
+      "noNFT": "尚未铸造 NFT",
+      "feeToCreator": "100% 费用归版本创建者",
+      "feeNote": "DEEP 费用随当前挖矿奖励动态变化",
+      "insufficientBalance": "DEEP 余额不足",
+      "needMoreTokens": "余额不足，无法背书该版本",
+      "endorsementComplete": "背书完成",
+      "needMoreForNext": "需要更多 DEEP 代币以进行额外背书",
+      "benefits": "背书的好处",
+      "benefitQuality": "帮助验证与提升数据质量",
+      "benefitPriority": "被背书版本在搜索中优先级更高",
+      "benefitNFT": "铸造 NFT 前的必要步骤",
+      "benefitEconomy": "支持版本创建者与 NFT 持有人",
+      "successMessage": "背书成功！",
+      "approving": "授权中...",
+      "endorsing": "背书中...",
+      "endorsed": "已背书",
+      "endorse": "背书",
+      "invalidTarget": "人物哈希或版本序号无效",
+      "invalidTargetDesc": "请确认哈希与索引对应链上已存在的版本",
+      "needApprove": "授权额度不足，请重新授权 DEEP",
+      "approvingDesc": "请在钱包中确认代币授权",
+      "endorsingDesc": "正在区块链上处理背书...",
+      "endorsedSuccessfully": "版本背书成功！",
+      "feePaid": "已支付费用",
+      "transactionHash": "交易哈希",
+      "blockNumber": "区块号",
+      "eventDetails": "事件详情",
+      "versionEndorsedEvent": "PersonVersionEndorsed 事件",
+      "versionEndorsedEventDesc": "背书已成功记录在链上",
+      "endorser": "背书者",
+      "feeAmount": "费用金额",
+      "timestamp": "时间戳",
+      "endorseFailed": "背书失败",
+      "errorType": "错误类型",
+      "errorMessage": "错误信息",
+      "errorDetails": "详细信息",
+      "continueEndorsing": "继续背书",
+      "canContinueEndorsing": "您现在可以继续背书其他版本或关闭此对话框。",
+      "transactionFailed": "交易失败。请检查错误信息后重试。",
+      "transactionFailedDetails": "交易已提交但未能成功完成。",
+      "errors": {
+        "invalidTarget": "无效的人物哈希或版本序号",
+        "needApprove": "授权额度不足，请重新授权 DEEP 代币",
+        "insufficientDeepTokens": "DEEP 代币余额不足",
+        "feeTransferFailed": "背书费用转账失败",
+        "insufficientFunds": "交易手续费不足",
+        "userRejected": "用户拒绝交易",
+        "walletTimeout": "钱包确认超时。钱包弹窗可能已被关闭或隐藏。",
+        "walletTimeoutDetails": "请重试并确保在钱包弹窗中确认交易。"
+      },
+      "approveUnlimited": "授权无限制 DEEP 额度以避免重复授权",
+      "approveUnlimitedHint": "推荐：每次背书都会消耗授权额度，无限制授权避免重复操作",
+      "retryTransaction": "重试交易"
+    },
+    "transaction": {
+      "pending": "交易等待确认中...",
+      "pendingDetails": "交易已提交或等待钱包确认。您可以继续使用应用，我们会在确认后更新。"
+    },
+  "contract": {
+    "endorseSuccess": "背书提交成功",
+    "endorseFailed": "背书版本失败"
+  }
+}
