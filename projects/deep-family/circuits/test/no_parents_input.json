@@ -1,0 +1,32 @@
+{
+  "fullNameHash": [
+    27, 77, 65, 183, 140, 87, 191, 241, 252, 146, 63, 223, 38, 102, 117, 91,
+    194, 250, 225, 142, 187, 73, 222, 222, 173, 64, 222, 91, 131, 137, 29, 123
+  ],
+  "isBirthBC": 0,
+  "birthYear": 1990,
+  "birthMonth": 12,
+  "birthDay": 25,
+  "gender": 2,
+  "father_fullNameHash": [
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+  ],
+  "father_isBirthBC": 0,
+  "father_birthYear": 0,
+  "father_birthMonth": 1,
+  "father_birthDay": 1,
+  "father_gender": 1,
+  "mother_fullNameHash": [
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+  ],
+  "mother_isBirthBC": 0,
+  "mother_birthYear": 0,
+  "mother_birthMonth": 1,
+  "mother_birthDay": 1,
+  "mother_gender": 2,
+  "hasFather": 0,
+  "hasMother": 0,
+  "submitter": "1234567890123456789012345678901234567890"
+}
